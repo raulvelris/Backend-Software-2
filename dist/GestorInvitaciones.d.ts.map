@@ -1,0 +1,1 @@
+{"version":3,"file":"GestorInvitaciones.d.ts","sourceRoot":"","sources":["../src/Classes/GestorInvitaciones.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,MAAM,WAAW,CAAC;AACpC,OAAO,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAExD,qBAAa,kBAAkB;IAEpB,eAAe,CAAC,OAAO,EAAE,OAAO,GAAG,iBAAiB,EAAE;CAGhE"}

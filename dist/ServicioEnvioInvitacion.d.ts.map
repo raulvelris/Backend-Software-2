@@ -1,0 +1,1 @@
+{"version":3,"file":"ServicioEnvioInvitacion.d.ts","sourceRoot":"","sources":["../src/Classes/ServicioEnvioInvitacion.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,UAAU,CAAC;AAClC,OAAO,EAAE,OAAO,EAAE,MAAM,WAAW,CAAC;AAMpC,qBAAa,uBAAuB;IACnB,mBAAmB,CAAC,YAAY,EAAE,MAAM,EAAE,YAAY,EAAE,OAAO,GAAG,OAAO,CAAC,IAAI,CAAC;CAoB/F"}

@@ -11,20 +11,17 @@ export abstract class NotificacionFabrica {
         emisor: Participante
     ): Notificacion;
 
-    public static crearNotificacion(
+    public static async crearNotificacion(  // ciclico
         fechaHora: Date,
         eventoOrigen: Evento,
         emisor: Participante,
         tipo: string
-    ): Notificacion | null {
+    ): Promise<Notificacion | null> {
         let notificacion: Notificacion | null = null;
 
         if (tipo === "INVITACION") {
-
-        // Lazy import para romper la dependencia circular
-        const { InvitacionFabrica } = require('./InvitacionFabrica');
-        
-        notificacion = new InvitacionFabrica().MetodoFabrica(fechaHora, eventoOrigen, emisor);
+            const { InvitacionFabrica } = await import('./InvitacionFabrica');
+            notificacion = new InvitacionFabrica().MetodoFabrica(fechaHora, eventoOrigen, emisor);
         }
 
         return notificacion;
