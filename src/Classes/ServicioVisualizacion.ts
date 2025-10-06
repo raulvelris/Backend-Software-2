@@ -5,9 +5,9 @@ import { RolUsuario } from './RolUsuario';
 export class ServicioVisualizacion {
 
     private filtrarEventosPorRol(usuario: Usuario, rol: RolUsuario): Evento[] {
-    return usuario.getParticipaciones()
-        .filter(p => p.getRol() === rol)
-        .map(p => p.getEvento());
+        return usuario.getParticipaciones()
+            .filter(p => p.getRol() === rol)
+            .map(p => p.getEvento());
     }
 
     public verEventosAsistidos(usuario: Usuario): Evento[] {
