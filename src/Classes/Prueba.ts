@@ -7,7 +7,7 @@ import { TipoEvento } from './TipoEvento';
 import { Usuario } from './Usuario';
 
 class Prueba {
-  public static main(): void {
+  public static async main(): Promise<void> {  // por lo de invitacion q es ciclico
     // usuario
     const usuario1 = new Usuario('abc@ejemplo.com', 'miClave123');
     const usuario2 = new Usuario('def@ejemplo.com', 'miClave456');
@@ -54,22 +54,10 @@ class Prueba {
     const servicioPri = new ServicioEnvioInvitacion();
 
     // invitar participantes a eventos privados
-    servicioPri.invitarParticipante(evento2, raul); // cesar organiza
-    servicioPri.invitarParticipante(evento2, jaren); // cesar organiza
-    servicioPri.invitarParticipante(evento3, cesar); // raul organiza
-    servicioPri.invitarParticipante(evento3, jaren); // raul organiza
-
-    // ver invitaciones de Raúl
-    console.log('\nInvitaciones de Raúl:');
-    for (const inv of gestorInv.verInvitaciones(raul)) {
-      console.log(`- Evento: ${inv.getInvitacion().getEventoOrigen().getTitulo()}, De: ${inv.getInvitacion().getEmisor().getUsuario().getCorreo()}, Estado: ${inv.getEstado()}`);
-    }
-
-    // ver invitaciones de Cesar
-    console.log('\nInvitaciones de Cesar:');
-    for (const inv of gestorInv.verInvitaciones(cesar)) {
-      console.log(`- Evento: ${inv.getInvitacion().getEventoOrigen().getTitulo()}, De: ${inv.getInvitacion().getEmisor().getUsuario().getCorreo()}, Estado: ${inv.getEstado()}`);
-    }
+    await servicioPri.invitarParticipante(evento2, raul); // cesar organiza
+    await servicioPri.invitarParticipante(evento2, jaren); // cesar organiza
+    await servicioPri.invitarParticipante(evento3, cesar); // raul organiza
+    await servicioPri.invitarParticipante(evento3, jaren); // raul organiza
 
     // ver invitaciones de Jaren
     console.log('\nInvitaciones de Jaren:');
