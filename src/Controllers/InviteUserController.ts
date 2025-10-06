@@ -2,7 +2,7 @@
 import express, {Request, Response, Router} from "express"
 const db = require("../DAO/models");
 
-const InviteUsersController = (): [String, Router] => {
+const InviteUserController = (): [String, Router] => {
     const path: string = "/inviteUsers";
     const router = express.Router();
     
@@ -23,3 +23,5 @@ const InviteUsersController = (): [String, Router] => {
 
     return [path, router];
 }; 
+
+export default InviteUserController;
