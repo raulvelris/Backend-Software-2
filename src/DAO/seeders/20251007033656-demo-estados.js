@@ -15,6 +15,10 @@ module.exports = {
       {
         estado_id: 3,
         nombre: 'Finalizado'
+      },
+      {
+        estado_id: 4,
+        nombre: 'Cancelado'
       }
     ], {});
   },
