@@ -1,15 +1,12 @@
 import { Evento } from './Evento';
-import { Participante } from './Participante';
 
 export abstract class Notificacion {
     protected fechaHora: Date;
     protected eventoOrigen: Evento;
-    protected emisor: Participante;
 
-    constructor(fechaHora: Date, eventoOrigen: Evento, emisor: Participante) {
+    constructor(fechaHora: Date, eventoOrigen: Evento) {
         this.fechaHora = fechaHora;
         this.eventoOrigen = eventoOrigen;
-        this.emisor = emisor;
     }
 
     public getFechaHora(): Date {
@@ -18,10 +15,6 @@ export abstract class Notificacion {
 
     public getEventoOrigen(): Evento {
         return this.eventoOrigen;
-    }
-
-    public getEmisor(): Participante {
-        return this.emisor;
     }
 
     public abstract verDetalle(): void;

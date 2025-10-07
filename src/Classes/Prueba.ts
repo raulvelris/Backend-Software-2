@@ -62,7 +62,7 @@ class Prueba {
     // ver invitaciones de Jaren
     console.log('\nInvitaciones de Jaren:');
     for (const inv of gestorInv.verInvitaciones(jaren)) {
-      console.log(`- Evento: ${inv.getInvitacion().getEventoOrigen().getTitulo()}, De: ${inv.getInvitacion().getEmisor().getUsuario().getCorreo()}, Estado: ${inv.getEstado()}`);
+      console.log(`- Evento: ${inv.getInvitacion().getEventoOrigen().getTitulo()}, Estado: ${inv.getEstado()}`);
     }
 
     // mostrar eventos organizados por Raúl

@@ -7,6 +7,6 @@ import { Participante } from './Participante';
 export class InvitacionFabrica extends NotificacionFabrica {
     // Metodo sobreescrito
     public MetodoFabrica(fechaHora: Date, eventoOrigen: Evento, emisor: Participante): Notificacion {
-        return new Invitacion(fechaHora, eventoOrigen, emisor);
+        return new Invitacion(fechaHora, eventoOrigen);
     }
 }
