@@ -50,6 +50,46 @@ export default function AuthController(): [string, Router] {
     }
   });
 
+  router.post("/login", async (req: Request, res: Response) => {
+    try {
+      const { correo, clave } = req.body || {};
+      if (!correo || !clave) {
+        return res.status(400).json({ message: "correo y clave son requeridos" });
+      }
+
+      const user = await db.Usuario.findOne({ where: { correo } });
+      if (!user) {
+        return res.status(401).json({ message: "Credenciales inválidas" });
+      }
+
+      if (!user.isActive) {
+        return res.status(401).json({ message: "Cuenta no activada. Revisa tu correo." });
+      }
+
+      // En una implementación real, aquí verificarías la contraseña hasheada
+      // Por ahora asumimos que la clave coincide directamente
+      if (user.clave !== clave) {
+        return res.status(401).json({ message: "Credenciales inválidas" });
+      }
+
+      // Generar token JWT (simplificado)
+      const token = generateToken(32);
+
+      return res.json({
+        message: "Login exitoso",
+        token,
+        usuario: {
+          usuario_id: user.usuario_id,
+          correo: user.correo,
+          isActive: user.isActive
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error al hacer login" });
+    }
+  });
+
   router.get("/activate", async (req: Request, res: Response) => {
     try {
       const token = (req.query.token as string) || "";
