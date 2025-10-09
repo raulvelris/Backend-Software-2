@@ -44,7 +44,7 @@ const InviteUserController = (): [String, Router] => {
                     model: db.Cliente,
                     as: 'cliente',
                     attributes: ['nombre', 'apellido'],
-                    required: false
+                    required: true
                 }],
                 where: {
                     [db.Sequelize.Op.or]: [
@@ -109,9 +109,11 @@ const InviteUserController = (): [String, Router] => {
                 include: [{
                     model: db.Invitacion,
                     as: "invitacion",
+                    required: true,
                     include: [{
                         model: db.Notificacion,
                         as: "notificacion",
+                        required: true,
                         where: { evento_id }
                     }]
                 }],
@@ -145,9 +147,11 @@ const InviteUserController = (): [String, Router] => {
                     include: [{
                         model: db.Invitacion,
                         as: 'invitacion',
+                        required: true,
                         include: [{
                             model: db.Notificacion,
                             as: 'notificacion',
+                            required: true,
                             where: { evento_id }
                         }]
                     }]
@@ -222,10 +226,12 @@ const InviteUserController = (): [String, Router] => {
             {
                 model: db.Invitacion,
                 as: "invitacion",
+                required: true,
                 include: [
                 {
                     model: db.Notificacion,
                     as: "notificacion",
+                    required: true,
                     where: { evento_id },
                     attributes: [],
                 },
@@ -236,11 +242,13 @@ const InviteUserController = (): [String, Router] => {
                 model: db.Usuario,
                 as: "usuario",
                 attributes: ["usuario_id", "correo"],
+                required: true,
                 include: [
                 {
                     model: db.Cliente,
                     as: "cliente",
                     attributes: ["nombre", "apellido"],
+                    required: true
                 },
                 ],
             },
@@ -268,6 +276,7 @@ const InviteUserController = (): [String, Router] => {
     router.get("/invitaciones/count/:evento_id", async (req: Request, res: Response) => {
         try {
             const { evento_id } = req.params;
+            console.log("📢 Evento actual:", evento_id);
 
             // Obtener estado "Pendiente"
             const estadoPendiente = await db.EstadoInvitacion.findOne({
@@ -285,9 +294,11 @@ const InviteUserController = (): [String, Router] => {
                 include: [{
                     model: db.Invitacion,
                     as: "invitacion",
+                    required: true,
                     include: [{
                         model: db.Notificacion,
                         as: "notificacion",
+                        required: true,
                         where: { evento_id }
                     }]
                 }],
