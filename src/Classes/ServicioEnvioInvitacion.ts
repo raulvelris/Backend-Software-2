@@ -6,6 +6,8 @@ import { Invitacion } from './Invitacion';
 import { InvitacionUsuario } from './InvitacionUsuario';
 
 export class ServicioEnvioInvitacion {
+    constructor(){}
+    
     public async invitarParticipante(eventoOrigen: Evento, destinatario: Usuario): Promise<void> {
         // Validar que el evento sea privado
         if (eventoOrigen.getTipo() !== TipoEvento.PRIVADO) {
