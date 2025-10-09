@@ -6,6 +6,9 @@ import { ServicioVisualizacion } from './ServicioVisualizacion';
 import { TipoEvento } from './TipoEvento';
 import { Usuario } from './Usuario';
 
+// ¿como ejecutar este main? pues en terminal: cd src/Classes , luego tsc Prueba.ts , luego node Prueba.js
+// no olvidar borrar los .js en cd src/Classes con rm *.js
+
 class Prueba {
   public static async main(): Promise<void> {  // por lo de invitacion q es ciclico
     // usuario
@@ -62,7 +65,7 @@ class Prueba {
     // ver invitaciones de Jaren
     console.log('\nInvitaciones de Jaren:');
     for (const inv of gestorInv.verInvitaciones(jaren)) {
-      console.log(`- Evento: ${inv.getInvitacion().getEventoOrigen().getTitulo()}, Estado: ${inv.getEstado()}`);
+      console.log(`- Evento: ${inv.getInvitacion().getEventoOrigen().getTitulo()}, Estado: ${inv.getEstado()}, FechaLimite: ${inv.getInvitacion().getFechaLimite()}`);
     }
 
     // mostrar eventos organizados por Raúl
