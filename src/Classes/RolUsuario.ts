@@ -1,0 +1,4 @@
+export enum RolUsuario {
+  ASISTENTE = "ASISTENTE",
+  ORGANIZADOR = "ORGANIZADOR"
+}

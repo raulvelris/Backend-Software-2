@@ -1,0 +1,8 @@
+const path = require('path');
+
+module.exports = {
+  'config': path.resolve('src/DAO/config', 'config.js'),
+  'models-path': path.resolve('src/DAO/models'),
+  'seeders-path': path.resolve('src/DAO/seeders'),
+  'migrations-path': path.resolve('src/DAO/migrations')
+};
