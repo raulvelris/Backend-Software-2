@@ -219,28 +219,24 @@ Cada fábrica tiene una sola responsabilidad: crear un tipo específico de notif
 
 ## 🔄 Flujo de Ejecución
 
-```
-1. SendInvitacionUseCase
+1. **SendInvitacionUseCase** inicia el proceso  
    ↓
-2. NotificacionFabrica.crearNotificacion(
-     fechaHora, eventoId, "INVITACION", fechaLimite
-   )
+2. **NotificacionFabrica.crearNotificacion(fechaHora, eventoId, "INVITACION", fechaLimite)**  
    ↓
-3. Método estático selecciona la fábrica según tipo
+3. **Método estático** selecciona la fábrica según el tipo  
    ↓
-4. if (tipo === "INVITACION") → import InvitacionFabrica
+4. `if (tipo === "INVITACION")` → importa **InvitacionFabrica**  
    ↓
-5. new InvitacionFabrica().MetodoFabrica(...)
+5. Ejecuta: `new InvitacionFabrica().MetodoFabrica(...)`  
    ↓
-6. db.Notificacion.create(...)  ← Crea Notificacion
+6. **db.Notificacion.create(...)** ← Crea la notificación  
    ↓
-7. Calcular fechaLimite (si no se proporciona)
+7. Calcula **fechaLimite** si no se proporcionó  
    ↓
-8. db.Invitacion.create(...)  ← Crea Invitacion
+8. **db.Invitacion.create(...)** ← Crea la invitación  
    ↓
-9. return invitacion
+9. Retorna la **invitación** creada  
    ↓
-10. SendInvitacionUseCase usa la invitación creada
-```
+10. **SendInvitacionUseCase** continúa usando la invitación creada
 
 
