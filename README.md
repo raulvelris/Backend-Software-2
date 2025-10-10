@@ -337,12 +337,64 @@ npm run db:reset
 
 ## 👥 Contribuir
 
-1. Crear una rama feature: `git checkout -b feature/nueva-funcionalidad`
-2. Seguir la arquitectura en capas
+### Agregar Nueva Funcionalidad (Historia de Usuario)
+
+Para agregar una nueva funcionalidad siguiendo la arquitectura modular:
+
+#### 1. Crear el módulo
+```bash
+# Crear estructura del módulo en src/modules/
+src/modules/
+└── nombre-modulo/           # Ejemplo: "gestion-eventos", "reportes"
+    ├── dtos/                # DTOs específicos del módulo
+    ├── use-cases/           # Casos de uso del módulo
+    └── controllers/         # Controladores HTTP del módulo
+```
+
+#### 2. Implementar las capas
+
+**Domain** (si es necesario):
+- Agregar interfaces en `src/domain/interfaces/` (ej: `IReporteRepository.ts`)
+- Agregar value objects en `src/domain/value-objects/` (ej: `TipoReporte.ts`)
+
+**Infrastructure** (si es necesario):
+- Agregar modelos de Sequelize en `src/infrastructure/database/models/`
+- Agregar repositorios en `src/infrastructure/repositories/`
+- Agregar factories en `src/infrastructure/factories/` (si aplica patrón Factory)
+- Crear migraciones: `npx sequelize-cli migration:generate --name create-tabla`
+
+**Application** (dentro del módulo):
+- Crear DTOs en `src/modules/nombre-modulo/dtos/`
+- Crear casos de uso en `src/modules/nombre-modulo/use-cases/`
+
+**Presentation** (dentro del módulo):
+- Crear controladores en `src/modules/nombre-modulo/controllers/`
+- Registrar rutas en `src/index.ts`
+
+#### 3. Workflow de desarrollo
+
+1. Crear una rama feature: `git checkout -b feature/nombre-funcionalidad`
+2. Seguir la arquitectura en capas y modular
 3. Escribir tests para nuevos casos de uso
 4. Hacer commit: `git commit -m "feat: agregar nueva funcionalidad"`
-5. Push: `git push origin feature/nueva-funcionalidad`
+5. Push: `git push origin feature/nombre-funcionalidad`
 6. Crear Pull Request
+
+### Ejemplo: Módulo de Invitaciones
+
+```
+src/modules/invitaciones/
+├── dtos/
+│   ├── SearchUsuariosDto.ts
+│   └── SendInvitacionDto.ts
+├── use-cases/
+│   ├── SearchUsuariosUseCase.ts
+│   ├── SendInvitacionUseCase.ts
+│   ├── GetNoElegiblesUseCase.ts
+│   └── CountInvitacionesPendientesUseCase.ts
+└── controllers/
+    └── InvitacionController.ts
+```
 
 ## 📄 Licencia
 
