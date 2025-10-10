@@ -12,15 +12,15 @@
               ▲
               │ extends
               │
-    ┌─────────┴─────────┬──────────────────┐
-    │                   │                  │
-┌───────────────┐  ┌────────────────┐  ┌──────────────┐
-│ Invitacion    │  │ Recordatorio   │  │ Alerta       │
-│ Fabrica       │  │ Fabrica        │  │ Fabrica      │
-├───────────────┤  ├────────────────┤  ├──────────────┤
-│ MetodoFabrica │  │ MetodoFabrica  │  │ MetodoFabrica│
-└───────────────┘  └────────────────┘  └──────────────┘
-   (Implementa)       (Futuro)           (Futuro)
+    ┌─────────┴─────────┐
+    │                   │                  
+┌───────────────┐  ┌────────────────┐  
+│ Invitacion    │  │ General        │  
+│ Fabrica       │  │ Fabrica        │  
+├───────────────┤  ├────────────────┤  
+│ MetodoFabrica │  │ MetodoFabrica  │  
+└───────────────┘  └────────────────┘  
+   (Implementa)       (Futuro)           
 ```
 
 ## 🎯 Propósito
@@ -38,8 +38,7 @@ src/
     ├── NotificacionFabrica.ts    # Fábrica Abstracta + Método Estático
     └── InvitacionFabrica.ts      # Fábrica Concreta (Invitaciones)
     # Futuro:
-    # ├── RecordatorioFabrica.ts  # Fábrica Concreta (Recordatorios)
-    # └── AlertaFabrica.ts        # Fábrica Concreta (Alertas)
+    # └── GeneralFabrica.ts  # Fábrica Concreta (Notificaciones Generales)
 ```
 
 ## 🔧 Implementación
@@ -87,7 +86,7 @@ export abstract class NotificacionFabrica {
       );
     }
     // Futuro: agregar más tipos aquí
-    // else if (tipo === "RECORDATORIO") { ... }
+    // else if (tipo === "GENERAL") { ... }
     
     return notificacion;
   }
@@ -211,13 +210,6 @@ export class RecordatorioFabrica extends NotificacionFabrica {
     return recordatorio;
   }
 }
-
-// Agregar en NotificacionFabrica.crearNotificacion():
-// else if (tipo === "RECORDATORIO") {
-//   const { RecordatorioFabrica } = await import('./RecordatorioFabrica');
-//   notificacion = await new RecordatorioFabrica().MetodoFabrica(fechaHora, eventoId);
-// }
-```
 
 ### ✅ Principio Open/Closed
 Abierto para extensión (nuevas fábricas), cerrado para modificación.
