@@ -243,45 +243,4 @@ Cada fábrica tiene una sola responsabilidad: crear un tipo específico de notif
 10. SendInvitacionUseCase usa la invitación creada
 ```
 
-## 📊 Comparación: Antes vs Ahora
 
-| Aspecto | Sin Factory Method | Con Factory Method |
-|---------|-------------------|-------------------|
-| **Creación** | Dispersa en use cases | Encapsulada en fábrica |
-| **Extensibilidad** | Modificar código existente | Agregar nueva fábrica |
-| **Testabilidad** | Difícil mockear creación | Fácil mockear fábrica |
-| **Mantenibilidad** | Lógica duplicada | Lógica centralizada |
-| **Responsabilidad** | Use case hace todo | Fábrica crea, use case orquesta |
-
-## 🧪 Testing
-
-```typescript
-// Ejemplo de test con Factory Method
-describe('InvitacionFabrica', () => {
-  it('debe crear invitación con fecha límite por defecto', async () => {
-    const fabrica = new InvitacionFabrica();
-    const invitacion = await fabrica.crearNotificacion(1);
-    
-    expect(invitacion.notificacion_id).toBeDefined();
-    expect(invitacion.fechaLimite).toBeDefined();
-  });
-  
-  it('debe crear invitación con fecha límite personalizada', async () => {
-    const fabrica = new InvitacionFabrica();
-    const fechaCustom = new Date('2025-12-31');
-    const invitacion = await fabrica.crearNotificacion(1, fechaCustom);
-    
-    expect(invitacion.fechaLimite).toEqual(fechaCustom);
-  });
-});
-```
-
-## 🎯 Resumen
-
-- ✅ **Patrón implementado**: Factory Method
-- ✅ **Fábrica abstracta**: `NotificacionFabrica`
-- ✅ **Fábrica concreta**: `InvitacionFabrica`
-- ✅ **Usado en**: `SendInvitacionUseCase`
-- ✅ **Beneficios**: Encapsulación, extensibilidad, mantenibilidad
-
-El patrón Factory Method está correctamente integrado en la arquitectura simplificada, trabajando con modelos de Sequelize directamente.
