@@ -2,7 +2,7 @@ import express, {Express, Request, Response, Router} from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
-import InviteUserController from "./Controllers/InviteUserController";
+import { InvitacionController } from "./modules/invitaciones/controllers/InvitacionController";
 
 dotenv.config();
 
@@ -13,13 +13,12 @@ app.use(bodyParser.urlencoded({
     extended : true
 }))
 app.use(express.static("assets")) // Carpeta archivos estaticos
-app.use(cors()) // Habilitar CORS para todas las rutas
 
 const port = process.env.PORT || 5000;
 
-const [inviteUserPath, inviteUserRouter] = InviteUserController();
-
-app.use(inviteUserPath as string, inviteUserRouter as Router)
+// Instanciar controlador usando POO
+const invitacionController = new InvitacionController();
+app.use(invitacionController.getPath(), invitacionController.getRouter())
 
 
 app.listen(port, () => {
