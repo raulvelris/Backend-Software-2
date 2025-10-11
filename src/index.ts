@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import InviteUserController from "./Controllers/InviteUserController";
+import ConfirmInvitationController from "./Controllers/ConfirmInvitationController";
+import VisualizeAttendeesController from "./Controllers/VisualizeAttendeesController";
 
 dotenv.config();
 
@@ -18,8 +20,12 @@ app.use(cors()) // Habilitar CORS para todas las rutas
 const port = process.env.PORT || 5000;
 
 const [inviteUserPath, inviteUserRouter] = InviteUserController();
+const [confirmPath, confirmRouter] = ConfirmInvitationController();
+const [visualizePath, visualizeRouter] = VisualizeAttendeesController();
 
 app.use(inviteUserPath as string, inviteUserRouter as Router)
+app.use(confirmPath as string, confirmRouter as Router)
+app.use(visualizePath as string, visualizeRouter as Router)
 
 
 app.listen(port, () => {

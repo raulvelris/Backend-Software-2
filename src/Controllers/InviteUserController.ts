@@ -319,6 +319,8 @@ const InviteUserController = (): [String, Router] => {
         }
     });
 
+    // NOTE: moved invitation response handling to ConfirmInvitationController
+
     return [path, router];
 }; 
 
