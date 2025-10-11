@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import InviteUserController from "./Controllers/InviteUserController";
+import EventosController from "./Controllers/EventosController";
 
 dotenv.config();
 
@@ -19,7 +20,15 @@ const port = process.env.PORT || 5000;
 
 const [inviteUserPath, inviteUserRouter] = InviteUserController();
 
+
 app.use(inviteUserPath as string, inviteUserRouter as Router)
+
+const [eventosPath, eventosRouter] = EventosController();
+app.use(eventosPath as string, eventosRouter as Router);
+
+app.get('/api/ping', (_req, res) => {
+  res.json({ ok: true, msg: 'pong' });
+});
 
 
 app.listen(port, () => {
