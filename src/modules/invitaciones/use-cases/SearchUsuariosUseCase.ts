@@ -2,8 +2,6 @@ import { IUsuarioRepository } from '../../../domain/interfaces/IUsuarioRepositor
 import { SearchUsuariosDto, UsuarioSearchResultDto } from '../dtos/SearchUsuariosDto';
 import { LIMITE_RESULTADOS_BUSQUEDA } from '../../../domain/value-objects/Constantes';
 
-const db = require('../../../infrastructure/database/models');
-
 export class SearchUsuariosUseCase {
   constructor(private usuarioRepository: IUsuarioRepository) {}
 
@@ -12,16 +10,7 @@ export class SearchUsuariosUseCase {
       throw new Error('Query parameter is required');
     }
 
-    // Verificar conexión a la base de datos
-    try {
-      await db.sequelize.authenticate();
-      console.log('✅ Conexión a la base de datos establecida correctamente');
-    } catch (error) {
-      console.error('❌ Error al conectar con la base de datos:', error);
-      throw new Error('Database connection error');
-    }
-
-    // ✅ Usar repositorio en lugar de db directo
+    // Usar repositorio en lugar de db directo
     const usuarios = await this.usuarioRepository.searchByQuery(
       dto.query,
       dto.limit || LIMITE_RESULTADOS_BUSQUEDA

@@ -1,19 +1,21 @@
 import { IUsuarioRepository } from '../../../domain/interfaces/IUsuarioRepository';
 import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
-import { IInvitacionRepository } from '../../../domain/interfaces/IInvitacionRepository';
+import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
+import { IInvitacionUsuarioRepository } from '../../../domain/interfaces/IInvitacionUsuarioRepository';
+import { IEstadoInvitacionRepository } from '../../../domain/interfaces/IEstadoInvitacionRepository';
 import { SendInvitacionDto, SendInvitacionResultDto } from '../dtos/SendInvitacionDto';
 import { EstadoInvitacionEnum } from '../../../domain/value-objects/EstadoInvitacion';
 import { LIMITE_INVITACIONES_PENDIENTES } from '../../../domain/value-objects/Constantes';
 import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
 import { NotificacionFabrica } from '../../../infrastructure/factories/NotificacionFabrica';
 
-const db = require('../../../infrastructure/database/models');
-
 export class SendInvitacionUseCase {
   constructor(
     private usuarioRepository: IUsuarioRepository,
     private eventoRepository: IEventoRepository,
-    private invitacionRepository: IInvitacionRepository
+    private eventoParticipanteRepository: IEventoParticipanteRepository,
+    private invitacionUsuarioRepository: IInvitacionUsuarioRepository,
+    private estadoInvitacionRepository: IEstadoInvitacionRepository
   ) {}
 
   async execute(dto: SendInvitacionDto): Promise<SendInvitacionResultDto> {
@@ -23,21 +25,22 @@ export class SendInvitacionUseCase {
     }
 
     // Verificar que el evento existe
-    const evento = await db.Evento.findByPk(dto.evento_id);
+    const evento = await this.eventoRepository.findById(dto.evento_id);
     if (!evento) {
       throw new Error('Event not found');
     }
 
     // Obtener estado "Pendiente"
-    const estadoPendiente = await db.EstadoInvitacion.findOne({
-      where: { nombre: EstadoInvitacionEnum.PENDIENTE }
-    });
+    const estadoPendiente = await this.estadoInvitacionRepository.findByNombre(EstadoInvitacionEnum.PENDIENTE);
     if (!estadoPendiente) {
       throw new Error("Estado 'Pendiente' not found in database");
     }
 
     // CONTAR invitaciones pendientes existentes para este evento
-    const pendientesActuales = await this.invitacionRepository.countPendientesByEvento(dto.evento_id);
+    const pendientesActuales = await this.invitacionUsuarioRepository.countPendientesByEvento(
+      dto.evento_id,
+      estadoPendiente.estado_id
+    );
 
     const cupoDisponible = LIMITE_INVITACIONES_PENDIENTES - pendientesActuales;
 
@@ -51,14 +54,14 @@ export class SendInvitacionUseCase {
     const resultados: any[] = [];
 
     for (const usuario_id of dto.usuario_ids) {
-      const usuario = await db.Usuario.findByPk(usuario_id);
+      const usuario = await this.usuarioRepository.findById(usuario_id);
       if (!usuario) {
         resultados.push({ usuario_id, status: 'User not found' });
         continue;
       }
 
       // Validar si ya está en el evento (por cualquier rol)
-      const yaEnEvento = await this.eventoRepository.isUsuarioInEvento(dto.evento_id, usuario_id);
+      const yaEnEvento = await this.eventoParticipanteRepository.isUsuarioInEvento(dto.evento_id, usuario_id);
 
       if (yaEnEvento) {
         resultados.push({ usuario_id, status: 'Already in event' });
@@ -66,7 +69,7 @@ export class SendInvitacionUseCase {
       }
 
       // Validar si ya tiene invitación para este evento
-      const invitacionExistente = await this.invitacionRepository.findInvitacionUsuarioByEventoAndUsuario(
+      const invitacionExistente = await this.invitacionUsuarioRepository.findByEventoAndUsuario(
         dto.evento_id,
         usuario_id
       );
@@ -87,7 +90,7 @@ export class SendInvitacionUseCase {
       };
     }
 
-    // ✅ Usar Factory Method para crear Notificacion + Invitacion
+    // Usar Factory Method para crear Notificacion + Invitacion
     const nuevaInvitacion = await NotificacionFabrica.crearNotificacion(
       new Date(),
       dto.evento_id,
@@ -97,7 +100,7 @@ export class SendInvitacionUseCase {
 
     // Crear InvitacionUsuario solo para los usuarios no invitados
     for (const usuario_id of usuariosNoInvitados) {
-      const nuevaInvitacionUsuario = await db.InvitacionUsuario.create({
+      const nuevaInvitacionUsuario = await this.invitacionUsuarioRepository.create({
         confirmacion: false,
         estado_invitacion_id: estadoPendiente.estado_id,
         invitacion_id: nuevaInvitacion.notificacion_id,

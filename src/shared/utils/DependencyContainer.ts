@@ -1,7 +1,10 @@
 // Dependency Injection Container
 import { UsuarioRepository } from '../../infrastructure/repositories/UsuarioRepository';
 import { EventoRepository } from '../../infrastructure/repositories/EventoRepository';
+import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
+import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
+import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
 
 import { SearchUsuariosUseCase } from '../../modules/invitaciones/use-cases/SearchUsuariosUseCase';
 import { SendInvitacionUseCase } from '../../modules/invitaciones/use-cases/SendInvitacionUseCase';
@@ -12,7 +15,10 @@ export class DependencyContainer {
   // Repositorios (Singleton)
   private static usuarioRepository: UsuarioRepository;
   private static eventoRepository: EventoRepository;
+  private static eventoParticipanteRepository: EventoParticipanteRepository;
   private static invitacionRepository: InvitacionRepository;
+  private static invitacionUsuarioRepository: InvitacionUsuarioRepository;
+  private static estadoInvitacionRepository: EstadoInvitacionRepository;
 
   // Use Cases
   private static searchUsuariosUseCase: SearchUsuariosUseCase;
@@ -35,11 +41,32 @@ export class DependencyContainer {
     return this.eventoRepository;
   }
 
+  static getEventoParticipanteRepository(): EventoParticipanteRepository {
+    if (!this.eventoParticipanteRepository) {
+      this.eventoParticipanteRepository = new EventoParticipanteRepository();
+    }
+    return this.eventoParticipanteRepository;
+  }
+
   static getInvitacionRepository(): InvitacionRepository {
     if (!this.invitacionRepository) {
       this.invitacionRepository = new InvitacionRepository();
     }
     return this.invitacionRepository;
+  }
+
+  static getInvitacionUsuarioRepository(): InvitacionUsuarioRepository {
+    if (!this.invitacionUsuarioRepository) {
+      this.invitacionUsuarioRepository = new InvitacionUsuarioRepository();
+    }
+    return this.invitacionUsuarioRepository;
+  }
+
+  static getEstadoInvitacionRepository(): EstadoInvitacionRepository {
+    if (!this.estadoInvitacionRepository) {
+      this.estadoInvitacionRepository = new EstadoInvitacionRepository();
+    }
+    return this.estadoInvitacionRepository;
   }
 
   // Getters para Use Cases
@@ -57,7 +84,9 @@ export class DependencyContainer {
       this.sendInvitacionUseCase = new SendInvitacionUseCase(
         this.getUsuarioRepository(),
         this.getEventoRepository(),
-        this.getInvitacionRepository()
+        this.getEventoParticipanteRepository(),
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository()
       );
     }
     return this.sendInvitacionUseCase;
@@ -66,7 +95,8 @@ export class DependencyContainer {
   static getGetNoElegiblesUseCase(): GetNoElegiblesUseCase {
     if (!this.getNoElegiblesUseCase) {
       this.getNoElegiblesUseCase = new GetNoElegiblesUseCase(
-        this.getInvitacionRepository()
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository()
       );
     }
     return this.getNoElegiblesUseCase;
@@ -75,7 +105,8 @@ export class DependencyContainer {
   static getCountInvitacionesPendientesUseCase(): CountInvitacionesPendientesUseCase {
     if (!this.countInvitacionesPendientesUseCase) {
       this.countInvitacionesPendientesUseCase = new CountInvitacionesPendientesUseCase(
-        this.getInvitacionRepository()
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository()
       );
     }
     return this.countInvitacionesPendientesUseCase;

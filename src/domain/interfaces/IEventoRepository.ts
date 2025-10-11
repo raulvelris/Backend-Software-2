@@ -6,5 +6,4 @@ export interface IEventoRepository {
   update(id: number, data: any): Promise<any | null>;
   delete(id: number): Promise<boolean>;
   findAll(): Promise<any[]>;
-  isUsuarioInEvento(eventoId: number, usuarioId: number): Promise<boolean>;
 }
