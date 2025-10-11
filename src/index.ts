@@ -3,10 +3,12 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { InvitacionController } from "./modules/invitaciones/controllers/InvitacionController";
+import { EventosController } from "./modules/eventos/controllers/EventosController";
+
 
 dotenv.config();
 
-const app : Express = express()
+const app = express()
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
@@ -20,6 +22,9 @@ const port = process.env.PORT || 5000;
 const invitacionController = new InvitacionController();
 app.use(invitacionController.getPath(), invitacionController.getRouter())
 
+// Instanciar controlador usando POO
+const eventosController = new EventosController();
+app.use(eventosController.getPath(), eventosController.getRouter());
 
 app.listen(port, () => {
     console.log(`[Server]: Servidor ejecutandose en puerto ${port}`)
