@@ -39,6 +39,24 @@ export class UsuarioRepository implements IUsuarioRepository {
     }
   }
 
+  async findByActivationToken(token: string): Promise<any | null> {
+    try {
+      const usuario = await db.Usuario.findOne({
+        where: { activation_token: token },
+        include: [{
+          model: db.Cliente,
+          as: 'cliente',
+          attributes: ['nombre', 'apellido']
+        }]
+      });
+      
+      return usuario;
+    } catch (error) {
+      console.error('Error en findByActivationToken:', error);
+      throw error;
+    }
+  }
+
   async searchByQuery(query: string, limit: number = LIMITE_RESULTADOS_BUSQUEDA): Promise<any[]> {
     try {
       const usuarios = await db.Usuario.findAll({
@@ -66,11 +84,14 @@ export class UsuarioRepository implements IUsuarioRepository {
     }
   }
 
-  async create(data: { correo: string; clave: string }): Promise<any> {
+  async create(data: { correo: string; clave: string; isActive?: boolean; activation_token?: string; token_expires_at?: Date }): Promise<any> {
     try {
       const nuevoUsuario = await db.Usuario.create({
         correo: data.correo,
-        clave: data.clave
+        clave: data.clave,
+        isActive: data.isActive ?? true,
+        activation_token: data.activation_token,
+        token_expires_at: data.token_expires_at
       });
       
       return nuevoUsuario;

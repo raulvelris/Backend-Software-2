@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
 
-export class EventosController {
+export class VerDetalleController {
   private router: Router;
   private path: string = '/api';
 

@@ -1,5 +1,6 @@
 // Dependency Injection Container
 import { UsuarioRepository } from '../../infrastructure/repositories/UsuarioRepository';
+import { ClienteRepository } from '../../infrastructure/repositories/ClienteRepository';
 import { EventoRepository } from '../../infrastructure/repositories/EventoRepository';
 import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
@@ -7,6 +8,7 @@ import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/I
 import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
 import { ParticipanteRepository } from '../../infrastructure/repositories/ParticipanteRepository';
 import { RolRepository } from '../../infrastructure/repositories/RolRepository';
+import { EmailService } from '../../infrastructure/services/EmailService';
 
 import { SearchUsuariosUseCase } from '../../modules/invitaciones/use-cases/SearchUsuariosUseCase';
 import { SendInvitacionUseCase } from '../../modules/invitaciones/use-cases/SendInvitacionUseCase';
@@ -14,12 +16,15 @@ import { GetNoElegiblesUseCase } from '../../modules/invitaciones/use-cases/GetN
 import { CountInvitacionesPendientesUseCase } from '../../modules/invitaciones/use-cases/CountInvitacionesPendientesUseCase';
 import { GetParticipantesByEventoUseCase } from '../../modules/ver-participantes/use-cases/GetParticipantesByEventoUseCase';
 import { RespondInvitacionUseCase } from '../../modules/confirmar-invitacion/use-cases/RespondInvitacionUseCase';
-import { GetEventoDetalleUseCase } from '../../modules/eventos/use-cases/GetEventoDetalleUseCase';
+import { GetEventoDetalleUseCase } from '../../modules/ver-detalle/use-cases/GetEventoDetalleUseCase';
 import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/use-cases/ConfirmPublicAttendanceUseCase';
+import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
+import { ActivarCuentaUseCase } from '../../modules/activar-cuenta/use-cases/ActivarCuentaUseCase';
 
 export class DependencyContainer {
   // Repositorios (Singleton)
   private static usuarioRepository: UsuarioRepository;
+  private static clienteRepository: ClienteRepository;
   private static eventoRepository: EventoRepository;
   private static eventoParticipanteRepository: EventoParticipanteRepository;
   private static invitacionRepository: InvitacionRepository;
@@ -27,6 +32,9 @@ export class DependencyContainer {
   private static estadoInvitacionRepository: EstadoInvitacionRepository;
   private static participanteRepository: ParticipanteRepository;
   private static rolRepository: RolRepository;
+
+  // Servicios (Singleton)
+  private static emailService: EmailService;
 
   // Use Cases - Invitaciones
   private static searchUsuariosUseCase: SearchUsuariosUseCase;
@@ -42,12 +50,25 @@ export class DependencyContainer {
   // Use Cases - Confirmar Invitación
   private static respondInvitacionUseCase: RespondInvitacionUseCase;
 
+  // Use Cases - Registrarse
+  private static registrarUsuarioUseCase: RegistrarUsuarioUseCase;
+
+  // Use Cases - Activar Cuenta
+  private static activarCuentaUseCase: ActivarCuentaUseCase;
+
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
     if (!this.usuarioRepository) {
       this.usuarioRepository = new UsuarioRepository();
     }
     return this.usuarioRepository;
+  }
+
+  static getClienteRepository(): ClienteRepository {
+    if (!this.clienteRepository) {
+      this.clienteRepository = new ClienteRepository();
+    }
+    return this.clienteRepository;
   }
 
   static getEventoRepository(): EventoRepository {
@@ -97,6 +118,14 @@ export class DependencyContainer {
       this.rolRepository = new RolRepository();
     }
     return this.rolRepository;
+  }
+
+  // Getters para Servicios
+  static getEmailService(): EmailService {
+    if (!this.emailService) {
+      this.emailService = new EmailService();
+    }
+    return this.emailService;
   }
 
   // Getters para Use Cases
@@ -184,5 +213,26 @@ export class DependencyContainer {
       );
     }
     return this.confirmPublicAttendanceUseCase;
+  }
+
+  static getRegistrarUsuarioUseCase(): RegistrarUsuarioUseCase {
+    if (!this.registrarUsuarioUseCase) {
+      this.registrarUsuarioUseCase = new RegistrarUsuarioUseCase(
+        this.getUsuarioRepository(),
+        this.getClienteRepository(),
+        this.getEmailService()
+      );
+    }
+    return this.registrarUsuarioUseCase;
+  }
+
+  static getActivarCuentaUseCase(): ActivarCuentaUseCase {
+    if (!this.activarCuentaUseCase) {
+      this.activarCuentaUseCase = new ActivarCuentaUseCase(
+        this.getUsuarioRepository(),
+        this.getEmailService()
+      );
+    }
+    return this.activarCuentaUseCase;
   }
 }

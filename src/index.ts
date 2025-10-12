@@ -5,8 +5,10 @@ import cors from "cors";
 import { InvitacionController } from "./modules/invitaciones/controllers/InvitacionController";
 import { VerParticipantesController } from "./modules/ver-participantes/controllers/VerParticipantesController";
 import { ConfirmarInvitacionController } from "./modules/confirmar-invitacion/controllers/ConfirmarInvitacionController";
-import { EventosController } from "./modules/eventos/controllers/EventosController";
+import { VerDetalleController } from "./modules/ver-detalle/controllers/VerDetalleController";
 import { ConfirmarPublicoController } from "./modules/confirmar-publico/controllers/ConfirmarPublicoController";
+import { RegistrarseController } from "./modules/registrarse/controllers/RegistrarseController";
+import { ActivarCuentaController } from "./modules/activar-cuenta/controllers/ActivarCuentaController";
 
 dotenv.config();
 
@@ -21,10 +23,18 @@ app.use(express.static("assets")) // Carpeta archivos estaticos
 const port = process.env.PORT || 5000;
 
 // Instanciar controladores usando POO
+const registrarseController = new RegistrarseController();
+app.use(registrarseController.getPath(), registrarseController.getRouter())
+
+const activarCuentaController = new ActivarCuentaController();
+app.use(activarCuentaController.getPath(), activarCuentaController.getRouter())
+
 const invitacionController = new InvitacionController();
 app.use(invitacionController.getPath(), invitacionController.getRouter())
-const eventosController = new EventosController();
-app.use(eventosController.getPath(), eventosController.getRouter())
+
+const verDetalleController = new VerDetalleController();
+app.use(verDetalleController.getPath(), verDetalleController.getRouter())
+
 const confirmarPublicoController = new ConfirmarPublicoController();
 app.use(confirmarPublicoController.getPath(), confirmarPublicoController.getRouter())
 
