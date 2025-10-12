@@ -22,4 +22,31 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
       throw error;
     }
   }
+
+  async countByEvento(eventoId: number): Promise<number> {
+    try {
+      const count = await db.EventoParticipante.count({ where: { evento_id: eventoId } });
+      return count;
+    } catch (error) {
+      console.error('Error en countByEvento:', error);
+      throw error;
+    }
+  }
+
+  async addByUsuario(eventoId: number, usuarioId: number): Promise<any> {
+    try {
+      const participante = await db.Participante.findOne({ where: { usuario_id: usuarioId } });
+      if (!participante) {
+        throw new Error('Participante not found for user');
+      }
+      const created = await db.EventoParticipante.create({
+        evento_id: eventoId,
+        participante_id: participante.participante_id,
+      });
+      return created;
+    } catch (error) {
+      console.error('Error en addByUsuario:', error);
+      throw error;
+    }
+  }
 }

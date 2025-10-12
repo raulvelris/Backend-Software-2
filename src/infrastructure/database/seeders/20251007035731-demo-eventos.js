@@ -8,9 +8,10 @@ module.exports = {
         evento_id: 1,
         titulo: 'Conferencia Tech 2024',
         descripcion: 'Una conferencia sobre las últimas tendencias en tecnología y desarrollo de software.',
-        fechaHora: new Date('2024-02-15T10:00:00'),
+        fechaHora: new Date('2025-10-15T10:00:00'),
         imagen: 'https://example.com/conferencia-tech.jpg',
         nroParticipantes: 0,
+        aforo: 100,
         estadoEvento: 1, // Programado
         privacidad: 1 // Público
       },
@@ -18,9 +19,10 @@ module.exports = {
         evento_id: 2,
         titulo: 'Workshop React',
         descripcion: 'Taller práctico para aprender React desde cero hasta nivel intermedio.',
-        fechaHora: new Date('2024-02-20T14:00:00'),
+        fechaHora: new Date('2025-12-20T14:00:00'),
         imagen: 'https://example.com/react-workshop.jpg',
         nroParticipantes: 0,
+        aforo: 50,
         estadoEvento: 1, // Programado
         privacidad: 2 // Privado
       },
@@ -31,6 +33,7 @@ module.exports = {
         fechaHora: new Date('2024-02-25T18:00:00'),
         imagen: 'https://example.com/meetup-dev.jpg',
         nroParticipantes: 0,
+        aforo: 20,
         estadoEvento: 1, // Programado
         privacidad: 2 // Privado
       },
@@ -41,6 +44,7 @@ module.exports = {
         fechaHora: new Date('2024-03-01T09:00:00'),
         imagen: 'https://example.com/hackathon.jpg',
         nroParticipantes: 0,
+        aforo: 10,
         estadoEvento: 1, // Programado
         privacidad: 1 // Público
       }
