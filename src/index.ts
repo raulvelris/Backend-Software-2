@@ -9,6 +9,7 @@ import { VerDetalleController } from "./modules/ver-detalle/controllers/VerDetal
 import { ConfirmarPublicoController } from "./modules/confirmar-publico/controllers/ConfirmarPublicoController";
 import { RegistrarseController } from "./modules/registrarse/controllers/RegistrarseController";
 import { ActivarCuentaController } from "./modules/activar-cuenta/controllers/ActivarCuentaController";
+import { EventosController } from "./modules/eventos/controllers/EventosController";
 
 dotenv.config();
 
@@ -44,6 +45,10 @@ app.use(verParticipantesController.getPath(), verParticipantesController.getRout
 const confirmarInvitacionController = new ConfirmarInvitacionController();
 app.use(confirmarInvitacionController.getPath(), confirmarInvitacionController.getRouter())
 
+const eventosController = new EventosController();
+app.use(eventosController.getPath(), eventosController.getRouter());
+
+
 app.listen(port, () => {
     console.log(`[Server]: Servidor ejecutandose en puerto ${port}`)
 })
@@ -56,3 +61,11 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+
+
+
+
+
+
+
