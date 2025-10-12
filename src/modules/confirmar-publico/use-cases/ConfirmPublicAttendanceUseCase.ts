@@ -23,9 +23,9 @@ export class ConfirmPublicAttendanceUseCase {
       throw new Error('Event not found');
     }
 
-    // No permitir confirmar si el evento ya inició
+    // No permitir confirmar si el evento ya inició (fechaInicio)
     const now = new Date();
-    const start = new Date(evento.fechaHora);
+    const start = new Date(evento.fechaInicio);
     if (!(start.getTime() > now.getTime())) {
       throw new Error('Event already started');
     }
@@ -43,10 +43,10 @@ export class ConfirmPublicAttendanceUseCase {
       throw new Error('Event is full');
     }
 
-    // Buscar el rol ASISTENTE
-    const rolAsistente = await this.rolRepository.findByNombre('ASISTENTE');
+    // Buscar el rol Asistente (según seeders)
+    const rolAsistente = await this.rolRepository.findByNombre('Asistente');
     if (!rolAsistente) {
-      throw new Error('Rol ASISTENTE not found');
+      throw new Error('Rol Asistente not found');
     }
 
     // Buscar el participante con rol ASISTENTE

@@ -196,4 +196,40 @@ export class InvitacionUsuarioRepository implements IInvitacionUsuarioRepository
       throw error;
     }
   }
+
+  async findAllByUsuarioIdWithDetalles(usuarioId: number): Promise<any[]> {
+    try {
+      const rows = await db.InvitacionUsuario.findAll({
+        where: { usuario_id: usuarioId },
+        include: [
+          {
+            model: db.Invitacion,
+            as: 'invitacion',
+            required: true,
+            include: [
+              {
+                model: db.Notificacion,
+                as: 'notificacion',
+                required: true,
+                include: [
+                  {
+                    model: db.Evento,
+                    as: 'evento'
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            model: db.EstadoInvitacion,
+            as: 'estado'
+          }
+        ]
+      });
+      return rows;
+    } catch (error) {
+      console.error('Error en findAllByUsuarioIdWithDetalles:', error);
+      throw error;
+    }
+  }
 }

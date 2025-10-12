@@ -7,4 +7,5 @@ export interface IInvitacionUsuarioRepository {
   findNoElegiblesByEvento(eventoId: number, estadoPendienteId: number): Promise<any[]>;
   findByIdWithEventoAndUsuario(invitacionUsuarioId: number): Promise<any | null>;
   update(invitacionUsuarioId: number, data: any): Promise<any | null>;
+  findAllByUsuarioIdWithDetalles(usuarioId: number): Promise<any[]>;
 }

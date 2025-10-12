@@ -47,8 +47,8 @@ export class RespondInvitacionUseCase {
       throw new Error('Invitación expirada');
     }
 
-    // Validar que el evento no haya comenzado
-    if (evento && evento.fechaHora && new Date(evento.fechaHora) <= now) {
+    // Validar que el evento no haya comenzado (fechaInicio)
+    if (evento && evento.fechaInicio && new Date(evento.fechaInicio) <= now) {
       throw new Error('El evento ya comenzó');
     }
 
@@ -91,9 +91,13 @@ export class RespondInvitacionUseCase {
       return { success: true, message: 'Invitación rechazada' };
     }
 
-    // Aceptar invitación
-    const rolAsistente = await this.rolRepository.findByNombre('ASISTENTE');
-    const rolId = rolAsistente ? rolAsistente.rol_id : 1;
+    // Aceptar invitación (según seeders: nombre 'Asistente')
+    const rolAsistente = await this.rolRepository.findByNombre('Asistente');
+    if (!rolAsistente) {
+      // Evitar asignar por defecto un rol incorrecto (p.ej. ORGANIZADOR)
+      throw new Error('Rol Asistente no configurado');
+    }
+    const rolId = rolAsistente.rol_id;
 
     // Buscar o crear participante
     let participante = await this.participanteRepository.findByUsuarioAndRol(usuario.usuario_id, rolId);

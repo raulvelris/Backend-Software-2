@@ -16,10 +16,12 @@ import { GetNoElegiblesUseCase } from '../../modules/invitaciones/use-cases/GetN
 import { CountInvitacionesPendientesUseCase } from '../../modules/invitaciones/use-cases/CountInvitacionesPendientesUseCase';
 import { GetParticipantesByEventoUseCase } from '../../modules/ver-participantes/use-cases/GetParticipantesByEventoUseCase';
 import { RespondInvitacionUseCase } from '../../modules/confirmar-invitacion/use-cases/RespondInvitacionUseCase';
+import { GetInvitacionesPrivadasUseCase } from '../../modules/ver-invitaciones-privadas/use-cases/GetInvitacionesPrivadasUseCase';
 import { GetEventoDetalleUseCase } from '../../modules/ver-detalle/use-cases/GetEventoDetalleUseCase';
 import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/use-cases/ConfirmPublicAttendanceUseCase';
 import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
 import { ActivarCuentaUseCase } from '../../modules/activar-cuenta/use-cases/ActivarCuentaUseCase';
+import { LoginUseCase } from '../../modules/iniciar-sesion/use-cases/LoginUseCase';
 
 export class DependencyContainer {
   // Repositorios (Singleton)
@@ -50,11 +52,17 @@ export class DependencyContainer {
   // Use Cases - Confirmar Invitación
   private static respondInvitacionUseCase: RespondInvitacionUseCase;
 
+  // Use Cases - Ver Invitaciones Privadas
+  private static getInvitacionesPrivadasUseCase: GetInvitacionesPrivadasUseCase;
+
   // Use Cases - Registrarse
   private static registrarUsuarioUseCase: RegistrarUsuarioUseCase;
 
   // Use Cases - Activar Cuenta
   private static activarCuentaUseCase: ActivarCuentaUseCase;
+
+  // Use Cases - Auth
+  private static loginUseCase: LoginUseCase;
 
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
@@ -194,6 +202,15 @@ export class DependencyContainer {
     return this.respondInvitacionUseCase;
   }
 
+  static getGetInvitacionesPrivadasUseCase(): GetInvitacionesPrivadasUseCase {
+    if (!this.getInvitacionesPrivadasUseCase) {
+      this.getInvitacionesPrivadasUseCase = new GetInvitacionesPrivadasUseCase(
+        this.getInvitacionUsuarioRepository()
+      );
+    }
+    return this.getInvitacionesPrivadasUseCase;
+  }
+
   static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {
     if (!this.getEventoDetalleUseCase) {
       this.getEventoDetalleUseCase = new GetEventoDetalleUseCase(
@@ -234,5 +251,14 @@ export class DependencyContainer {
       );
     }
     return this.activarCuentaUseCase;
+  }
+
+  static getLoginUseCase(): LoginUseCase {
+    if (!this.loginUseCase) {
+      this.loginUseCase = new LoginUseCase(
+        this.getUsuarioRepository()
+      );
+    }
+    return this.loginUseCase;
   }
 }

@@ -7,9 +7,11 @@ import { VerParticipantesController } from "./modules/ver-participantes/controll
 import { ConfirmarInvitacionController } from "./modules/confirmar-invitacion/controllers/ConfirmarInvitacionController";
 import { VerDetalleController } from "./modules/ver-detalle/controllers/VerDetalleController";
 import { ConfirmarPublicoController } from "./modules/confirmar-publico/controllers/ConfirmarPublicoController";
+import { VerInvitacionesPrivadasController } from "./modules/ver-invitaciones-privadas/controllers/VerInvitacionesPrivadasController";
 import { RegistrarseController } from "./modules/registrarse/controllers/RegistrarseController";
 import { ActivarCuentaController } from "./modules/activar-cuenta/controllers/ActivarCuentaController";
 import { EventosController } from "./modules/eventos/controllers/EventosController";
+import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
 
 dotenv.config();
 
@@ -47,6 +49,12 @@ app.use(confirmarInvitacionController.getPath(), confirmarInvitacionController.g
 
 const eventosController = new EventosController();
 app.use(eventosController.getPath(), eventosController.getRouter());
+
+const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
+app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
+
+const authController = new AuthController();
+app.use(authController.getPath(), authController.getRouter());
 
 
 app.listen(port, () => {

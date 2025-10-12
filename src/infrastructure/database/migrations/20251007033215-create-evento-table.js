@@ -17,7 +17,11 @@ module.exports = {
         type: Sequelize.STRING(300),
         allowNull: true
       },
-      fechaHora: {
+      fechaInicio: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      fechaFin: {
         type: Sequelize.DATE,
         allowNull: false
       },

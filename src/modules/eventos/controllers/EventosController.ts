@@ -25,7 +25,8 @@ export class EventosController {
         attributes: [
           ["evento_id", "id"],
           ["titulo", "name"],
-          ["fechaHora", "date"],
+          ["fechaInicio", "dateStart"],
+          ["fechaFin", "dateEnd"],
           ["imagen", "imageUrl"],
           [
             db.Sequelize.fn(
@@ -38,7 +39,7 @@ export class EventosController {
         where: {
           estadoEvento: ID_ESTADO_PROGRAMADO,
           privacidad: ID_PRIVACIDAD_PUBLICO,
-          fechaHora: { [db.Sequelize.Op.gte]: new Date() }, // Solo fechas >= hoy
+          fechaFin: { [db.Sequelize.Op.gte]: new Date() }, // Eventos no finalizados
         },
         include: [
           {
@@ -60,14 +61,15 @@ export class EventosController {
           "ubicacion.ubicacion_id",
           "ubicacion.direccion",
         ],
-        order: [["fechaHora", "ASC"]],
+        order: [["fechaInicio", "ASC"]],
         subQuery: false,
       });
 
       const payload = (eventos ?? []).map((ev: any) => ({
         id: ev.get("id"),
         name: ev.get("name"),
-        date: ev.get("date"),
+        dateStart: ev.get("dateStart"),
+        dateEnd: ev.get("dateEnd"),
         imageUrl: ev.get("imageUrl"),
         attendeesCount: Number(ev.get("attendeesCount") ?? 0),
         location:
