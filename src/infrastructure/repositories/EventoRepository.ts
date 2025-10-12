@@ -6,7 +6,16 @@ export class EventoRepository implements IEventoRepository {
   
   async findById(id: number): Promise<any | null> {
     try {
-      const evento = await db.Evento.findByPk(id);
+      const evento = await db.Evento.findByPk(id, {
+        include: [
+          {
+            model: db.Ubicacion,
+            as: 'ubicacion',
+            attributes: ['direccion', 'latitud', 'longitud'],
+            required: false,
+          }
+        ]
+      });
       return evento;
     } catch (error) {
       console.error('Error en findById:', error);

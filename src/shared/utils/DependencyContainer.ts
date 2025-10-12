@@ -10,6 +10,8 @@ import { SearchUsuariosUseCase } from '../../modules/invitaciones/use-cases/Sear
 import { SendInvitacionUseCase } from '../../modules/invitaciones/use-cases/SendInvitacionUseCase';
 import { GetNoElegiblesUseCase } from '../../modules/invitaciones/use-cases/GetNoElegiblesUseCase';
 import { CountInvitacionesPendientesUseCase } from '../../modules/invitaciones/use-cases/CountInvitacionesPendientesUseCase';
+import { GetEventoDetalleUseCase } from '../../modules/eventos/use-cases/GetEventoDetalleUseCase';
+import { ConfirmPublicAttendanceUseCase } from '../../modules/asistencias/use-cases/ConfirmPublicAttendanceUseCase';
 
 export class DependencyContainer {
   // Repositorios (Singleton)
@@ -25,6 +27,8 @@ export class DependencyContainer {
   private static sendInvitacionUseCase: SendInvitacionUseCase;
   private static getNoElegiblesUseCase: GetNoElegiblesUseCase;
   private static countInvitacionesPendientesUseCase: CountInvitacionesPendientesUseCase;
+  private static getEventoDetalleUseCase: GetEventoDetalleUseCase;
+  private static confirmPublicAttendanceUseCase: ConfirmPublicAttendanceUseCase;
 
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
@@ -110,5 +114,24 @@ export class DependencyContainer {
       );
     }
     return this.countInvitacionesPendientesUseCase;
+  }
+
+  static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {
+    if (!this.getEventoDetalleUseCase) {
+      this.getEventoDetalleUseCase = new GetEventoDetalleUseCase(
+        this.getEventoRepository()
+      );
+    }
+    return this.getEventoDetalleUseCase;
+  }
+
+  static getConfirmPublicAttendanceUseCase(): ConfirmPublicAttendanceUseCase {
+    if (!this.confirmPublicAttendanceUseCase) {
+      this.confirmPublicAttendanceUseCase = new ConfirmPublicAttendanceUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository()
+      );
+    }
+    return this.confirmPublicAttendanceUseCase;
   }
 }
