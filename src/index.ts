@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { InvitacionController } from "./modules/invitaciones/controllers/InvitacionController";
+import { VerParticipantesController } from "./modules/ver-participantes/controllers/VerParticipantesController";
+import { ConfirmarInvitacionController } from "./modules/confirmar-invitacion/controllers/ConfirmarInvitacionController";
 
 dotenv.config();
 
@@ -16,9 +18,15 @@ app.use(express.static("assets")) // Carpeta archivos estaticos
 
 const port = process.env.PORT || 5000;
 
-// Instanciar controlador usando POO
+// Instanciar controladores usando POO
 const invitacionController = new InvitacionController();
 app.use(invitacionController.getPath(), invitacionController.getRouter())
+
+const verParticipantesController = new VerParticipantesController();
+app.use(verParticipantesController.getPath(), verParticipantesController.getRouter())
+
+const confirmarInvitacionController = new ConfirmarInvitacionController();
+app.use(confirmarInvitacionController.getPath(), confirmarInvitacionController.getRouter())
 
 app.listen(port, () => {
     console.log(`[Server]: Servidor ejecutandose en puerto ${port}`)

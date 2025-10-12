@@ -56,4 +56,16 @@ export class EventoRepository implements IEventoRepository {
       throw error;
     }
   }
+
+  async incrementParticipantes(eventoId: number): Promise<void> {
+    try {
+      await db.Evento.increment('nroParticipantes', {
+        by: 1,
+        where: { evento_id: eventoId }
+      });
+    } catch (error) {
+      console.error('Error en incrementParticipantes:', error);
+      throw error;
+    }
+  }
 }

@@ -11,6 +11,7 @@ module.exports = {
         fechaHora: new Date('2024-02-15T10:00:00'),
         imagen: 'https://example.com/conferencia-tech.jpg',
         nroParticipantes: 0,
+        aforo: 100,
         estadoEvento: 1, // Programado
         privacidad: 1 // Público
       },
@@ -21,6 +22,7 @@ module.exports = {
         fechaHora: new Date('2024-02-20T14:00:00'),
         imagen: 'https://example.com/react-workshop.jpg',
         nroParticipantes: 0,
+        aforo: 50,
         estadoEvento: 1, // Programado
         privacidad: 2 // Privado
       },
@@ -31,6 +33,7 @@ module.exports = {
         fechaHora: new Date('2024-02-25T18:00:00'),
         imagen: 'https://example.com/meetup-dev.jpg',
         nroParticipantes: 0,
+        aforo: 30,
         estadoEvento: 1, // Programado
         privacidad: 2 // Privado
       },
@@ -41,6 +44,7 @@ module.exports = {
         fechaHora: new Date('2024-03-01T09:00:00'),
         imagen: 'https://example.com/hackathon.jpg',
         nroParticipantes: 0,
+        aforo: 100,
         estadoEvento: 1, // Programado
         privacidad: 1 // Público
       }

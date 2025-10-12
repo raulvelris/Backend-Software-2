@@ -5,11 +5,15 @@ import { EventoParticipanteRepository } from '../../infrastructure/repositories/
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
 import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
 import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
+import { ParticipanteRepository } from '../../infrastructure/repositories/ParticipanteRepository';
+import { RolRepository } from '../../infrastructure/repositories/RolRepository';
 
 import { SearchUsuariosUseCase } from '../../modules/invitaciones/use-cases/SearchUsuariosUseCase';
 import { SendInvitacionUseCase } from '../../modules/invitaciones/use-cases/SendInvitacionUseCase';
 import { GetNoElegiblesUseCase } from '../../modules/invitaciones/use-cases/GetNoElegiblesUseCase';
 import { CountInvitacionesPendientesUseCase } from '../../modules/invitaciones/use-cases/CountInvitacionesPendientesUseCase';
+import { GetParticipantesByEventoUseCase } from '../../modules/ver-participantes/use-cases/GetParticipantesByEventoUseCase';
+import { RespondInvitacionUseCase } from '../../modules/confirmar-invitacion/use-cases/RespondInvitacionUseCase';
 
 export class DependencyContainer {
   // Repositorios (Singleton)
@@ -19,12 +23,20 @@ export class DependencyContainer {
   private static invitacionRepository: InvitacionRepository;
   private static invitacionUsuarioRepository: InvitacionUsuarioRepository;
   private static estadoInvitacionRepository: EstadoInvitacionRepository;
+  private static participanteRepository: ParticipanteRepository;
+  private static rolRepository: RolRepository;
 
-  // Use Cases
+  // Use Cases - Invitaciones
   private static searchUsuariosUseCase: SearchUsuariosUseCase;
   private static sendInvitacionUseCase: SendInvitacionUseCase;
   private static getNoElegiblesUseCase: GetNoElegiblesUseCase;
   private static countInvitacionesPendientesUseCase: CountInvitacionesPendientesUseCase;
+
+  // Use Cases - Ver Invitados
+  private static getParticipantesByEventoUseCase: GetParticipantesByEventoUseCase;
+
+  // Use Cases - Confirmar Invitación
+  private static respondInvitacionUseCase: RespondInvitacionUseCase;
 
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
@@ -69,6 +81,20 @@ export class DependencyContainer {
     return this.estadoInvitacionRepository;
   }
 
+  static getParticipanteRepository(): ParticipanteRepository {
+    if (!this.participanteRepository) {
+      this.participanteRepository = new ParticipanteRepository();
+    }
+    return this.participanteRepository;
+  }
+
+  static getRolRepository(): RolRepository {
+    if (!this.rolRepository) {
+      this.rolRepository = new RolRepository();
+    }
+    return this.rolRepository;
+  }
+
   // Getters para Use Cases
   static getSearchUsuariosUseCase(): SearchUsuariosUseCase {
     if (!this.searchUsuariosUseCase) {
@@ -110,5 +136,28 @@ export class DependencyContainer {
       );
     }
     return this.countInvitacionesPendientesUseCase;
+  }
+
+  static getGetParticipantesByEventoUseCase(): GetParticipantesByEventoUseCase {
+    if (!this.getParticipantesByEventoUseCase) {
+      this.getParticipantesByEventoUseCase = new GetParticipantesByEventoUseCase(
+        this.getEventoParticipanteRepository()
+      );
+    }
+    return this.getParticipantesByEventoUseCase;
+  }
+
+  static getRespondInvitacionUseCase(): RespondInvitacionUseCase {
+    if (!this.respondInvitacionUseCase) {
+      this.respondInvitacionUseCase = new RespondInvitacionUseCase(
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository(),
+        this.getParticipanteRepository(),
+        this.getRolRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getEventoRepository()
+      );
+    }
+    return this.respondInvitacionUseCase;
   }
 }

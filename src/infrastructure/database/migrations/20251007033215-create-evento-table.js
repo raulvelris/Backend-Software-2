@@ -30,6 +30,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 0
       },
+      aforo: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
       estadoEvento: {
         type: Sequelize.INTEGER,
         allowNull: false,

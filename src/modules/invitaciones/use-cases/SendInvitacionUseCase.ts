@@ -101,7 +101,6 @@ export class SendInvitacionUseCase {
     // Crear InvitacionUsuario solo para los usuarios no invitados
     for (const usuario_id of usuariosNoInvitados) {
       const nuevaInvitacionUsuario = await this.invitacionUsuarioRepository.create({
-        confirmacion: false,
         estado_invitacion_id: estadoPendiente.estado_id,
         invitacion_id: nuevaInvitacion.notificacion_id,
         usuario_id

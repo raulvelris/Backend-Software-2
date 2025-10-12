@@ -144,4 +144,56 @@ export class InvitacionUsuarioRepository implements IInvitacionUsuarioRepository
       throw error;
     }
   }
+
+  async findByIdWithEventoAndUsuario(invitacionUsuarioId: number): Promise<any | null> {
+    try {
+      const invitacionUsuario = await db.InvitacionUsuario.findOne({
+        where: { invitacion_usuario_id: invitacionUsuarioId },
+        include: [
+          {
+            model: db.Invitacion,
+            as: 'invitacion',
+            include: [{
+              model: db.Notificacion,
+              as: 'notificacion',
+              include: [{
+                model: db.Evento,
+                as: 'evento'
+              }]
+            }]
+          },
+          {
+            model: db.Usuario,
+            as: 'usuario',
+            include: [{
+              model: db.Cliente,
+              as: 'cliente'
+            }]
+          },
+          {
+            model: db.EstadoInvitacion,
+            as: 'estado'
+          }
+        ]
+      });
+
+      return invitacionUsuario;
+    } catch (error) {
+      console.error('Error en findByIdWithRelations:', error);
+      throw error;
+    }
+  }
+
+  async update(invitacionUsuarioId: number, data: any): Promise<any | null> {
+    try {
+      const invitacionUsuario = await db.InvitacionUsuario.findByPk(invitacionUsuarioId);
+      if (!invitacionUsuario) return null;
+
+      await invitacionUsuario.update(data);
+      return invitacionUsuario;
+    } catch (error) {
+      console.error('Error en update:', error);
+      throw error;
+    }
+  }
 }

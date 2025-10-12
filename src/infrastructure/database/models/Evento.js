@@ -64,6 +64,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 0
     },
+    aforo: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
     estadoEvento: {
       type: DataTypes.INTEGER,
       allowNull: false,

@@ -6,4 +6,5 @@ export interface IEventoRepository {
   update(id: number, data: any): Promise<any | null>;
   delete(id: number): Promise<boolean>;
   findAll(): Promise<any[]>;
+  incrementParticipantes(eventoId: number): Promise<void>;
 }

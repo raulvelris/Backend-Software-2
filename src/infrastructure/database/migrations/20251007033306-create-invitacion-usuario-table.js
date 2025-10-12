@@ -9,11 +9,6 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true
       },
-      confirmacion: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
       estado_invitacion_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
