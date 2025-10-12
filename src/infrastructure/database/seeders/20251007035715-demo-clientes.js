@@ -3,54 +3,54 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
+    // Obtener los IDs de usuarios generados automáticamente
+    const usuarios = await queryInterface.sequelize.query(
+      `SELECT usuario_id FROM "Usuario" ORDER BY usuario_id ASC;`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    );
+
+    const usuarioIds = usuarios.map(u => u.usuario_id);
+
     await queryInterface.bulkInsert('Cliente', [
       {
-        cliente_id: 1,
         nombre: 'Juan',
         apellido: 'Perez',
-        usuario_id: 1
+        usuario_id: usuarioIds[0]
       },
       {
-        cliente_id: 2,
         nombre: 'Maria',
         apellido: 'Gonzalez',
-        usuario_id: 2
+        usuario_id: usuarioIds[1]
       },
       {
-        cliente_id: 3,
         nombre: 'Carlos',
         apellido: 'Lopez',
-        usuario_id: 3
+        usuario_id: usuarioIds[2]
       },
       {
-        cliente_id: 4,
         nombre: 'Laura',
         apellido: 'Ramirez',
-        usuario_id: 4
+        usuario_id: usuarioIds[3]
       },
       {
-        cliente_id: 5,
         nombre: 'Diego',
         apellido: 'Fernandez',
-        usuario_id: 5
+        usuario_id: usuarioIds[4]
       },
       {
-        cliente_id: 6,
         nombre: 'Sofia',
         apellido: 'Martinez',
-        usuario_id: 6
+        usuario_id: usuarioIds[5]
       },
       {
-        cliente_id: 7,
         nombre: 'Miguel',
         apellido: 'Hernandez',
-        usuario_id: 7
+        usuario_id: usuarioIds[6]
       },
       {
-        cliente_id: 8,
         nombre: 'Valentina',
         apellido: 'Sanchez',
-        usuario_id: 8
+        usuario_id: usuarioIds[7]
       }
     ], {});
   },

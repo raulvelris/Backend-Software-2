@@ -1,0 +1,64 @@
+import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
+import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
+import { IRolRepository } from '../../../domain/interfaces/IRolRepository';
+import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository';
+
+export class ConfirmPublicAttendanceUseCase {
+  constructor(
+    private eventoRepository: IEventoRepository,
+    private eventoParticipanteRepository: IEventoParticipanteRepository,
+    private rolRepository: IRolRepository,
+    private participanteRepository: IParticipanteRepository
+  ) {}
+
+  async execute(input: { evento_id: number; usuario_id: number }): Promise<{ success: boolean }>{
+    const { evento_id, usuario_id } = input;
+
+    if (!evento_id || Number.isNaN(evento_id) || !usuario_id || Number.isNaN(usuario_id)) {
+      throw new Error('Invalid input');
+    }
+
+    const evento = await this.eventoRepository.findById(evento_id);
+    if (!evento) {
+      throw new Error('Event not found');
+    }
+
+    // No permitir confirmar si el evento ya inició
+    const now = new Date();
+    const start = new Date(evento.fechaHora);
+    if (!(start.getTime() > now.getTime())) {
+      throw new Error('Event already started');
+    }
+
+    // Evitar duplicados
+    const already = await this.eventoParticipanteRepository.isUsuarioInEvento(evento_id, usuario_id);
+    if (already) {
+      throw new Error('Already confirmed');
+    }
+
+    // Verificar capacidad
+    const current = await this.eventoParticipanteRepository.countByEvento(evento_id);
+    const capacity = typeof evento.aforo === 'number' ? evento.aforo : 0;
+    if (current >= capacity) {
+      throw new Error('Event is full');
+    }
+
+    // Buscar el rol ASISTENTE
+    const rolAsistente = await this.rolRepository.findByNombre('ASISTENTE');
+    if (!rolAsistente) {
+      throw new Error('Rol ASISTENTE not found');
+    }
+
+    // Buscar el participante con rol ASISTENTE
+    const participante = await this.participanteRepository.findByUsuarioAndRol(usuario_id, rolAsistente.rol_id);
+    
+    if (!participante) {
+      throw new Error('Participante not found for user with ASISTENTE role');
+    }
+
+    // Crear relación evento-participante
+    await this.eventoParticipanteRepository.create(evento_id, participante.participante_id);
+
+    return { success: true };
+  }
+}

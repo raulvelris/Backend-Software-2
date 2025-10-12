@@ -7,8 +7,6 @@ import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository'
 import { RespondInvitacionDto, RespondInvitacionResultDto } from '../dtos/RespondInvitacionDto';
 import { EstadoInvitacionEnum } from '../../../domain/value-objects/EstadoInvitacion';
 
-const db = require('../../../infrastructure/database/models');
-
 export class RespondInvitacionUseCase {
   constructor(
     private invitacionUsuarioRepository: IInvitacionUsuarioRepository,
@@ -67,17 +65,11 @@ export class RespondInvitacionUseCase {
     // Validar límite de eventos por usuario
     if (dto.accept && usuario) {
       const participanteRows = await this.participanteRepository.findAllByUsuarioId(usuario.usuario_id);
-      const participanteIds = participanteRows.map((p: any) => p.participante_id);
       
       let userEventCount = 0;
-      if (participanteIds.length > 0) {
-        // Contar eventos del usuario
-        for (const participanteId of participanteIds) {
-          const count = await db.EventoParticipante.count({
-            where: { participante_id: participanteId }
-          });
-          userEventCount += count;
-        }
+      for (const participante of participanteRows) {
+        const eventosDelParticipante = await this.eventoParticipanteRepository.countByParticipante(participante.participante_id);
+        userEventCount += eventosDelParticipante;
       }
       
       const MAX_EVENTS_PER_USER = Number(process.env.MAX_EVENTS_PER_USER || 5);
@@ -86,71 +78,59 @@ export class RespondInvitacionUseCase {
       }
     }
 
-    // Iniciar transacción
-    const t = await db.sequelize.transaction();
-    
-    try {
-      if (!dto.accept) {
-        // Rechazar invitación
-        const estadoRechazada = await this.estadoInvitacionRepository.findByNombre(EstadoInvitacionEnum.RECHAZADA);
-        
-        if (estadoRechazada) {
-          await this.invitacionUsuarioRepository.update(dto.invitacion_usuario_id, {
-            estado_invitacion_id: estadoRechazada.estado_id,
-          });
-        }
-        
-        await t.commit();
-        return { success: true, message: 'Invitación rechazada' };
-      }
-
-      // Aceptar invitación
-      const rolAsistente = await this.rolRepository.findByNombre('ASISTENTE');
-      const rolId = rolAsistente ? rolAsistente.rol_id : 1;
-
-      // Buscar o crear participante
-      let participante = await this.participanteRepository.findByUsuarioAndRol(usuario.usuario_id, rolId);
+    if (!dto.accept) {
+      // Rechazar invitación
+      const estadoRechazada = await this.estadoInvitacionRepository.findByNombre(EstadoInvitacionEnum.RECHAZADA);
       
-      if (!participante) {
-        participante = await this.participanteRepository.create({
-          usuario_id: usuario.usuario_id,
-          rol_id: rolId
+      if (estadoRechazada) {
+        await this.invitacionUsuarioRepository.update(dto.invitacion_usuario_id, {
+          estado_invitacion_id: estadoRechazada.estado_id,
         });
       }
+      
+      return { success: true, message: 'Invitación rechazada' };
+    }
 
-      // Verificar si ya está en el evento
-      const existingLink = await this.eventoParticipanteRepository.findByEventoAndParticipante(
+    // Aceptar invitación
+    const rolAsistente = await this.rolRepository.findByNombre('ASISTENTE');
+    const rolId = rolAsistente ? rolAsistente.rol_id : 1;
+
+    // Buscar o crear participante
+    let participante = await this.participanteRepository.findByUsuarioAndRol(usuario.usuario_id, rolId);
+    
+    if (!participante) {
+      participante = await this.participanteRepository.create({
+        usuario_id: usuario.usuario_id,
+        rol_id: rolId
+      });
+    }
+
+    // Verificar si ya está en el evento
+    const existingLink = await this.eventoParticipanteRepository.findByEventoAndParticipante(
+      evento.evento_id,
+      participante.participante_id
+    );
+
+    if (!existingLink) {
+      // Crear relación evento-participante
+      await this.eventoParticipanteRepository.create(
         evento.evento_id,
         participante.participante_id
       );
 
-      if (!existingLink) {
-        // Crear relación evento-participante
-        await this.eventoParticipanteRepository.create({
-          evento_id: evento.evento_id,
-          participante_id: participante.participante_id
-        });
-
-        // Incrementar contador de participantes
-        await this.eventoRepository.incrementParticipantes(evento.evento_id);
-      }
-
-      // Actualizar estado de invitación a Aceptada
-      const estadoAceptada = await this.estadoInvitacionRepository.findByNombre(EstadoInvitacionEnum.ACEPTADA);
-      
-      if (estadoAceptada) {
-        await this.invitacionUsuarioRepository.update(dto.invitacion_usuario_id, {
-          estado_invitacion_id: estadoAceptada.estado_id,
-        });
-      }
-
-      await t.commit();
-      return { success: true, message: 'Invitación aceptada' };
-      
-    } catch (txErr) {
-      await t.rollback();
-      console.error('Transaction error responding invitation:', txErr);
-      throw new Error('Error procesando la respuesta');
+      // Incrementar contador de participantes
+      await this.eventoRepository.incrementParticipantes(evento.evento_id);
     }
+
+    // Actualizar estado de invitación a Aceptada
+    const estadoAceptada = await this.estadoInvitacionRepository.findByNombre(EstadoInvitacionEnum.ACEPTADA);
+    
+    if (estadoAceptada) {
+      await this.invitacionUsuarioRepository.update(dto.invitacion_usuario_id, {
+        estado_invitacion_id: estadoAceptada.estado_id,
+      });
+    }
+
+    return { success: true, message: 'Invitación aceptada' };
   }
 }

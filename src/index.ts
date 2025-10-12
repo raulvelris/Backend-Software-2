@@ -5,6 +5,8 @@ import cors from "cors";
 import { InvitacionController } from "./modules/invitaciones/controllers/InvitacionController";
 import { VerParticipantesController } from "./modules/ver-participantes/controllers/VerParticipantesController";
 import { ConfirmarInvitacionController } from "./modules/confirmar-invitacion/controllers/ConfirmarInvitacionController";
+import { EventosController } from "./modules/eventos/controllers/EventosController";
+import { ConfirmarPublicoController } from "./modules/confirmar-publico/controllers/ConfirmarPublicoController";
 
 dotenv.config();
 
@@ -21,6 +23,10 @@ const port = process.env.PORT || 5000;
 // Instanciar controladores usando POO
 const invitacionController = new InvitacionController();
 app.use(invitacionController.getPath(), invitacionController.getRouter())
+const eventosController = new EventosController();
+app.use(eventosController.getPath(), eventosController.getRouter())
+const confirmarPublicoController = new ConfirmarPublicoController();
+app.use(confirmarPublicoController.getPath(), confirmarPublicoController.getRouter())
 
 const verParticipantesController = new VerParticipantesController();
 app.use(verParticipantesController.getPath(), verParticipantesController.getRouter())

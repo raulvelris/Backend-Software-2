@@ -80,6 +80,19 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
     }
   }
 
+  async countByParticipante(participanteId: number): Promise<number> {
+    try {
+      const count = await db.EventoParticipante.count({
+        where: { participante_id: participanteId }
+      });
+      
+      return count;
+    } catch (error) {
+      console.error('Error en countByParticipante:', error);
+      throw error;
+    }
+  }
+
   async findByEventoAndParticipante(eventoId: number, participanteId: number): Promise<any | null> {
     try {
       const link = await db.EventoParticipante.findOne({
@@ -93,9 +106,12 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
     }
   }
 
-  async create(data: { evento_id: number; participante_id: number }): Promise<any> {
+  async create(eventoId: number, participanteId: number): Promise<any> {
     try {
-      const nuevoLink = await db.EventoParticipante.create(data);
+      const nuevoLink = await db.EventoParticipante.create({
+        evento_id: eventoId,
+        participante_id: participanteId
+      });
       return nuevoLink;
     } catch (error) {
       console.error('Error en create:', error);

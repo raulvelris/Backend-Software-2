@@ -14,6 +14,8 @@ import { GetNoElegiblesUseCase } from '../../modules/invitaciones/use-cases/GetN
 import { CountInvitacionesPendientesUseCase } from '../../modules/invitaciones/use-cases/CountInvitacionesPendientesUseCase';
 import { GetParticipantesByEventoUseCase } from '../../modules/ver-participantes/use-cases/GetParticipantesByEventoUseCase';
 import { RespondInvitacionUseCase } from '../../modules/confirmar-invitacion/use-cases/RespondInvitacionUseCase';
+import { GetEventoDetalleUseCase } from '../../modules/eventos/use-cases/GetEventoDetalleUseCase';
+import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/use-cases/ConfirmPublicAttendanceUseCase';
 
 export class DependencyContainer {
   // Repositorios (Singleton)
@@ -31,6 +33,8 @@ export class DependencyContainer {
   private static sendInvitacionUseCase: SendInvitacionUseCase;
   private static getNoElegiblesUseCase: GetNoElegiblesUseCase;
   private static countInvitacionesPendientesUseCase: CountInvitacionesPendientesUseCase;
+  private static getEventoDetalleUseCase: GetEventoDetalleUseCase;
+  private static confirmPublicAttendanceUseCase: ConfirmPublicAttendanceUseCase;
 
   // Use Cases - Ver Invitados
   private static getParticipantesByEventoUseCase: GetParticipantesByEventoUseCase;
@@ -159,5 +163,26 @@ export class DependencyContainer {
       );
     }
     return this.respondInvitacionUseCase;
+  }
+
+  static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {
+    if (!this.getEventoDetalleUseCase) {
+      this.getEventoDetalleUseCase = new GetEventoDetalleUseCase(
+        this.getEventoRepository()
+      );
+    }
+    return this.getEventoDetalleUseCase;
+  }
+
+  static getConfirmPublicAttendanceUseCase(): ConfirmPublicAttendanceUseCase {
+    if (!this.confirmPublicAttendanceUseCase) {
+      this.confirmPublicAttendanceUseCase = new ConfirmPublicAttendanceUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getRolRepository(),
+        this.getParticipanteRepository()
+      );
+    }
+    return this.confirmPublicAttendanceUseCase;
   }
 }
