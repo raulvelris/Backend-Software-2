@@ -20,7 +20,17 @@ const db = require("./infrastructure/database/models");
 dotenv.config();
 
 const app = express()
-app.use(cors({ origin: "*" }));
+
+// Configurar CORS para permitir el frontend
+const allowedOrigins = process.env.FRONTEND_URL 
+    ? [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:3000']
+    : ['http://localhost:5173', 'http://localhost:3000'];
+
+app.use(cors({ 
+    origin: allowedOrigins,
+    credentials: true 
+}));
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended : true
