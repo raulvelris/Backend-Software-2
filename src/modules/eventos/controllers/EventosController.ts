@@ -13,6 +13,7 @@ export class EventosController {
 
   private initializeRoutes(): void {
     this.router.get("/events/public", this.listPublic.bind(this));
+    this.router.get("/events/attended/:usuario_id", this.listAttendedByUser.bind(this));
   }
 
   private async listPublic(_req: Request, res: Response): Promise<void> {
@@ -87,4 +88,55 @@ export class EventosController {
 
   public getRouter(): Router { return this.router; }
   public getPath(): string { return this.path; }
+
+  private async listAttendedByUser(req: Request, res: Response): Promise<void> {
+    try {
+      const usuarioId = Number(req.params.usuario_id);
+      if (!usuarioId || Number.isNaN(usuarioId)) {
+        res.status(400).json({ success: false, message: "Invalid user id" });
+        return;
+      }
+
+      const eventos = await db.Evento.findAll({
+        attributes: [
+          ["evento_id", "id"],
+          ["titulo", "name"],
+          ["fechaInicio", "dateStart"],
+          ["fechaFin", "dateEnd"],
+          ["imagen", "imageUrl"],
+        ],
+        include: [
+          {
+            model: db.Participante,
+            as: "participantes",
+            required: true,
+            through: { attributes: [] },
+            include: [
+              {
+                model: db.Usuario,
+                as: "usuario",
+                required: true,
+                where: { usuario_id: usuarioId },
+              },
+            ],
+          },
+        ],
+        order: [["fechaInicio", "ASC"]],
+        subQuery: false,
+      });
+
+      const payload = (eventos ?? []).map((ev: any) => ({
+        id: ev.get("id"),
+        name: ev.get("name"),
+        dateStart: ev.get("dateStart"),
+        dateEnd: ev.get("dateEnd"),
+        imageUrl: ev.get("imageUrl"),
+      }));
+
+      res.json({ success: true, eventos: payload });
+    } catch (err) {
+      console.error("[EventosController] Error listando asistidos:", err);
+      res.status(500).json({ success: false, message: "Error interno" });
+    }
+  }
 }

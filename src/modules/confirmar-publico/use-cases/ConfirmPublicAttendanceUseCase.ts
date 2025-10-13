@@ -49,11 +49,13 @@ export class ConfirmPublicAttendanceUseCase {
       throw new Error('Rol Asistente not found');
     }
 
-    // Buscar el participante con rol ASISTENTE
-    const participante = await this.participanteRepository.findByUsuarioAndRol(usuario_id, rolAsistente.rol_id);
-    
+    // Buscar el participante con rol ASISTENTE (crearlo on-demand si no existe)
+    let participante = await this.participanteRepository.findByUsuarioAndRol(usuario_id, rolAsistente.rol_id);
     if (!participante) {
-      throw new Error('Participante not found for user with ASISTENTE role');
+      participante = await this.participanteRepository.create({
+        usuario_id,
+        rol_id: rolAsistente.rol_id,
+      });
     }
 
     // Crear relación evento-participante
