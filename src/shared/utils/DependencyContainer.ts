@@ -22,6 +22,10 @@ import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/
 import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
 import { ActivarCuentaUseCase } from '../../modules/activar-cuenta/use-cases/ActivarCuentaUseCase';
 import { LoginUseCase } from '../../modules/iniciar-sesion/use-cases/LoginUseCase';
+import { CreateEventoUseCase } from '../../modules/eventos-crear/use-cases/CreateEventoUseCase';
+import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-cases/ListPublicEventsUseCase';
+import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
+import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 
 export class DependencyContainer {
   // Repositorios (Singleton)
@@ -63,6 +67,12 @@ export class DependencyContainer {
 
   // Use Cases - Auth
   private static loginUseCase: LoginUseCase;
+
+  // Use Cases - Eventos (particionados)
+  private static createEventoUseCase: CreateEventoUseCase;
+  private static listPublicEventsUseCase: ListPublicEventsUseCase;
+  private static listManagedEventsUseCase: ListManagedEventsUseCase;
+  private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
 
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
@@ -260,5 +270,33 @@ export class DependencyContainer {
       );
     }
     return this.loginUseCase;
+  }
+
+  static getCreateEventoUseCase(): CreateEventoUseCase {
+    if (!this.createEventoUseCase) {
+      this.createEventoUseCase = new CreateEventoUseCase();
+    }
+    return this.createEventoUseCase;
+  }
+
+  static getListPublicEventsUseCase(): ListPublicEventsUseCase {
+    if (!this.listPublicEventsUseCase) {
+      this.listPublicEventsUseCase = new ListPublicEventsUseCase();
+    }
+    return this.listPublicEventsUseCase;
+  }
+
+  static getListManagedEventsUseCase(): ListManagedEventsUseCase {
+    if (!this.listManagedEventsUseCase) {
+      this.listManagedEventsUseCase = new ListManagedEventsUseCase();
+    }
+    return this.listManagedEventsUseCase;
+  }
+
+  static getListAttendedEventsUseCase(): ListAttendedEventsUseCase {
+    if (!this.listAttendedEventsUseCase) {
+      this.listAttendedEventsUseCase = new ListAttendedEventsUseCase();
+    }
+    return this.listAttendedEventsUseCase;
   }
 }

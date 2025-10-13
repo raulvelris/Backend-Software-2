@@ -10,7 +10,10 @@ import { ConfirmarPublicoController } from "./modules/confirmar-publico/controll
 import { VerInvitacionesPrivadasController } from "./modules/ver-invitaciones-privadas/controllers/VerInvitacionesPrivadasController";
 import { RegistrarseController } from "./modules/registrarse/controllers/RegistrarseController";
 import { ActivarCuentaController } from "./modules/activar-cuenta/controllers/ActivarCuentaController";
-import { EventosController } from "./modules/eventos/controllers/EventosController";
+import { CreateEventoController } from "./modules/eventos-crear/controllers/CreateEventoController";
+import { PublicEventsController } from "./modules/eventos-publicos/controllers/PublicEventsController";
+import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
+import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
 
 dotenv.config();
@@ -47,8 +50,17 @@ app.use(verParticipantesController.getPath(), verParticipantesController.getRout
 const confirmarInvitacionController = new ConfirmarInvitacionController();
 app.use(confirmarInvitacionController.getPath(), confirmarInvitacionController.getRouter())
 
-const eventosController = new EventosController();
-app.use(eventosController.getPath(), eventosController.getRouter());
+const createEventoController = new CreateEventoController();
+app.use(createEventoController.getPath(), createEventoController.getRouter());
+
+const publicEventsController = new PublicEventsController();
+app.use(publicEventsController.getPath(), publicEventsController.getRouter());
+
+const managedEventsController = new ManagedEventsController();
+app.use(managedEventsController.getPath(), managedEventsController.getRouter());
+
+const attendedEventsController = new AttendedEventsController();
+app.use(attendedEventsController.getPath(), attendedEventsController.getRouter());
 
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
