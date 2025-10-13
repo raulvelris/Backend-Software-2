@@ -15,7 +15,10 @@ export class EmailService {
       auth: {
         user: process.env.SMTP_USER || 'tu-email@gmail.com',
         pass: process.env.SMTP_PASS || 'tu-password-de-aplicacion'
-      }
+      },
+      connectionTimeout: 10000, // 10 segundos
+      greetingTimeout: 10000,
+      socketTimeout: 10000
     });
   }
 
@@ -24,6 +27,7 @@ export class EmailService {
    */
   async sendActivationEmail(email: string, activationToken: string, userName: string): Promise<{ success: boolean; messageId?: string }> {
     try {
+      console.log('📧 Preparando email de activación para:', email);
       const activationUrl = `${process.env.FRONTEND_URL}/activate/${activationToken}`;
       
       const mailOptions = {
@@ -82,13 +86,19 @@ export class EmailService {
         `
       };
 
+      console.log('📤 Enviando email de activación...');
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('✅ Email de activación enviado:', info.messageId);
+      console.log('✅ Email de activación enviado exitosamente:', info.messageId);
       return { success: true, messageId: info.messageId };
       
-    } catch (error) {
-      console.error('❌ Error enviando email de activación:', error);
-      throw new Error('Error al enviar email de activación');
+    } catch (error: any) {
+      console.error('❌ Error enviando email de activación:', error.message || error);
+      console.error('Detalles del error:', {
+        code: error.code,
+        command: error.command,
+        response: error.response
+      });
+      throw new Error(`Error al enviar email de activación: ${error.message}`);
     }
   }
 

@@ -18,6 +18,7 @@ export class RegistrarseController {
 
   private async registrarUsuario(req: Request, res: Response): Promise<void> {
     try {
+      console.log('📝 Iniciando registro de usuario:', req.body.correo);
       const { correo, clave, nombre, apellido } = req.body;
 
       const result = await this.registrarUsuarioUseCase.execute({
@@ -27,9 +28,10 @@ export class RegistrarseController {
         apellido
       });
 
+      console.log('✅ Usuario registrado exitosamente:', correo);
       res.status(201).json(result);
     } catch (error: any) {
-      console.error("Error al registrar usuario:", error);
+      console.error("❌ Error al registrar usuario:", error.message || error);
 
       if (
         error.message.includes('requeridos') ||
