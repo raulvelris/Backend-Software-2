@@ -72,6 +72,10 @@ app.use(authController.getPath(), authController.getRouter());
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {
     try {
+        console.log('🔄 Iniciando conexión a la base de datos...');
+        console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+        console.log('🔧 DATABASE_URL presente:', !!process.env.DATABASE_URL);
+        
         // Autenticar conexión
         await db.sequelize.authenticate();
         console.log('✅ Conexión a la base de datos establecida correctamente');
@@ -82,14 +86,16 @@ const startServer = async () => {
         
         // Iniciar servidor
         app.listen(port, () => {
-            console.log(`[Server]: Servidor ejecutandose en puerto ${port}`)
+            console.log(`✅ [Server]: Servidor ejecutandose en puerto ${port}`)
         });
     } catch (error) {
         console.error('❌ Error al conectar con la base de datos:', error);
+        console.error('❌ Detalles del error:', JSON.stringify(error, null, 2));
         process.exit(1);
     }
 };
 
+console.log('🚀 Iniciando aplicación...');
 startServer();
 
 // Manejo de errores no capturados
