@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "npm install && ts-node src/index.ts",
+    "start": "npm install && npm run db:seed && ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:migrate": "npx sequelize-cli db:migrate",
