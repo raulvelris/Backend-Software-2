@@ -15,6 +15,7 @@ import { PublicEventsController } from "./modules/eventos-publicos/controllers/P
 import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
+const db = require("./infrastructure/database/models");
 
 dotenv.config();
 
@@ -68,10 +69,34 @@ app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasCont
 const authController = new AuthController();
 app.use(authController.getPath(), authController.getRouter());
 
+// Conectar a la base de datos y sincronizar
+const startServer = async () => {
+    try {
+        console.log('🔄 Iniciando conexión a la base de datos...');
+        console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+        console.log('🔧 DATABASE_URL presente:', !!process.env.DATABASE_URL);
+        
+        // Autenticar conexión
+        await db.sequelize.authenticate();
+        console.log('✅ Conexión a la base de datos establecida correctamente');
+        
+        // Sincronizar modelos (crear tablas si no existen)
+        await db.sequelize.sync({ alter: false });
+        console.log('✅ Modelos sincronizados con la base de datos');
+        
+        // Iniciar servidor
+        app.listen(port, () => {
+            console.log(`✅ [Server]: Servidor ejecutandose en puerto ${port}`)
+        });
+    } catch (error) {
+        console.error('❌ Error al conectar con la base de datos:', error);
+        console.error('❌ Detalles del error:', JSON.stringify(error, null, 2));
+        process.exit(1);
+    }
+};
 
-app.listen(port, () => {
-    console.log(`[Server]: Servidor ejecutandose en puerto ${port}`)
-})
+console.log('🚀 Iniciando aplicación...');
+startServer();
 
 // Manejo de errores no capturados
 process.on('uncaughtException', (error) => {
