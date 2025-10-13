@@ -16,9 +16,10 @@ export class PublicEventsController {
     this.router.get('/events/public', this.list.bind(this))
   }
 
-  private async list(_req: Request, res: Response): Promise<void> {
+  private async list(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this.listPublicEventsUseCase.execute()
+      const usuarioId = req.query.usuarioId ? Number(req.query.usuarioId) : undefined
+      const result = await this.listPublicEventsUseCase.execute(usuarioId)
       res.json(result)
     } catch (err) {
       console.error('[PublicEventsController] Error listando públicos:', err)

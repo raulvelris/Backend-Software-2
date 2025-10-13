@@ -7,4 +7,11 @@ export interface IEventoRepository {
   delete(id: number): Promise<boolean>;
   findAll(): Promise<any[]>;
   incrementParticipantes(eventoId: number): Promise<void>;
+  
+  // Métodos para consultas específicas
+  findByTituloLowerCase(titulo: string): Promise<any | null>;
+  countEventosByOrganizador(usuarioId: number): Promise<number>;
+  findPublicEvents(excludeUsuarioId?: number): Promise<any[]>;
+  findManagedEventsByUsuario(usuarioId: number): Promise<any[]>;
+  findAttendedEventsByUsuario(usuarioId: number): Promise<any[]>;
 }

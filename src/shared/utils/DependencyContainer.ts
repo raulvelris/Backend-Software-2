@@ -8,6 +8,7 @@ import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/I
 import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
 import { ParticipanteRepository } from '../../infrastructure/repositories/ParticipanteRepository';
 import { RolRepository } from '../../infrastructure/repositories/RolRepository';
+import { UbicacionRepository } from '../../infrastructure/repositories/UbicacionRepository';
 import { EmailService } from '../../infrastructure/services/EmailService';
 
 import { SearchUsuariosUseCase } from '../../modules/invitaciones/use-cases/SearchUsuariosUseCase';
@@ -38,6 +39,7 @@ export class DependencyContainer {
   private static estadoInvitacionRepository: EstadoInvitacionRepository;
   private static participanteRepository: ParticipanteRepository;
   private static rolRepository: RolRepository;
+  private static ubicacionRepository: UbicacionRepository;
 
   // Servicios (Singleton)
   private static emailService: EmailService;
@@ -136,6 +138,13 @@ export class DependencyContainer {
       this.rolRepository = new RolRepository();
     }
     return this.rolRepository;
+  }
+
+  static getUbicacionRepository(): UbicacionRepository {
+    if (!this.ubicacionRepository) {
+      this.ubicacionRepository = new UbicacionRepository();
+    }
+    return this.ubicacionRepository;
   }
 
   // Getters para Servicios
@@ -274,28 +283,40 @@ export class DependencyContainer {
 
   static getCreateEventoUseCase(): CreateEventoUseCase {
     if (!this.createEventoUseCase) {
-      this.createEventoUseCase = new CreateEventoUseCase();
+      this.createEventoUseCase = new CreateEventoUseCase(
+        this.getEventoRepository(),
+        this.getUbicacionRepository(),
+        this.getRolRepository(),
+        this.getParticipanteRepository(),
+        this.getEventoParticipanteRepository()
+      );
     }
     return this.createEventoUseCase;
   }
 
   static getListPublicEventsUseCase(): ListPublicEventsUseCase {
     if (!this.listPublicEventsUseCase) {
-      this.listPublicEventsUseCase = new ListPublicEventsUseCase();
+      this.listPublicEventsUseCase = new ListPublicEventsUseCase(
+        this.getEventoRepository()
+      );
     }
     return this.listPublicEventsUseCase;
   }
 
   static getListManagedEventsUseCase(): ListManagedEventsUseCase {
     if (!this.listManagedEventsUseCase) {
-      this.listManagedEventsUseCase = new ListManagedEventsUseCase();
+      this.listManagedEventsUseCase = new ListManagedEventsUseCase(
+        this.getEventoRepository()
+      );
     }
     return this.listManagedEventsUseCase;
   }
 
   static getListAttendedEventsUseCase(): ListAttendedEventsUseCase {
     if (!this.listAttendedEventsUseCase) {
-      this.listAttendedEventsUseCase = new ListAttendedEventsUseCase();
+      this.listAttendedEventsUseCase = new ListAttendedEventsUseCase(
+        this.getEventoRepository()
+      );
     }
     return this.listAttendedEventsUseCase;
   }

@@ -1,49 +1,12 @@
+import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository'
+
 export class ListPublicEventsUseCase {
-  private db = require('../../../infrastructure/database/models')
+  constructor(
+    private eventoRepository: IEventoRepository
+  ) {}
 
-  async execute() {
-    const ID_ESTADO_PROGRAMADO = 1
-    const ID_PRIVACIDAD_PUBLICO = 1
-
-    const eventos = await this.db.Evento.findAll({
-      attributes: [
-        ['evento_id', 'id'],
-        ['titulo', 'name'],
-        ['fechaInicio', 'dateStart'],
-        ['fechaFin', 'dateEnd'],
-        ['imagen', 'imageUrl'],
-        [
-          this.db.Sequelize.fn(
-            'COUNT',
-            this.db.Sequelize.col('participantes.EventoParticipante.participante_id')
-          ),
-          'attendeesCount',
-        ],
-      ],
-      where: {
-        estadoEvento: ID_ESTADO_PROGRAMADO,
-        privacidad: ID_PRIVACIDAD_PUBLICO,
-        fechaFin: { [this.db.Sequelize.Op.gte]: new Date() },
-      },
-      include: [
-        {
-          model: this.db.Ubicacion,
-          as: 'ubicacion',
-          attributes: [['direccion', 'location']],
-          required: false,
-        },
-        {
-          model: this.db.Participante,
-          as: 'participantes',
-          attributes: [],
-          required: false,
-          through: { attributes: [] },
-        },
-      ],
-      group: ['Evento.evento_id', 'ubicacion.ubicacion_id', 'ubicacion.direccion'],
-      order: [['fechaInicio', 'ASC']],
-      subQuery: false,
-    })
+  async execute(usuarioId?: number) {
+    const eventos = await this.eventoRepository.findPublicEvents(usuarioId)
 
     const payload = (eventos ?? []).map((ev: any) => ({
       id: ev.get('id'),

@@ -1,7 +1,20 @@
 import { CrearEventoDto } from '../dtos/CrearEventoDto'
+import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository'
+import { IUbicacionRepository } from '../../../domain/interfaces/IUbicacionRepository'
+import { IRolRepository } from '../../../domain/interfaces/IRolRepository'
+import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository'
+import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository'
+
+const db = require('../../../infrastructure/database/models')
 
 export class CreateEventoUseCase {
-  private db = require('../../../infrastructure/database/models')
+  constructor(
+    private eventoRepository: IEventoRepository,
+    private ubicacionRepository: IUbicacionRepository,
+    private rolRepository: IRolRepository,
+    private participanteRepository: IParticipanteRepository,
+    private eventoParticipanteRepository: IEventoParticipanteRepository
+  ) {}
 
   async execute(input: CrearEventoDto) {
     const {
@@ -30,14 +43,7 @@ export class CreateEventoUseCase {
     }
 
     // Nombre único (case-insensitive)
-    const lower = String(name).toLowerCase()
-    const exists = await this.db.Evento.findOne({
-      where: this.db.Sequelize.where(
-        this.db.Sequelize.fn('LOWER', this.db.Sequelize.col('titulo')),
-        this.db.Sequelize.Op.eq,
-        lower
-      )
-    })
+    const exists = await this.eventoRepository.findByTituloLowerCase(name)
     if (exists) {
       throw new Error('Event name must be unique')
     }
@@ -64,29 +70,14 @@ export class CreateEventoUseCase {
       : ID_PRIVACIDAD_PUBLICO
 
     // Límite por usuario: máximo 5 eventos como Organizador
-    const existingCount = await this.db.Evento.count({
-      include: [
-        {
-          model: this.db.Participante,
-          as: 'participantes',
-          required: true,
-          through: { attributes: [] },
-          include: [
-            { model: this.db.Usuario, as: 'usuario', required: true, where: { usuario_id: ownerId } },
-            { model: this.db.Rol, as: 'rol', required: true, where: { nombre: 'Organizador' } },
-          ],
-        },
-      ],
-      distinct: true,
-      col: 'evento_id',
-    })
+    const existingCount = await this.eventoRepository.countEventosByOrganizador(ownerId)
 
     if (existingCount >= 5) {
       throw new Error('You reached your event limit')
     }
 
-    const nuevo = await this.db.sequelize.transaction(async (t: any) => {
-      const evento = await this.db.Evento.create({
+    const nuevo = await db.sequelize.transaction(async (t: any) => {
+      const evento = await this.eventoRepository.create({
         titulo: name,
         descripcion: description ?? null,
         fechaInicio,
@@ -96,26 +87,26 @@ export class CreateEventoUseCase {
         aforo: Number(capacity),
         estadoEvento: ID_ESTADO_PROGRAMADO,
         privacidad: privacidadId,
-      }, { transaction: t })
+      })
 
       const direccion = locationAddress || ''
       if (direccion) {
-        await this.db.Ubicacion.create({
+        await this.ubicacionRepository.create({
           direccion,
           latitud: lat ?? null,
           longitud: lng ?? null,
           evento_id: evento.evento_id,
-        }, { transaction: t })
+        })
       }
 
-      const rolOrganizador = await this.db.Rol.findOne({ where: { nombre: 'Organizador' }, transaction: t })
+      const rolOrganizador = await this.rolRepository.findByNombre('Organizador')
       const rolId = rolOrganizador?.rol_id ?? 1
-      let participante = await this.db.Participante.findOne({ where: { usuario_id: ownerId, rol_id: rolId }, transaction: t })
+      let participante = await this.participanteRepository.findByUsuarioAndRol(ownerId, rolId)
       if (!participante) {
-        participante = await this.db.Participante.create({ usuario_id: ownerId, rol_id: rolId }, { transaction: t })
+        participante = await this.participanteRepository.create({ usuario_id: ownerId, rol_id: rolId })
       }
 
-      await this.db.EventoParticipante.create({ evento_id: evento.evento_id, participante_id: participante.participante_id }, { transaction: t })
+      await this.eventoParticipanteRepository.create(evento.evento_id, participante.participante_id)
 
       return evento
     })
