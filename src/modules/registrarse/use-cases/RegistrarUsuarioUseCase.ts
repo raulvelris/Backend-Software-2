@@ -89,12 +89,15 @@ export class RegistrarUsuarioUseCase {
       usuarioId = usuario.usuario_id;
     }
 
-    // 9. Enviar correo de activación
-    try {
-      await this.emailService.sendActivationEmail(dto.correo, activationToken, dto.nombre);
-    } catch (emailError: any) {
-      console.error('❌ Error enviando email:', emailError?.message);
-    }
+    // 9. Enviar correo de activación (asíncrono, no bloquea la respuesta)
+    this.emailService.sendActivationEmail(dto.correo, activationToken, dto.nombre)
+      .then(() => {
+        console.log('✅ Email de activación enviado exitosamente a:', dto.correo);
+      })
+      .catch((emailError: any) => {
+        console.error('❌ Error enviando email:', emailError?.message);
+        console.error('⚠️ El usuario puede activar su cuenta manualmente si es necesario');
+      });
 
     return {
       success: true,
