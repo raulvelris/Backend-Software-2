@@ -16,9 +16,12 @@ export class EmailService {
         user: process.env.SMTP_USER || 'tu-email@gmail.com',
         pass: process.env.SMTP_PASS || 'tu-password-de-aplicacion'
       },
-      connectionTimeout: 10000, // 10 segundos
-      greetingTimeout: 10000,
-      socketTimeout: 10000
+      connectionTimeout: 5000, // 5 segundos
+      greetingTimeout: 5000,
+      socketTimeout: 5000,
+      pool: true, // Usar pool de conexiones
+      maxConnections: 5,
+      maxMessages: 10
     });
   }
 
