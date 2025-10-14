@@ -23,12 +23,14 @@ const app = express()
 
 // Configurar CORS para permitir el frontend
 const allowedOrigins = process.env.FRONTEND_URL 
-    ? [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:3000']
-    : ['http://localhost:5173', 'http://localhost:3000'];
+    ? [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:3000', 'https://evento-maestro.netlify.app']
+    : ['http://localhost:5173', 'http://localhost:3000', 'https://evento-maestro.netlify.app'];
 
 app.use(cors({ 
     origin: allowedOrigins,
-    credentials: true 
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(bodyParser.json())
