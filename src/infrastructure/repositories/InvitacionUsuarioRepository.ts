@@ -17,6 +17,8 @@ export class InvitacionUsuarioRepository implements IInvitacionUsuarioRepository
     }
   }
 
+  // Nota: Arreglar para ver si está pendiente!
+  // Tarea: Validación de invitación repetida
   async findByEventoAndUsuario(eventoId: number, usuarioId: number): Promise<any | null> {
     try {
       const invitacionExistente = await db.InvitacionUsuario.findOne({
