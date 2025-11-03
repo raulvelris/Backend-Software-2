@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
+    esParaCoorganizar: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
     estado_invitacion_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

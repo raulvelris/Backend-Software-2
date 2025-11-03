@@ -11,6 +11,10 @@ module.exports = {
       {
         rol_id: 2,
         nombre: 'Asistente'
+      },
+      {
+        rol_id: 3,
+        nombre: 'Coorganizador'
       }
     ], {});
   },
