@@ -120,3 +120,7 @@ export class SendInvitacionUseCase {
     };
   }
 }
+
+
+// patron observador 
+// comportamiento  
