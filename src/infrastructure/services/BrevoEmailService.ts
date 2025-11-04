@@ -1,12 +1,37 @@
+import * as nodemailer from 'nodemailer';
 import * as brevo from '@getbrevo/brevo';
 import { IEmailService } from '../../domain/interfaces/IEmailService';
 
+// Initialize the Brevo API client
+const apiInstance = new brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY || 'your_brevo_api_key_here');
+
 export class BrevoEmailService implements IEmailService {
-  private apiInstance: brevo.TransactionalEmailsApi;
+  private transporter: nodemailer.Transporter;
 
   constructor() {
-    this.apiInstance = new brevo.TransactionalEmailsApi();
-    (this.apiInstance as any).authentications.apiKey.apiKey = process.env.BREVO_API_KEY || '6RrIaCYwdQyKZV9z';
+    // Configuración del transporte SMTP para Brevo
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp-relay.brevo.com',
+      port: 587,
+      secure: false, // true para 465, false para otros puertos
+      auth: {
+        user: process.env.SMTP_USER || '9ab63b001@smtp-brevo.com',
+        pass: process.env.SMTP_PASS || '6RrIaCYwdQyKZV9z'
+      },
+      connectionTimeout: 10000, // 10 segundos de timeout
+      greetingTimeout: 10000,
+      socketTimeout: 10000
+    });
+
+    // Verificar la configuración del transporte
+    this.transporter.verify((error) => {
+      if (error) {
+        console.error('❌ Error al verificar la configuración SMTP:', error);
+      } else {
+        console.log('✅ Configuración SMTP verificada correctamente');
+      }
+    });
   }
 
   async sendActivationEmail(email: string, activationToken: string, userName: string) {
@@ -96,24 +121,27 @@ export class BrevoEmailService implements IEmailService {
         </div>
       `;
 
-      console.log('📤 Enviando email de activación vía Brevo API...');
-      console.log('🔑 Usando API Key:', 
-        process.env.BREVO_API_KEY ? 
-        `${process.env.BREVO_API_KEY.substring(0, 4)}...${process.env.BREVO_API_KEY.substring(process.env.BREVO_API_KEY.length - 4)}` : 
-        'No definida'
-      );
+      console.log('📤 Enviando email de activación vía SMTP...');
+      
+      const mailOptions = {
+        from: `"EventMaster" <${process.env.EMAIL_FROM || '20222730@aloe.ulima.edu.pe'}>`,
+        to: email,
+        subject: '🎉 Activa tu cuenta en EventMaster',
+        html: sendSmtpEmail.htmlContent
+      };
 
-      const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      const info = await this.transporter.sendMail(mailOptions);
       
       console.log('✅ Email de activación enviado exitosamente');
-      console.log('📨 Respuesta de Brevo API:', {
-        status: 'OK',
-        messageId: (response as any).messageId || 'No disponible',
-        timestamp: new Date().toISOString()
+      console.log('📨 Detalles del envío:', {
+        messageId: info.messageId,
+        accepted: info.accepted,
+        rejected: info.rejected,
+        pending: info.pending,
+        response: info.response
       });
       
-      const messageId = (response as any).messageId || 'no-id';
-      return { success: true, messageId };
+      return { success: true, messageId: info.messageId };
       
     } catch (error: any) {
       console.error('❌❌❌ ERROR CRÍTICO AL ENVIAR EMAIL ❌❌❌');
@@ -195,19 +223,27 @@ export class BrevoEmailService implements IEmailService {
         </div>
       `;
 
-      console.log('📤 Enviando email de bienvenida vía Brevo API...');
-      const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      console.log('📤 Enviando email de bienvenida vía SMTP...');
+      
+      const mailOptions = {
+        from: `"EventMaster" <${process.env.EMAIL_FROM || '20222730@aloe.ulima.edu.pe'}>`,
+        to: email,
+        subject: '🎉 ¡Bienvenido a EventMaster!',
+        html: sendSmtpEmail.htmlContent
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
       
       console.log('✅ Email de bienvenida enviado exitosamente');
-      console.log('📨 Respuesta de Brevo API:', {
-        status: 'OK',
-        messageId: (response as any).messageId || 'No disponible',
-        timestamp: new Date().toISOString()
+      console.log('📨 Detalles del envío:', {
+        messageId: info.messageId,
+        accepted: info.accepted,
+        response: info.response
       });
       
       return { 
         success: true, 
-        messageId: (response as any).messageId || 'no-id'
+        messageId: info.messageId 
       };
       
     } catch (error: any) {
