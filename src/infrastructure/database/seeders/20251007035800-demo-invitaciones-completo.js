@@ -63,47 +63,55 @@ module.exports = {
     await queryInterface.bulkInsert('InvitacionUsuario', [
       // Invitaciones para evento 1 (notifIds[0])
       {
+        esParaCoorganizar: false,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[0],
-        usuario_id: 2
+        usuario_id: 7
       },
       {
+        esParaCoorganizar: true,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[0],
-        usuario_id: 3
+        usuario_id: 8
       },
       // Invitaciones para evento 2 (notifIds[1])
       {
+        esParaCoorganizar: false,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[1],
-        usuario_id: 2
+        usuario_id: 8
       },
       {
+        esParaCoorganizar: true,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[1],
-        usuario_id: 4
+        usuario_id: 7
       },
       // Invitaciones para evento 3 (notifIds[2])
       {
+        esParaCoorganizar: false,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[2],
-        usuario_id: 3
+        usuario_id: 7
       },
       {
+        esParaCoorganizar: true,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[2],
-        usuario_id: 5
+        usuario_id: 8
       },
       // Invitaciones para evento 4 (notifIds[3])
       {
+        esParaCoorganizar: false,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[3],
-        usuario_id: 2
+        usuario_id: 8
       },
       {
+        esParaCoorganizar: true,
         estado_invitacion_id: estadoId,
         invitacion_id: notifIds[3],
-        usuario_id: 6
+        usuario_id: 7
       }
     ], {});
 

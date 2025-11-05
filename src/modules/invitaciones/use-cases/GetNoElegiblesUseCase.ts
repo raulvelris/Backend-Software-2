@@ -1,28 +1,61 @@
 import { IInvitacionUsuarioRepository } from '../../../domain/interfaces/IInvitacionUsuarioRepository';
 import { IEstadoInvitacionRepository } from '../../../domain/interfaces/IEstadoInvitacionRepository';
+import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
 import { EstadoInvitacionEnum } from '../../../domain/value-objects/EstadoInvitacion';
+import { UsuarioNoElegibleDto } from '../dtos/UsuarioNoElegibleDto';
+import { TipoNoElegible } from '../../../domain/value-objects/TipoNoElegible';
+
 
 export class GetNoElegiblesUseCase {
   constructor(
     private invitacionUsuarioRepository: IInvitacionUsuarioRepository,
-    private estadoInvitacionRepository: IEstadoInvitacionRepository
+    private estadoInvitacionRepository: IEstadoInvitacionRepository,
+    private eventoParticipanteRepository: IEventoParticipanteRepository
   ) {}
 
-  async execute(eventoId: number): Promise<any[]> {
+  async execute(eventoId: number): Promise<UsuarioNoElegibleDto[]> {
     if (!eventoId) {
       throw new Error('evento_id es requerido');
     }
 
-    // Obtener estado "Pendiente"
-    const estadoPendiente = await this.estadoInvitacionRepository.findByNombre(EstadoInvitacionEnum.PENDIENTE);
+    // Obtener el ID del estado "Pendiente"
+    const estadoPendiente = await this.estadoInvitacionRepository.findByNombre(
+      EstadoInvitacionEnum.PENDIENTE
+    );
+
     if (!estadoPendiente) {
-      return []; // Si no existe el estado, retornar vacío
+      throw new Error('No se encontró el estado de invitación PENDIENTE');
     }
 
-    const noElegibles = await this.invitacionUsuarioRepository.findNoElegiblesByEvento(
-      eventoId,
+    // Obtener usuarios con invitaciones pendientes
+    const pendientes = await this.invitacionUsuarioRepository.findPendientesByEvento(
+      eventoId, 
       estadoPendiente.estado_id
     );
-    return noElegibles;
+
+    // Obtener participantes del evento
+    const participantes = await this.eventoParticipanteRepository.findParticipantesByEvento(eventoId);
+
+    // Mapear resultados
+    const pendientesMapeados: UsuarioNoElegibleDto[] = pendientes.map((pe: any) => ({
+      usuario_id: pe.usuario.usuario_id,
+      correo: pe.usuario.correo,
+      nombre: pe.usuario.cliente?.nombre || '',
+      apellido: pe.usuario.cliente?.apellido || '',
+      tipo: pe.esParaCoorganizar 
+        ? TipoNoElegible.PENDIENTE_COORGANIZADOR 
+        : TipoNoElegible.PENDIENTE_ASISTENTE
+    }));
+
+    const participantesMapeados: UsuarioNoElegibleDto[] = participantes.map((pa: any) => ({
+      usuario_id: pa.participante.usuario.usuario_id,
+      correo:  pa.participante.usuario.correo,
+      nombre: pa.participante.usuario.cliente?.nombre || '',
+      apellido: pa.participante.usuario.cliente?.apellido || '',
+      tipo: TipoNoElegible.PARTICIPANTE
+    }));
+
+    // Combinar y devolver resultados
+    return [...pendientesMapeados, ...participantesMapeados];
   }
 }

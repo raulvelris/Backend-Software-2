@@ -23,10 +23,10 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
     }
   }
 
-  async findParticipantesByEvento(eventoId: number): Promise<any[]> {
+  async findParticipantesByEventoAndRol(eventoId: number): Promise<any[]> {
     try {
       const links = await db.EventoParticipante.findAll({
-        where: { evento_id: eventoId },
+        where: { evento_id: eventoId }, 
         include: [
           {
             model: db.Participante,
@@ -60,6 +60,36 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
         rol: l.participante.rol?.nombre || ''
       }));
 
+      return participantes;
+    } catch (error) {
+      console.error('Error en findParticipantesByEventoAndRol:', error);
+      throw error;
+    }
+  }
+
+  async findParticipantesByEvento(eventoId: number): Promise<any[]> {
+    try {
+      // Obtener participantes
+      const participantes = await db.EventoParticipante.findAll({
+        where: { evento_id: eventoId },
+        include: [{
+          model: db.Participante,
+          as: "participante",
+          required: true,
+          include: [{
+            model: db.Usuario,
+            as: "usuario",
+            attributes: ["usuario_id", "correo"],
+            required: true,
+            include: [{
+              model: db.Cliente,
+              as: "cliente",
+              attributes: ["nombre", "apellido"],
+              required: true
+            }]
+          }]
+        }]
+      });
       return participantes;
     } catch (error) {
       console.error('Error en findParticipantesByEvento:', error);

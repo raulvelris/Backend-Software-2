@@ -182,7 +182,8 @@ export class DependencyContainer {
     if (!this.getNoElegiblesUseCase) {
       this.getNoElegiblesUseCase = new GetNoElegiblesUseCase(
         this.getInvitacionUsuarioRepository(),
-        this.getEstadoInvitacionRepository()
+        this.getEstadoInvitacionRepository(),
+        this.getEventoParticipanteRepository()
       );
     }
     return this.getNoElegiblesUseCase;
