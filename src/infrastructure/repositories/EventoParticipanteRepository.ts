@@ -4,9 +4,9 @@ const db = require('../database/models');
 
 export class EventoParticipanteRepository implements IEventoParticipanteRepository {
   
-  async isUsuarioInEvento(eventoId: number, usuarioId: number): Promise<boolean> {
+  async findByEventoAndUsuario(eventoId: number, usuarioId: number): Promise<any | null> {
     try {
-      const participante = await db.EventoParticipante.findOne({
+      const link = await db.EventoParticipante.findOne({
         include: [{
           model: db.Participante,
           as: "participante",
@@ -16,9 +16,9 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
         where: { evento_id: eventoId }
       });
       
-      return participante !== null;
+      return link 
     } catch (error) {
-      console.error('Error en isUsuarioInEvento:', error);
+      console.error('Error en findByEventoAndUsuario:', error);
       throw error;
     }
   }
@@ -70,7 +70,7 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
   async findParticipantesByEvento(eventoId: number): Promise<any[]> {
     try {
       // Obtener participantes
-      const participantes = await db.EventoParticipante.findAll({
+      const links = await db.EventoParticipante.findAll({
         where: { evento_id: eventoId },
         include: [{
           model: db.Participante,
@@ -90,7 +90,7 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
           }]
         }]
       });
-      return participantes;
+      return links;
     } catch (error) {
       console.error('Error en findParticipantesByEvento:', error);
       throw error;
@@ -145,6 +145,19 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
       return nuevoLink;
     } catch (error) {
       console.error('Error en create:', error);
+      throw error;
+    }
+  }
+
+  // Buscar si el participante esta en algún evento
+  async findByParticipante(participanteId: number): Promise<any[]> {
+    try {
+      const link = await db.EventoParticipante.findOne({
+        where: { participante_id: participanteId }
+      });
+      return link;
+    } catch (error) {
+      console.error('Error en findByParticipante:', error);
       throw error;
     }
   }

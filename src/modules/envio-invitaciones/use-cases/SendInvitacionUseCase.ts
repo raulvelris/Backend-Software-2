@@ -81,7 +81,7 @@ export class SendInvitacionUseCase {
       }
 
       // Validar si ya está en el evento sin importar el rol
-      const yaEnEvento = await this.eventoParticipanteRepository.isUsuarioInEvento(dto.evento_id, usuario_id);
+      const yaEnEvento = await this.eventoParticipanteRepository.findByEventoAndUsuario(dto.evento_id, usuario_id);
 
       if (yaEnEvento) {
         resultados.push({ usuario_id, status: 'Already in event' });

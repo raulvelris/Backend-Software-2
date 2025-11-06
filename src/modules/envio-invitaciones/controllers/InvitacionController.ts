@@ -14,27 +14,32 @@ export class InvitacionController {
   private getNoElegiblesUseCase = DependencyContainer.getGetNoElegiblesUseCase();
   private countInvitacionesPendientesUseCase = DependencyContainer.getCountInvitacionesPendientesUseCase();
 
+  // Middleware
+  private verifyOrganizerOrCoorganizerGlobal = DependencyContainer.getVerifyOrganizerOrCoorganizerGlobal();
+  private verifyOrganizerOrCoorganizerInEvent = DependencyContainer.getVerifyOrganizerOrCoorganizerInEvent();
+
   constructor() {
     this.router = express.Router();
     
     // aplicar middleware a todas las rutas
     this.router.use(authMiddleware);
 
+    // inicializar rutas
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
     // 1. Endpoint para buscar usuarios por email
-    this.router.get("/search", this.searchUsuarios.bind(this));
+    this.router.get("/search", this.verifyOrganizerOrCoorganizerGlobal, this.searchUsuarios.bind(this));
 
     // 2. Endpoint para enviar invitación
-    this.router.post("/send", this.sendInvitacion.bind(this));
+    this.router.post("/send", this.verifyOrganizerOrCoorganizerInEvent, this.sendInvitacion.bind(this));
 
     // 3. Obtener no elegibles por evento
-    this.router.get("/no-eligible/:evento_id", this.getNoElegibles.bind(this));
+    this.router.get("/no-eligible/:evento_id", this.verifyOrganizerOrCoorganizerInEvent, this.getNoElegibles.bind(this));
 
     // 4. Contar invitaciones pendientes por evento
-    this.router.get("/count/:evento_id", this.countInvitacionesPendientes.bind(this));
+    this.router.get("/count/:evento_id", this.verifyOrganizerOrCoorganizerInEvent, this.countInvitacionesPendientes.bind(this));
   }
 
   // Handler: Buscar usuarios
@@ -43,7 +48,7 @@ export class InvitacionController {
       const { query } = req.query;
 
       const usuarios = await this.searchUsuariosUseCase.execute({
-        query: query as string
+        query: query as string,
       });
 
       res.json({

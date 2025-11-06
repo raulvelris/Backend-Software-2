@@ -55,7 +55,14 @@ export class GetNoElegiblesUseCase {
       tipo: TipoNoElegible.PARTICIPANTE
     }));
 
-    // Combinar y devolver resultados
-    return [...pendientesMapeados, ...participantesMapeados];
+    // Combinar y ordenar resultados
+    return [...pendientesMapeados, ...participantesMapeados].sort((a, b) => {
+      // Ordenar por tipo primero
+      if (a.tipo !== b.tipo) {
+        return a.tipo.localeCompare(b.tipo);
+      }
+      // Si los tipos son iguales, ordenar por usuario_id
+      return a.usuario_id - b.usuario_id;
+    });
   }
 }

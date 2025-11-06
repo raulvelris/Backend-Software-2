@@ -1,52 +1,64 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction, RequestHandler } from 'express'
+import jwt from 'jsonwebtoken'
 
-interface JwtPayload {
-  sub: string;  // ID del usuario
+// Extend the Express Request type
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { id: number }
+    }
+  }
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction): Response | void {
-   // Validación más estricta del header
-  const authHeader = req.headers.authorization;
+interface JwtPayload {
+  sub: number // ID del usuario como número
+}
+
+export const authMiddleware: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Formato de token inválido. Usa: Bearer <token>' 
-    });
+    return res.status(401).json({
+      success: false,
+      message: 'Formato de token inválido. Usa: Bearer <token>',
+    })
   }
 
-  // Validación del token
-  const token = authHeader.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Token no proporcionado' 
-    });
-  }
-
-  // Validación de la variable de entorno
-  const secret = process.env.JWT_SECRET;
+  const token = authHeader.split(' ')[1]
+  const secret = process.env.JWT_SECRET
   if (!secret) {
-    console.error('JWT_SECRET no está definido en las variables de entorno');
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Error de configuración del servidor' 
-    });
+    console.error('JWT_SECRET no está definido en las variables de entorno')
+    return res.status(500).json({
+      success: false,
+      message: 'Error de configuración del servidor',
+    })
   }
 
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Token no proporcionado',
+    })
+  }
+  
   try {
-    const decoded = jwt.verify(token, secret) as JwtPayload;
+    const decoded = jwt.verify(token, secret) as unknown as JwtPayload
 
-    // Solo incluir el ID si no necesitas el email
-    (req as any).user = { 
-      id: decoded.sub 
-    };
-    
-    next();
+    if (typeof decoded.sub !== 'number' || isNaN(decoded.sub)) {
+      return res.status(401).json({
+        success: false,
+        message: 'ID inválido en el token',
+      })
+    }
+
+    // asignamos el usuario al request con el tipo correcto
+    req.user = { id: decoded.sub }
+
+    next()
   } catch (error) {
-    const message = error instanceof jwt.TokenExpiredError
-      ? 'Token expirado'
-      : 'Token inválido';
-    return res.status(401).json({ success: false, message });
+    const message =
+      error instanceof jwt.TokenExpiredError
+        ? 'Token expirado'
+        : 'Token inválido'
+    return res.status(401).json({ success: false, message })
   }
 }

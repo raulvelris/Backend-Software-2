@@ -32,7 +32,7 @@ export class LoginUseCase {
         correo: user.correo,
         nombre: user.cliente?.nombre ?? null,
         apellido: user.cliente?.apellido ?? null,
-      },
+      }
     }
     return result
   }
