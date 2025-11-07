@@ -5,6 +5,7 @@ import {
   LIMITE_INVITACIONES_PENDIENTES_ASISTENTES,
   LIMITE_INVITACIONES_PENDIENTES_COORGANIZADORES
 } from '../../../domain/value-objects/Constantes';
+import { CountInvitacionesPendientesResultDto } from '../dtos/CountInvitacionesPendientesDto';
 
 export class CountInvitacionesPendientesUseCase {
   constructor(
@@ -12,12 +13,7 @@ export class CountInvitacionesPendientesUseCase {
     private estadoInvitacionRepository: IEstadoInvitacionRepository
   ) {}
 
-  async execute(eventoId: number): Promise<{
-    pendientesParaAsistente: number;
-    limiteAsistentes: number;
-    pendientesParaCoorganizador: number;
-    limiteCoorganizadores: number;
-  }> {
+  async execute(eventoId: number): Promise<CountInvitacionesPendientesResultDto> {
     if (!eventoId) {
       throw new Error('evento_id es requerido');
     }
