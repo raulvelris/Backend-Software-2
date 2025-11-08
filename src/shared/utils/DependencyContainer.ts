@@ -18,6 +18,7 @@ import { CountInvitacionesPendientesUseCase } from '../../modules/envio-invitaci
 import { GetParticipantesByEventoUseCase } from '../../modules/ver-participantes/use-cases/GetParticipantesByEventoUseCase';
 import { RespondInvitacionUseCase } from '../../modules/confirmar-invitacion/use-cases/RespondInvitacionUseCase';
 import { GetInvitacionesPrivadasUseCase } from '../../modules/ver-invitaciones-privadas/use-cases/GetInvitacionesPrivadasUseCase';
+import { GetNotificacionesAccionUseCase } from '../../modules/ver-notificaciones-accion/use-cases/GetNotificacionesAccionUseCase';
 import { GetEventoDetalleUseCase } from '../../modules/ver-detalle/use-cases/GetEventoDetalleUseCase';
 import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/use-cases/ConfirmPublicAttendanceUseCase';
 import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
@@ -64,6 +65,9 @@ export class DependencyContainer {
 
   // Use Cases - Ver Invitaciones Privadas
   private static getInvitacionesPrivadasUseCase: GetInvitacionesPrivadasUseCase;
+
+  // Use Cases - Ver Notificaciones Accion
+  private static getNotificacionesAccionUseCase: GetNotificacionesAccionUseCase;
 
   // Use Cases - Registrarse
   private static registrarUsuarioUseCase: RegistrarUsuarioUseCase;
@@ -238,6 +242,15 @@ export class DependencyContainer {
       );
     }
     return this.getInvitacionesPrivadasUseCase;
+  }
+
+  static getGetNotificacionesAccionUseCase(): GetNotificacionesAccionUseCase {
+    if (!this.getNotificacionesAccionUseCase) {
+      this.getNotificacionesAccionUseCase = new GetNotificacionesAccionUseCase(
+        this.getInvitacionUsuarioRepository()
+      );
+    }
+    return this.getNotificacionesAccionUseCase;
   }
 
   static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {

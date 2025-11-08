@@ -22,6 +22,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'participante_id',
         as: 'eventos'
       });
+
+      // Un participante puede tener muchas notificaciones (a través de NotificacionParticipante)
+      Participante.belongsToMany(models.NotificacionAccion, {
+        through: models.NotificacionParticipante,
+        foreignKey: 'participante_id',
+        as: 'notificaciones_accion'
+      });
     }
   }
   
@@ -38,7 +45,6 @@ module.exports = (sequelize, DataTypes) => {
         model: 'Usuario',
         key: 'usuario_id'
       }
-      // Removido unique: true para permitir múltiples participantes por usuario
     },
     rol_id: {
       type: DataTypes.INTEGER,
