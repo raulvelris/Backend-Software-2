@@ -1,14 +1,22 @@
 import express, { Request, Response, Router } from 'express'
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
 
+// importacion de middlewares
+import { authMiddleware } from "../../../shared/middlewares/authMiddleware";
+
 export class VerNotificacionesAccionController {
   private router: Router
   private path: string = '/api'
 
+  // Use Cases (inyectados desde el contenedor)
   private getNotificacionesAccionUseCase = DependencyContainer.getGetNotificacionesAccionUseCase()
 
   constructor() {
     this.router = express.Router()
+
+    // aplicar middleware a todas las rutas
+    this.router.use(authMiddleware)
+
     this.initializeRoutes()
   }
 

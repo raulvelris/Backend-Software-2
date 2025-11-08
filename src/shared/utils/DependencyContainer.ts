@@ -5,6 +5,8 @@ import { EventoRepository } from '../../infrastructure/repositories/EventoReposi
 import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
 import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
+import { NotificacionAccionRepository } from '../../infrastructure/repositories/NotificacionAccionRepository';
+import { NotificacionParticipanteRepository } from '../../infrastructure/repositories/NotificacionParticipanteRepository';
 import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
 import { ParticipanteRepository } from '../../infrastructure/repositories/ParticipanteRepository';
 import { RolRepository } from '../../infrastructure/repositories/RolRepository';
@@ -41,6 +43,8 @@ export class DependencyContainer {
   private static eventoParticipanteRepository: EventoParticipanteRepository;
   private static invitacionRepository: InvitacionRepository;
   private static invitacionUsuarioRepository: InvitacionUsuarioRepository;
+  private static notificacionAccionRepository: NotificacionAccionRepository;
+  private static notificacionParticipanteRepository: NotificacionParticipanteRepository;
   private static estadoInvitacionRepository: EstadoInvitacionRepository;
   private static participanteRepository: ParticipanteRepository;
   private static rolRepository: RolRepository;
@@ -137,6 +141,20 @@ export class DependencyContainer {
       this.estadoInvitacionRepository = new EstadoInvitacionRepository();
     }
     return this.estadoInvitacionRepository;
+  }
+
+  static getNotificacionAccionRepository(): NotificacionAccionRepository {
+    if (!this.notificacionAccionRepository) {
+      this.notificacionAccionRepository = new NotificacionAccionRepository();
+    }
+    return this.notificacionAccionRepository;
+  }
+
+  static getNotificacionParticipanteRepository(): NotificacionParticipanteRepository {
+    if (!this.notificacionParticipanteRepository) {
+      this.notificacionParticipanteRepository = new NotificacionParticipanteRepository();
+    }
+    return this.notificacionParticipanteRepository;
   }
 
   static getParticipanteRepository(): ParticipanteRepository {
@@ -247,7 +265,7 @@ export class DependencyContainer {
   static getGetNotificacionesAccionUseCase(): GetNotificacionesAccionUseCase {
     if (!this.getNotificacionesAccionUseCase) {
       this.getNotificacionesAccionUseCase = new GetNotificacionesAccionUseCase(
-        this.getInvitacionUsuarioRepository()
+        this.getNotificacionParticipanteRepository()
       );
     }
     return this.getNotificacionesAccionUseCase;

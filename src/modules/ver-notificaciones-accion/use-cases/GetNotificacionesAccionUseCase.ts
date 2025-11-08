@@ -1,28 +1,28 @@
-import { INotificacionUsuarioRepository } from '../../../domain/interfaces/INotificacionUsuarioRepository'
+import { INotificacionParticipanteRepository } from '../../../domain/interfaces/INotificacionParticipanteRepository'
 import { GetNotificacionesAccionParamsDto, GetNotificacionesAccionResultDto, NotificacionAccionItemDto } from '../dtos/GetNotificacionesAccionDto'
 
 export class GetNotificacionesAccionUseCase {
   constructor(
-    private notificacionUsuarioRepository: INotificacionUsuarioRepository
+    private notificacionParticipanteRepository: INotificacionParticipanteRepository
   ) {}
 
-  /*
   async execute(params: GetNotificacionesAccionParamsDto): Promise<GetNotificacionesAccionResultDto> {
     if (!params || typeof params.usuario_id !== 'number') {
       throw new Error('usuario_id es requerido')
     }
 
-    const rows = await this.notificacionUsuarioRepository.findAllByUsuarioIdWithDetalles(params.usuario_id)
-    
-    const notificaciones: NotificacionAccionItemDto[] = rows.map((r: any) => {
-      
-      const invitacion = r.invitacion || null
-      const notificacion = invitacion?.notificacion || null
+    const rows = await this.notificacionParticipanteRepository.findAllByUsuarioIdWithDetalles(params.usuario_id)
+    if (!rows) {
+      throw new Error('No se encontraron notificaciones')
+    }
+
+    const notificaciones_accion: NotificacionAccionItemDto[] = rows.map((r: any) => {
+      const notificacion_accion = r.notificacion_accion || null
+      const notificacion = notificacion_accion?.notificacion || null
       const evento = notificacion?.evento || null
       return {
-        invitacion_usuario_id: r.invitacion_usuario_id,
-        estado: r.estado?.nombre || null,
-        fechaLimite: invitacion?.fechaLimite ? new Date(invitacion.fechaLimite).toISOString() : null,
+        notificacion_participante_id: r.notificacion_participante_id,
+        mensaje: notificacion_accion?.mensaje || null,
         evento: evento
           ? {
               evento_id: evento.evento_id,
@@ -34,6 +34,6 @@ export class GetNotificacionesAccionUseCase {
       }
     })
 
-    return { success: true, notificaciones} 
-  }*/
+    return { success: true, notificaciones_accion} 
+  }
 }
