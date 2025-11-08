@@ -17,12 +17,13 @@ export class ClienteRepository implements IClienteRepository {
     }
   }
 
-  async create(data: { nombre: string; apellido: string; usuario_id: number }): Promise<any> {
+  async create(data: { nombre: string; apellido: string; usuario_id: number; foto_perfil?: string | null }): Promise<any> {
     try {
       const nuevoCliente = await db.Cliente.create({
         nombre: data.nombre,
         apellido: data.apellido,
-        usuario_id: data.usuario_id
+        usuario_id: data.usuario_id,
+        foto_perfil: data.foto_perfil ?? null
       });
       
       return nuevoCliente;
@@ -32,7 +33,7 @@ export class ClienteRepository implements IClienteRepository {
     }
   }
 
-  async update(usuario_id: number, data: { nombre?: string; apellido?: string }): Promise<any | null> {
+  async update(usuario_id: number, data: { nombre?: string; apellido?: string; foto_perfil?: string | null }): Promise<any | null> {
     try {
       const cliente = await db.Cliente.findOne({ where: { usuario_id } });
       if (!cliente) return null;

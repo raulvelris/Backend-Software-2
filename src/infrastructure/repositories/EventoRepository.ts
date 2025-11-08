@@ -23,6 +23,33 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
+  async countAttendeesExcludingOrganizers(eventoId: number): Promise<number> {
+    try {
+      const count = await db.Participante.count({
+        include: [
+          {
+            model: db.Evento,
+            as: 'eventos',
+            required: true,
+            through: { attributes: [] },
+            where: { evento_id: eventoId },
+          },
+          {
+            model: db.Rol,
+            as: 'rol',
+            required: true,
+            where: { nombre: { [db.Sequelize.Op.notIn]: ['Organizador', 'Coorganizador'] } },
+          },
+        ],
+        distinct: true,
+        col: 'participante_id',
+      })
+      return count
+    } catch (error) {
+      console.error('Error en countAttendeesExcludingOrganizers:', error)
+      throw error
+    }
+  }
   async create(data: any): Promise<any> {
     try {
       const nuevoEvento = await db.Evento.create(data);
@@ -222,7 +249,7 @@ export class EventoRepository implements IEventoRepository {
             through: { attributes: [] },
             include: [
               { model: db.Usuario, as: 'usuario', required: true, where: { usuario_id: usuarioId } },
-              { model: db.Rol, as: 'rol', required: true, where: { nombre: 'Organizador' } },
+              { model: db.Rol, as: 'rol', required: true, where: { nombre: { [db.Sequelize.Op.in]: ['Organizador', 'Coorganizador'] } } },
             ],
           },
         ],

@@ -15,6 +15,7 @@ import { PublicEventsController } from "./modules/eventos-publicos/controllers/P
 import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
+import { ProfileController } from "./modules/perfil/controllers/ProfileController";
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -53,9 +54,10 @@ app.use(cors({
     maxAge: 86400 // 24 horas
 }));
 
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '3mb' }))
 app.use(bodyParser.urlencoded({
-    extended : true
+    extended : true,
+    limit: '3mb'
 }))
 app.use(express.static("assets")) // Carpeta archivos estaticos
 
@@ -70,6 +72,9 @@ app.use(activarCuentaController.getPath(), activarCuentaController.getRouter())
 
 const authController = new AuthController();
 app.use(authController.getPath(), authController.getRouter());
+
+const profileController = new ProfileController();
+app.use(profileController.getPath(), profileController.getRouter());
 
 const invitacionController = new InvitacionController();
 app.use(invitacionController.getPath(), invitacionController.getRouter())

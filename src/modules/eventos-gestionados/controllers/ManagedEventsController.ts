@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from 'express'
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware'
 
 export class ManagedEventsController {
   private router: Router
@@ -13,14 +14,14 @@ export class ManagedEventsController {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/events/managed/:usuario_id', this.list.bind(this))
+    this.router.get('/events/managed', authMiddleware, this.list.bind(this))
   }
 
   private async list(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = Number(req.params.usuario_id)
+      const usuarioId = Number(req.user?.id)
       if (!usuarioId || Number.isNaN(usuarioId)) {
-        res.status(400).json({ success: false, message: 'Invalid user id' })
+        res.status(401).json({ success: false, message: 'No autenticado' })
         return
       }
       const result = await this.listManagedEventsUseCase.execute(usuarioId)
