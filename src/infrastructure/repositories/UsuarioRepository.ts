@@ -58,7 +58,7 @@ export class UsuarioRepository implements IUsuarioRepository {
   }
 
   // optimizado para PostgreSQL
-  async searchActiveByQuery(query: string, limit: number = LIMITE_RESULTADOS_BUSQUEDA): Promise<any[]> {
+  async searchActiveByQuery(query: string, limit: number): Promise<any[]> {
     try {
       // Normaliza y divide la búsqueda en palabras (ignora espacios múltiples)
       const searchTerms = query
