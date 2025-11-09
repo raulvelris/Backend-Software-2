@@ -3,13 +3,12 @@ export interface GetNotificacionesAccionParamsDto {
 }
 
 export interface NotificacionAccionItemDto {
-  notificacion_participante_id: number;
+  notificacion_accion_id: number;
+  fechaHora: string | null;
   mensaje: string | null;
   evento: {
     evento_id: number;
-    titulo: string | null;
-    fechaInicio: string | null;
-    fechaFin: string | null;
+    titulo: string | null
   } | null;
 }
 

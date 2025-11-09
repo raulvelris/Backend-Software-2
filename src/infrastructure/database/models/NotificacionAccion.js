@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       // Una NotificacionAccion puede tener muchos Usuarios
       NotificacionAccion.belongsToMany(models.Usuario, {
         through: models.NotificacionUsuario,
-        foreignKey: 'notificacion_id',
+        foreignKey: 'notificacion_accion_id',
+        sourceKey: 'notificacion_id',
         as: 'usuarios'
       });
     }

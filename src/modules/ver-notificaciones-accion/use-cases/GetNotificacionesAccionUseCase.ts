@@ -21,14 +21,13 @@ export class GetNotificacionesAccionUseCase {
       const notificacion = notificacion_accion?.notificacion || null
       const evento = notificacion?.evento || null
       return {
-        notificacion_participante_id: r.notificacion_participante_id,
+        notificacion_accion_id: notificacion_accion?.notificacion_id || null,
+        fechaHora: notificacion?.fechaHora ? new Date(notificacion.fechaHora).toISOString() : null,
         mensaje: notificacion_accion?.mensaje || null,
         evento: evento
           ? {
               evento_id: evento.evento_id,
               titulo: evento.titulo ?? null,
-              fechaInicio: evento.fechaInicio ? new Date(evento.fechaInicio).toISOString() : null,
-              fechaFin: evento.fechaFin ? new Date(evento.fechaFin).toISOString() : null,
             }
           : null,
       }
