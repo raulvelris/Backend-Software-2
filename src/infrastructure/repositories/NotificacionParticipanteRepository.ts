@@ -40,7 +40,7 @@ export class NotificacionParticipanteRepository implements INotificacionParticip
             ]
           }
         ],
-        order: [[{ model: db.NotificacionAccion, as: 'notificacionAccion' },
+        order: [[{ model: db.NotificacionAccion, as: 'notificacion_accion' },
                { model: db.Notificacion, as: 'notificacion' },
                'fechaHora', 'DESC']] // Ordena por fechaHora en orden descendente
       });
