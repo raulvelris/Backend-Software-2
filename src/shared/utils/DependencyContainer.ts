@@ -28,6 +28,15 @@ import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-case
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 
+// Nuevos repositorios
+import { RecursoRepository } from '../../infrastructure/repositories/RecursoRepository';
+import { TipoRecursoRepository } from '../../infrastructure/repositories/TipoRecursoRepository';
+
+// Nuevos casos de uso
+import { SubirRecursoUseCase } from '../../modules/subir-recurso/use-cases/SubirRecursoUseCase';
+import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
+import { EliminarRecursoUseCase } from '../../modules/eliminar-recurso/use-cases/EliminarRecursoUseCase';
+
 import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
 import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
 import { Request, Response, NextFunction } from 'express';
@@ -44,6 +53,8 @@ export class DependencyContainer {
   private static participanteRepository: ParticipanteRepository;
   private static rolRepository: RolRepository;
   private static ubicacionRepository: UbicacionRepository;
+  private static recursoRepository: RecursoRepository;
+  private static tipoRecursoRepository: TipoRecursoRepository;
 
   // Servicios (Singleton)
   private static emailService: EmailService;
@@ -79,11 +90,15 @@ export class DependencyContainer {
   private static listPublicEventsUseCase: ListPublicEventsUseCase;
   private static listManagedEventsUseCase: ListManagedEventsUseCase;
   private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
-  
+
+  // Use Cases - Recursos
+  private static subirRecursoUseCase: SubirRecursoUseCase;
+  private static listarRecursosUseCase: ListarRecursosUseCase;
+  private static eliminarRecursoUseCase: EliminarRecursoUseCase;
+
   // Middleware
   private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
   private static verifyOrganizerOrCoorganizerInEvent: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
-  
 
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
@@ -154,6 +169,20 @@ export class DependencyContainer {
       this.ubicacionRepository = new UbicacionRepository();
     }
     return this.ubicacionRepository;
+  }
+
+  static getRecursoRepository(): RecursoRepository {
+    if (!this.recursoRepository) {
+      this.recursoRepository = new RecursoRepository();
+    }
+    return this.recursoRepository;
+  }
+
+  static getTipoRecursoRepository(): TipoRecursoRepository {
+    if (!this.tipoRecursoRepository) {
+      this.tipoRecursoRepository = new TipoRecursoRepository();
+    }
+    return this.tipoRecursoRepository;
   }
 
   // Getters para Servicios
@@ -329,6 +358,37 @@ export class DependencyContainer {
       );
     }
     return this.listAttendedEventsUseCase;
+  }
+
+  // Getters para los casos de uso de Recursos
+  static getSubirRecursoUseCase(): SubirRecursoUseCase {
+    if (!this.subirRecursoUseCase) {
+      this.subirRecursoUseCase = new SubirRecursoUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.subirRecursoUseCase;
+  }
+
+  static getListarRecursosUseCase(): ListarRecursosUseCase {
+    if (!this.listarRecursosUseCase) {
+      this.listarRecursosUseCase = new ListarRecursosUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository()
+      );
+    }
+    return this.listarRecursosUseCase;
+  }
+
+  static getEliminarRecursoUseCase(): EliminarRecursoUseCase {
+    if (!this.eliminarRecursoUseCase) {
+      this.eliminarRecursoUseCase = new EliminarRecursoUseCase(
+        this.getRecursoRepository()
+      );
+    }
+    return this.eliminarRecursoUseCase;
   }
 
   // Getter para el middleware de verificación de organizador/coorganizador global

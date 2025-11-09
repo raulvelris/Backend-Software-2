@@ -15,6 +15,7 @@ import { PublicEventsController } from "./modules/eventos-publicos/controllers/P
 import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
+import { EventoRecursosController } from "./modules/eventos-recursos/controllers/EventoRecursosController";
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -98,6 +99,10 @@ app.use(managedEventsController.getPath(), managedEventsController.getRouter());
 const attendedEventsController = new AttendedEventsController();
 app.use(attendedEventsController.getPath(), attendedEventsController.getRouter());
 
+// Agregar controlador para recursos de eventos
+const eventoRecursosController = new EventoRecursosController();
+app.use(eventoRecursosController.getPath(), eventoRecursosController.getRouter());
+
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
 
@@ -138,6 +143,12 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+
+
+
+
+
 
 
 
