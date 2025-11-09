@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // NotificacionParticipante pertenece a una NotificacionAccion
       NotificacionParticipante.belongsTo(models.NotificacionAccion, {
-        foreignKey: 'notificacion_id',
-        targetKey: 'notificacion',
+        foreignKey: 'notificacion_accion_id',
+        targetKey: 'notificacion_id',
         as: 'notificacion_accion' // el objetivo es la clave foranea
       });
       
