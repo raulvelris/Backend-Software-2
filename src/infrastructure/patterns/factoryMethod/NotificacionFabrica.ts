@@ -39,12 +39,15 @@ export abstract class NotificacionFabrica {
     let notificacion: any | null = null;
 
     // Seleccionar fábrica según el tipo
+
+    // Es una invitacion
     if (tipo === "INVITACION") {
       const { InvitacionFabrica } = await import('./InvitacionFabrica');
       notificacion = await new InvitacionFabrica().MetodoFabrica(fechaHora, eventoId);
     }
 
-    else if (tipo === "NOTIFICACION_INDIVIDUAL") {
+    // Es una notificacion individual
+    else if (tipo === "NOTIFICACION_ESPECIFICA") {
       const { NotificacionIndividualFabrica } = await import('./NotificacionIndividualFabrica');
       notificacion = await new NotificacionIndividualFabrica().MetodoFabrica(fechaHora, eventoId, mensaje || '');
     }
