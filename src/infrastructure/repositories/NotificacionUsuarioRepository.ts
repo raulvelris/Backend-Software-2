@@ -38,10 +38,6 @@ export class NotificacionUsuarioRepository implements INotificacionUsuarioReposi
                 ]
               }
             ]
-          },
-          {
-            model: db.EstadoInvitacion,
-            as: 'estado'
           }
         ],
         order: [[{ model: db.NotificacionAccion, as: 'notificacion_accion' },
