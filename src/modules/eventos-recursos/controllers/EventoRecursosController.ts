@@ -7,7 +7,7 @@ interface EventoParams {
 }
 
 export class EventoRecursosController {
-    private path = '/eventos';
+    private path = ''; // Empty because we'll use the path from the router
     private router = Router({ mergeParams: true });
 
     private recursoRepository: RecursoRepository;
@@ -20,6 +20,10 @@ export class EventoRecursosController {
     private initializeRoutes() {
         // GET /api/eventos/:id/recursos
         this.router.get<EventoParams>('/:id/recursos', this.getRecursosForEvento.bind(this));
+    }
+
+    public getRouter() {
+        return this.router;
     }
 
     private async getRecursosForEvento(
@@ -43,7 +47,7 @@ export class EventoRecursosController {
             
             return res.status(200).json({
                 success: true,
-                data: recursos
+                recursos: recursos
             });
             
         } catch (error) {
@@ -54,10 +58,6 @@ export class EventoRecursosController {
                 error: error instanceof Error ? error.message : 'Error desconocido'
             });
         }
-    }
-
-    public getRouter() {
-        return this.router;
     }
 
     public getPath(): string {

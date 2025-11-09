@@ -101,7 +101,7 @@ app.use(attendedEventsController.getPath(), attendedEventsController.getRouter()
 
 // Agregar controlador para recursos de eventos
 const eventoRecursosController = new EventoRecursosController();
-app.use(eventoRecursosController.getPath(), eventoRecursosController.getRouter());
+app.use('/api/eventos', eventoRecursosController.getRouter());
 
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
