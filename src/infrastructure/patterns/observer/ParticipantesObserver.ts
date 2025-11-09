@@ -4,6 +4,7 @@ import { INotificacionUsuarioRepository } from '../../../domain/interfaces/INoti
 import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
 import { NotificacionFabrica } from '../factoryMethod/NotificacionFabrica';
 import { TipoRol } from '../../../domain/value-objects/TipoRol';
+import { Payload } from './Payload';
 
 export class ParticipantesObserver implements Observer {
   constructor(
@@ -11,7 +12,7 @@ export class ParticipantesObserver implements Observer {
     private notificacionUsuarioRepository: INotificacionUsuarioRepository
   ) {}
 
-    async update(eventType: string, payload: any): Promise<void> {
+    async update(eventType: string, payload: Payload): Promise<void> {
         const { eventoId, emisorId } = payload;
 
         // Estrategias centralizadas: tipo → mensaje + público

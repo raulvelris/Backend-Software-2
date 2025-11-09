@@ -31,6 +31,9 @@ import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-case
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 
+import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
+import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
+
 import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
 import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
 import { Request, Response, NextFunction } from 'express';
@@ -53,41 +56,55 @@ export class DependencyContainer {
   // Servicios (Singleton)
   private static emailService: EmailService;
 
-  // Use Cases - Invitaciones
+  // Use Case - Envio Invitaciones
   private static searchUsuariosUseCase: SearchUsuariosUseCase;
   private static sendInvitacionUseCase: SendInvitacionUseCase;
   private static getNoElegiblesUseCase: GetNoElegiblesUseCase;
   private static countInvitacionesPendientesUseCase: CountInvitacionesPendientesUseCase;
+
+  // Use Case - Detalle Evento
   private static getEventoDetalleUseCase: GetEventoDetalleUseCase;
+
+  // Use Case - Confirmar Asistencia Pública
   private static confirmPublicAttendanceUseCase: ConfirmPublicAttendanceUseCase;
 
-  // Use Cases - Ver Invitados
+  // Use Case - Ver Invitados
   private static getParticipantesByEventoUseCase: GetParticipantesByEventoUseCase;
 
-  // Use Cases - Confirmar Invitación
+  // Use Case - Confirmar Invitación
   private static respondInvitacionUseCase: RespondInvitacionUseCase;
 
-  // Use Cases - Ver Invitaciones Privadas
+  // Use Case - Ver Invitaciones Privadas
   private static getInvitacionesPrivadasUseCase: GetInvitacionesPrivadasUseCase;
 
-  // Use Cases - Ver Notificaciones Accion
+  // Use Case - Ver Notificaciones Accion
   private static getNotificacionesAccionUseCase: GetNotificacionesAccionUseCase;
 
-  // Use Cases - Registrarse
+  // Use Case - Registrarse
   private static registrarUsuarioUseCase: RegistrarUsuarioUseCase;
 
-  // Use Cases - Activar Cuenta
+  // Use Case - Activar Cuenta
   private static activarCuentaUseCase: ActivarCuentaUseCase;
 
-  // Use Cases - Auth
+  // Use Case - Auth
   private static loginUseCase: LoginUseCase;
 
-  // Use Cases - Eventos (particionados)
+  // Use Case - Crear Evento
   private static createEventoUseCase: CreateEventoUseCase;
+
+  // Use Case - Listar Eventos Publicos
   private static listPublicEventsUseCase: ListPublicEventsUseCase;
+
+  // Use Case - Listar Eventos Gestionados
   private static listManagedEventsUseCase: ListManagedEventsUseCase;
+
+  // Use Case - Listar Eventos Asistidos
   private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
   
+  // Observadores (Singleton)
+  private static notificationManager: NotificationManager;
+  private static participantesObserver: ParticipantesObserver;
+
   // Middleware
   private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
   private static verifyOrganizerOrCoorganizerInEvent: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
@@ -360,6 +377,26 @@ export class DependencyContainer {
       );
     }
     return this.listAttendedEventsUseCase;
+  }
+
+  // Getter para el NotificationManager
+  static getNotificationManager(): NotificationManager {
+    if (!this.notificationManager) {
+      this.notificationManager = new NotificationManager();
+      this.notificationManager.attach(this.getParticipantesObserver());
+    }
+    return this.notificationManager;
+  }
+
+  // Getter para el ParticipantesObserver
+  static getParticipantesObserver(): ParticipantesObserver {
+    if (!this.participantesObserver) {
+      this.participantesObserver = new ParticipantesObserver(
+        this.getEventoParticipanteRepository(),
+        this.getNotificacionUsuarioRepository()
+      );
+    }
+    return this.participantesObserver;
   }
 
   // Getter para el middleware de verificación de organizador/coorganizador global
