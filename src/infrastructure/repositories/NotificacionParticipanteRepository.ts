@@ -23,7 +23,7 @@ export class NotificacionParticipanteRepository implements INotificacionParticip
         include: [
           {
             model: db.NotificacionAccion,
-            as: 'notificacionAccion',
+            as: 'notificacion_accion',
             required: true,
             include: [
               {
