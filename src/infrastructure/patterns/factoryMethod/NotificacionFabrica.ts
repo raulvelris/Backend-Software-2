@@ -26,7 +26,7 @@ export abstract class NotificacionFabrica {
    * Permite agregar nuevos tipos sin modificar código existente (Open/Closed)
    * @param fechaHora - Fecha y hora de la notificación
    * @param eventoId - ID del evento asociado
-   * @param tipo - Tipo de notificación ("INVITACION", "RECORDATORIO", etc.)
+   * @param tipo - Tipo de notificación ("INVITACION", "ACCION", etc.)
    * @param fechaLimite - Fecha límite (opcional)
    * @returns Promise con la notificación creada o null si el tipo no existe
    */
@@ -38,18 +38,16 @@ export abstract class NotificacionFabrica {
   ): Promise<any | null> {
     let notificacion: any | null = null;
 
-    // Seleccionar fábrica según el tipo
-
     // Es una invitacion
     if (tipo === "INVITACION") {
       const { InvitacionFabrica } = await import('./InvitacionFabrica');
       notificacion = await new InvitacionFabrica().MetodoFabrica(fechaHora, eventoId);
     }
 
-    // Es una notificacion individual
-    else if (tipo === "NOTIFICACION_ESPECIFICA") {
-      const { NotificacionIndividualFabrica } = await import('./NotificacionIndividualFabrica');
-      notificacion = await new NotificacionIndividualFabrica().MetodoFabrica(fechaHora, eventoId, mensaje || '');
+    // Es una notificacion de acción
+    else if (tipo === "ACCION") {
+      const { AccionFabrica } = await import('./AccionFabrica');
+      notificacion = await new AccionFabrica().MetodoFabrica(fechaHora, eventoId, mensaje || '');
     }
 
     return notificacion;

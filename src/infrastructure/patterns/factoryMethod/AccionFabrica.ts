@@ -6,7 +6,7 @@ const db = require('../../database/models');
  * Fábrica Concreta - Implementación del patrón Factory Method
  * Crea invitaciones (notificación + invitación)
  */
-export class NotificacionIndividualFabrica extends NotificacionFabrica {
+export class AccionFabrica extends NotificacionFabrica {
   
   /**
    * Método Fábrica sobreescrito - crea una invitación completa
