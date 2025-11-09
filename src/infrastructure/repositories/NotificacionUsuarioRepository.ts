@@ -1,15 +1,15 @@
-import { INotificacionParticipanteRepository } from '../../domain/interfaces/INotificacionParticipanteRepository';
+import { INotificacionUsuarioRepository } from '../../domain/interfaces/INotificacionUsuarioRepository';
 
 const db = require('../database/models');
 
-export class NotificacionParticipanteRepository implements INotificacionParticipanteRepository {
+export class NotificacionUsuarioRepository implements INotificacionUsuarioRepository {
   
   constructor() {}
   
   async create(data: any): Promise<any> {
     try {
-      const nuevaNotificacionParticipante = await db.NotificacionParticipante.create(data);
-      return nuevaNotificacionParticipante;
+      const nuevaNotificacionUsuario = await db.NotificacionUsuario.create(data);
+      return nuevaNotificacionUsuario;
     } catch (error) {
       console.error('Error en create:', error);
       throw error;
@@ -18,7 +18,7 @@ export class NotificacionParticipanteRepository implements INotificacionParticip
 
     async findAllByUsuarioIdWithDetalles(usuarioId: number): Promise<any[] | null> {
     try {
-      const rows = await db.NotificacionParticipante.findAll({
+      const rows = await db.NotificacionUsuario.findAll({
         where: { usuario_id: usuarioId },
         include: [
           {
@@ -38,11 +38,15 @@ export class NotificacionParticipanteRepository implements INotificacionParticip
                 ]
               }
             ]
+          },
+          {
+            model: db.EstadoInvitacion,
+            as: 'estado'
           }
         ],
         order: [[{ model: db.NotificacionAccion, as: 'notificacion_accion' },
-               { model: db.Notificacion, as: 'notificacion' },
-               'fechaHora', 'DESC']] // Ordena por fechaHora en orden descendente
+                { model: db.Notificacion, as: 'notificacion' },
+                'fechaHora', 'DESC']]
       });
       return rows;
     } catch (error) {

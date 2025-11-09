@@ -1,9 +1,9 @@
-import { INotificacionParticipanteRepository } from '../../../domain/interfaces/INotificacionParticipanteRepository'
+import { INotificacionUsuarioRepository } from '../../../domain/interfaces/INotificacionUsuarioRepository'
 import { GetNotificacionesAccionParamsDto, GetNotificacionesAccionResultDto, NotificacionAccionItemDto } from '../dtos/GetNotificacionesAccionDto'
 
 export class GetNotificacionesAccionUseCase {
   constructor(
-    private notificacionParticipanteRepository: INotificacionParticipanteRepository
+    private notificacionUsuarioRepository: INotificacionUsuarioRepository
   ) {}
 
   async execute(params: GetNotificacionesAccionParamsDto): Promise<GetNotificacionesAccionResultDto> {
@@ -11,7 +11,7 @@ export class GetNotificacionesAccionUseCase {
       throw new Error('usuario_id es requerido')
     }
 
-    const rows = await this.notificacionParticipanteRepository.findAllByUsuarioIdWithDetalles(params.usuario_id)
+    const rows = await this.notificacionUsuarioRepository.findAllByUsuarioIdWithDetalles(params.usuario_id)
     if (!rows) {
       throw new Error('No se encontraron notificaciones')
     }

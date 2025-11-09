@@ -22,13 +22,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'participante_id',
         as: 'eventos'
       });
-
-      // Un participante puede tener muchas notificaciones (a través de NotificacionParticipante)
-      Participante.belongsToMany(models.NotificacionAccion, {
-        through: models.NotificacionParticipante,
-        foreignKey: 'participante_id',
-        as: 'notificaciones_accion'
-      });
     }
   }
   

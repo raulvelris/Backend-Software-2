@@ -2,24 +2,24 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class NotificacionParticipante extends Model {
+  class NotificacionUsuario extends Model {
     static associate(models) {
-      // NotificacionParticipante pertenece a una NotificacionAccion
-      NotificacionParticipante.belongsTo(models.NotificacionAccion, {
+      // NotificacionUsuario pertenece a una NotificacionAccion
+      NotificacionUsuario.belongsTo(models.NotificacionAccion, {
         foreignKey: 'notificacion_accion_id',
         targetKey: 'notificacion_id',
         as: 'notificacion_accion' // el objetivo es la clave foranea
       });
       
-      // NotificacionParticipante pertenece a un Participante
-      NotificacionParticipante.belongsTo(models.Participante, {
-        foreignKey: 'participante_id',
-        as: 'participante'
+      // NotificacionUsuario pertenece a un Usuario
+      NotificacionUsuario.belongsTo(models.Usuario, {
+        foreignKey: 'usuario_id',
+        as: 'usuario'
       });
     }
   }
   
-  NotificacionParticipante.init({
+  NotificacionUsuario.init({
     notificacion_accion_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -28,20 +28,20 @@ module.exports = (sequelize, DataTypes) => {
         key: 'notificacion_id'
       }
     },
-    participante_id: {
+    usuario_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       references: {
-        model: 'Participante',
-        key: 'participante_id'
+        model: 'Usuario',
+        key: 'usuario_id'
       }
     }
   }, {
     sequelize,
-    modelName: 'NotificacionParticipante',
-    tableName: 'NotificacionParticipante',
+    modelName: 'NotificacionUsuario',
+    tableName: 'NotificacionUsuario',
     timestamps: false
   });
   
-  return NotificacionParticipante;
+  return NotificacionUsuario;
 };
