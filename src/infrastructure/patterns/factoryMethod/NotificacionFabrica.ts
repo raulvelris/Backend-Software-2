@@ -17,7 +17,8 @@ export abstract class NotificacionFabrica {
    */
   public abstract MetodoFabrica(
     fechaHora: Date,
-    eventoId: number
+    eventoId: number,
+    mensaje?: string | null
   ): Promise<any>;
 
   /**
@@ -32,7 +33,8 @@ export abstract class NotificacionFabrica {
   public static async crearNotificacion(
     fechaHora: Date,
     eventoId: number,
-    tipo: string
+    tipo: string,
+    mensaje?: string 
   ): Promise<any | null> {
     let notificacion: any | null = null;
 
@@ -40,6 +42,11 @@ export abstract class NotificacionFabrica {
     if (tipo === "INVITACION") {
       const { InvitacionFabrica } = await import('./InvitacionFabrica');
       notificacion = await new InvitacionFabrica().MetodoFabrica(fechaHora, eventoId);
+    }
+
+    else if (tipo === "NOTIFICACION_INDIVIDUAL") {
+      const { NotificacionIndividualFabrica } = await import('./NotificacionIndividualFabrica');
+      notificacion = await new NotificacionIndividualFabrica().MetodoFabrica(fechaHora, eventoId, mensaje || '');
     }
 
     return notificacion;
