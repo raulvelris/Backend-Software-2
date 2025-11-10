@@ -4,7 +4,7 @@ import { ClienteRepository } from '../../infrastructure/repositories/ClienteRepo
 import { EventoRepository } from '../../infrastructure/repositories/EventoRepository';
 import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
-import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
+import InvitacionUsuarioRepository from '../../infrastructure/repositories/InvitacionUsuarioRepository';
 import { NotificacionAccionRepository } from '../../infrastructure/repositories/NotificacionAccionRepository';
 import { NotificacionUsuarioRepository } from '../../infrastructure/repositories/NotificacionUsuarioRepository';
 import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
@@ -381,7 +381,6 @@ export class DependencyContainer {
     return this.listAttendedEventsUseCase;
   }
 
-<<<<<<< HEAD
   static getDeleteEventoUseCase(): DeleteEventoUseCase {
     if (!this.deleteEventoUseCase) {
       this.deleteEventoUseCase = new DeleteEventoUseCase(
@@ -391,7 +390,8 @@ export class DependencyContainer {
       );
     }
     return this.deleteEventoUseCase;
-=======
+  }
+
   // Getter para el NotificationManager
   static getNotificationManager(): NotificationManager {
     if (!this.notificationManager) {
@@ -410,7 +410,6 @@ export class DependencyContainer {
       );
     }
     return this.participantesObserver;
->>>>>>> 483271e0288115b28392ad3601c08677d2d0ad79
   }
 
   // Getter para el middleware de verificación de organizador/coorganizador global

@@ -35,6 +35,10 @@ export class ParticipantesObserver implements Observer {
             mensaje: 'Se ha desvinculado del evento.',
             soloParaOrganizadores: true,
         },
+        EVENTO_ELIMINADO: {
+            mensaje: 'Se ha eliminado el evento.',
+            soloParaOrganizadores: false,
+        },
         };
 
         const estrategia = estrategias[eventType];
