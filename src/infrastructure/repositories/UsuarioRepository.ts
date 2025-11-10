@@ -1,5 +1,4 @@
 import { IUsuarioRepository } from '../../domain/interfaces/IUsuarioRepository';
-import { LIMITE_RESULTADOS_BUSQUEDA } from '../../domain/value-objects/Constantes';
 
 const db = require('../database/models');
 
