@@ -1,15 +1,14 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
-import { DeleteEventoUseCase } from '../use-cases/DeleteEventoUseCase';
+
 
 export class DeleteEventoController {
   private router: Router;
   private path: string = '/api';
-  private deleteEventoUseCase: DeleteEventoUseCase;
+  private deleteEventoUseCase = DependencyContainer.getDeleteEventoUseCase();
 
-  constructor(deleteEventoUseCase: DeleteEventoUseCase) {
+  constructor() {
     this.router = express.Router();
-    this.deleteEventoUseCase = deleteEventoUseCase;
     this.initializeRoutes();
   }
 

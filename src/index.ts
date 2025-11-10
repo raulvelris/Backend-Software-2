@@ -16,7 +16,7 @@ import { PublicEventsController } from "./modules/eventos-publicos/controllers/P
 import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
-import { DeleteEventoController } from "modules/eventos-eliminar/controllers/DeleteEventoController";
+import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/DeleteEventoController";
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -103,14 +103,11 @@ app.use(attendedEventsController.getPath(), attendedEventsController.getRouter()
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
 
-<<<<<<< HEAD
-// Módulo para eliminar eventos
-import { deleteEventoModule } from './modules/eventos-eliminar';
-app.use(deleteEventoModule.getPath(), deleteEventoModule.getRouter());
-=======
+const deleteEventoController = new DeleteEventoController();
+app.use(deleteEventoController.getPath(), deleteEventoController.getRouter());
+
 const verNotificacionesAccionController = new VerNotificacionesAccionController();
 app.use(verNotificacionesAccionController.getPath(), verNotificacionesAccionController.getRouter());
->>>>>>> 483271e0288115b28392ad3601c08677d2d0ad79
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

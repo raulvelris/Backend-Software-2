@@ -4,7 +4,7 @@ import { ClienteRepository } from '../../infrastructure/repositories/ClienteRepo
 import { EventoRepository } from '../../infrastructure/repositories/EventoRepository';
 import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
-import InvitacionUsuarioRepository from '../../infrastructure/repositories/InvitacionUsuarioRepository';
+import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
 import { NotificacionAccionRepository } from '../../infrastructure/repositories/NotificacionAccionRepository';
 import { NotificacionUsuarioRepository } from '../../infrastructure/repositories/NotificacionUsuarioRepository';
 import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
@@ -386,7 +386,8 @@ export class DependencyContainer {
       this.deleteEventoUseCase = new DeleteEventoUseCase(
         this.getEventoRepository(),
         this.getUbicacionRepository(),
-        this.getEventoParticipanteRepository()
+        this.getEventoParticipanteRepository(),
+        this.getNotificationManager()
       );
     }
     return this.deleteEventoUseCase;

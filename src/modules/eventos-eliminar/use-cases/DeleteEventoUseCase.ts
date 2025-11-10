@@ -2,12 +2,15 @@ import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository'
 import { IUbicacionRepository } from '../../../domain/interfaces/IUbicacionRepository';
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
 import { TipoRol } from '../../../domain/value-objects/TipoRol';
+import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
+import { NotificationManager } from '../../../infrastructure/patterns/observer/NotificationManager';
 
 export class DeleteEventoUseCase {
   constructor(
     private eventoRepository: IEventoRepository,
     private ubicacionRepository: IUbicacionRepository,
-    private eventoParticipanteRepository: IEventoParticipanteRepository
+    private eventoParticipanteRepository: IEventoParticipanteRepository,
+    private notificationManager: NotificationManager
   ) {}
 
   async execute(
@@ -48,6 +51,15 @@ export class DeleteEventoUseCase {
         };
       }
 
+      // Notificar eliminación del evento
+      await this.notificationManager.notify(
+        TipoNotificacion.EVENTO_ELIMINADO,
+        {
+          eventoId,
+          emisorId: evento.usuario_id,
+        }
+      );
+      
       // 1. Eliminar relaciones de participantes del evento
       console.log('Eliminando participantes del evento...');
       await this.eventoParticipanteRepository.deleteByEventoId(eventoId);
