@@ -15,6 +15,8 @@ export class GetEventoDetalleUseCase {
       throw new Error('Event not found');
     }
 
-    return evento;
+    const attendeesCount = await this.eventoRepository.countAttendeesExcludingOrganizers(eventoId);
+    const plain = typeof evento.toJSON === 'function' ? evento.toJSON() : evento;
+    return { ...plain, attendeesCount };
   }
 }

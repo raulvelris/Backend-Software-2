@@ -23,6 +23,8 @@ import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/
 import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
 import { ActivarCuentaUseCase } from '../../modules/activar-cuenta/use-cases/ActivarCuentaUseCase';
 import { LoginUseCase } from '../../modules/iniciar-sesion/use-cases/LoginUseCase';
+import { GetProfileUseCase } from '../../modules/perfil/use-cases/GetProfileUseCase';
+import { UpdateProfileUseCase } from '../../modules/perfil/use-cases/UpdateProfileUseCase';
 import { CreateEventoUseCase } from '../../modules/eventos-crear/use-cases/CreateEventoUseCase';
 import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-cases/ListPublicEventsUseCase';
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
@@ -73,6 +75,8 @@ export class DependencyContainer {
 
   // Use Cases - Auth
   private static loginUseCase: LoginUseCase;
+  private static getProfileUseCase: GetProfileUseCase;
+  private static updateProfileUseCase: UpdateProfileUseCase;
 
   // Use Cases - Eventos (particionados)
   private static createEventoUseCase: CreateEventoUseCase;
@@ -289,6 +293,25 @@ export class DependencyContainer {
       );
     }
     return this.loginUseCase;
+  }
+
+  static getGetProfileUseCase(): GetProfileUseCase {
+    if (!this.getProfileUseCase) {
+      this.getProfileUseCase = new GetProfileUseCase(
+        this.getUsuarioRepository()
+      );
+    }
+    return this.getProfileUseCase;
+  }
+
+  static getUpdateProfileUseCase(): UpdateProfileUseCase {
+    if (!this.updateProfileUseCase) {
+      this.updateProfileUseCase = new UpdateProfileUseCase(
+        this.getUsuarioRepository(),
+        this.getClienteRepository(),
+      );
+    }
+    return this.updateProfileUseCase;
   }
 
   static getCreateEventoUseCase(): CreateEventoUseCase {
