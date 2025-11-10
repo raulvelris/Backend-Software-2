@@ -11,12 +11,13 @@ export class ProfileController {
 
   constructor() {
     this.router = express.Router()
+    this.router.use(authMiddleware)
     this.initializeRoutes()
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', authMiddleware, this.getProfile.bind(this))
-    this.router.put('/', authMiddleware, this.updateProfile.bind(this))
+    this.router.get('/', this.getProfile.bind(this))
+    this.router.put('/', this.updateProfile.bind(this))
   }
 
   private async getProfile(req: Request, res: Response): Promise<Response | void> {

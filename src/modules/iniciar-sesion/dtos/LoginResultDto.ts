@@ -1,8 +1,3 @@
-export type LoginParamsDto = {
-  correo: string
-  clave: string
-}
-
 export type LoginResultDto = {
   success: boolean
   user: {

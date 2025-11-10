@@ -1,5 +1,6 @@
 import { UsuarioRepository } from '../../../infrastructure/repositories/UsuarioRepository'
-import { LoginParamsDto, LoginResultDto } from '../dtos/LoginDto'
+import { LoginParamsDto } from '../dtos/LoginParamsDto'
+import { LoginResultDto } from '../dtos/LoginResultDto'
 
 export class LoginUseCase {
   constructor(private usuarioRepository: UsuarioRepository) {}

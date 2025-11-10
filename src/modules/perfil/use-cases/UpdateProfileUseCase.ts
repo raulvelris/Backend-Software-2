@@ -1,6 +1,7 @@
 import { UsuarioRepository } from '../../../infrastructure/repositories/UsuarioRepository'
 import { ClienteRepository } from '../../../infrastructure/repositories/ClienteRepository'
-import { ProfileResultDto, UpdateProfileParamsDto } from '../dtos/ProfileDto'
+import { ProfileResultDto } from '../dtos/ProfileResultDto'
+import { UpdateProfileParamsDto } from '../dtos/UpdateProfileParamsDto'
 
 export class UpdateProfileUseCase {
   constructor(

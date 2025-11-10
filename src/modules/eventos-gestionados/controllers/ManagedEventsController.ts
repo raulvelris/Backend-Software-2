@@ -10,11 +10,12 @@ export class ManagedEventsController {
 
   constructor() {
     this.router = express.Router()
+    this.router.use(authMiddleware)
     this.initializeRoutes()
   }
 
   private initializeRoutes(): void {
-    this.router.get('/events/managed', authMiddleware, this.list.bind(this))
+    this.router.get('/events/managed', this.list.bind(this))
   }
 
   private async list(req: Request, res: Response): Promise<void> {

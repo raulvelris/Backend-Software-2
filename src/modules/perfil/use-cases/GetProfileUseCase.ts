@@ -1,5 +1,5 @@
 import { UsuarioRepository } from '../../../infrastructure/repositories/UsuarioRepository'
-import { ProfileResultDto } from '../dtos/ProfileDto'
+import { ProfileResultDto } from '../dtos/ProfileResultDto'
 
 export class GetProfileUseCase {
   constructor(private usuarioRepository: UsuarioRepository) {}
