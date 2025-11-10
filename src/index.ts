@@ -16,6 +16,7 @@ import { ManagedEventsController } from "./modules/eventos-gestionados/controlle
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
 import { EventoRecursosController } from "./modules/eventos-recursos/controllers/EventoRecursosController";
+import { SubirRecursoController } from "./modules/subir-recurso/controllers/SubirRecursoController";
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -101,10 +102,13 @@ app.use(attendedEventsController.getPath(), attendedEventsController.getRouter()
 
 // Agregar controlador para recursos de eventos
 const eventoRecursosController = new EventoRecursosController();
-app.use('/api/eventos', eventoRecursosController.getRouter());
+app.use(eventoRecursosController.getPath(), eventoRecursosController.getRouter());
 
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
+
+const subirRecursoController = new SubirRecursoController();
+app.use(subirRecursoController.getPath(), subirRecursoController.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

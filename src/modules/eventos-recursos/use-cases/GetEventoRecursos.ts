@@ -23,12 +23,19 @@ export class GetEventoRecursosUseCase {
             const recursos = await this.recursoRepository.findByEventoId(eventoId);
 
             // Mapear los recursos al formato deseado
-            return recursos.map(recurso => ({
-                id: recurso.id,
-                nombre: recurso.nombre,
-                // Agrega aquí otros campos según sea necesario
-                ...recurso
-            }));
+            return recursos.map(recurso => {
+                const recursoData = recurso.get ? recurso.get({ plain: true }) : recurso;
+                return {
+                    id: recursoData.recurso_id,
+                    nombre: recursoData.nombre,
+                    url: recursoData.url,
+                    tipo_recurso: {
+                        id: recursoData.tipo_recurso,
+                        nombre: recursoData.tipo?.nombre || 'Desconocido'
+                    },
+                    evento_id: recursoData.evento_id
+                };
+            });
         } catch (error) {
             console.error('Error en GetEventoRecursos:', error);
             // Relanzar el error para que el controlador lo maneje

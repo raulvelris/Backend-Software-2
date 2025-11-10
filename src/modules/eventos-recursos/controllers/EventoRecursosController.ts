@@ -7,7 +7,7 @@ interface EventoParams {
 }
 
 export class EventoRecursosController {
-    private path = ''; // Empty because we'll use the path from the router
+    private path = '/api/eventos';
     private router = Router({ mergeParams: true });
 
     private recursoRepository: RecursoRepository;
@@ -22,9 +22,7 @@ export class EventoRecursosController {
         this.router.get<EventoParams>('/:id/recursos', this.getRecursosForEvento.bind(this));
     }
 
-    public getRouter() {
-        return this.router;
-    }
+    
 
     private async getRecursosForEvento(
         req: Request<EventoParams>,
@@ -59,6 +57,11 @@ export class EventoRecursosController {
             });
         }
     }
+
+    public getRouter(): Router {
+        return this.router;
+    }
+    
 
     public getPath(): string {
         return this.path;
