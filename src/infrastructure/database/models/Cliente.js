@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(50),
       allowNull: false
     },
+    foto_perfil: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: 'URL o base64 de la foto de perfil (puede exceder 255 chars)'
+    },
     usuario_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -34,11 +39,6 @@ module.exports = (sequelize, DataTypes) => {
         key: 'usuario_id'
       },
       unique: true // Un usuario solo puede ser un cliente
-    },
-    foto_perfil: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'URL o base64 de la foto de perfil (puede exceder 255 chars)'
     }
   }, {
     sequelize,
