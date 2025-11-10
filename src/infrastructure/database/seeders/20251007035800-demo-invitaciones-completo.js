@@ -35,19 +35,19 @@ module.exports = {
     await queryInterface.bulkInsert('Invitacion', [
       {
         notificacion_id: notifIds[0],
-        fechaLimite: new Date('2024-02-14T23:59:59')
+        fechaLimite: new Date('2026-02-14T23:59:59')
       },
       {
         notificacion_id: notifIds[1],
-        fechaLimite: new Date('2024-02-19T23:59:59')
+        fechaLimite: new Date('2026-02-19T23:59:59')
       },
       {
         notificacion_id: notifIds[2],
-        fechaLimite: new Date('2024-02-24T23:59:59')
+        fechaLimite: new Date('2026-02-24T23:59:59')
       },
       {
         notificacion_id: notifIds[3],
-        fechaLimite: new Date('2024-02-29T23:59:59')
+        fechaLimite: new Date('2026-02-29T23:59:59')
       }
     ], {});
 
