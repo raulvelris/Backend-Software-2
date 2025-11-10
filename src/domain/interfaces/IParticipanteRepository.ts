@@ -4,4 +4,5 @@ export interface IParticipanteRepository {
   findByUsuarioAndRol(usuarioId: number, rolId: number): Promise<any | null>;
   create(data: { usuario_id: number; rol_id: number }): Promise<any>;
   findAllByUsuarioId(usuarioId: number): Promise<any[]>;
+  countAttendeesExcludingOrganizers(eventoId: number): Promise<number>;
 }

@@ -295,7 +295,8 @@ export class DependencyContainer {
   static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {
     if (!this.getEventoDetalleUseCase) {
       this.getEventoDetalleUseCase = new GetEventoDetalleUseCase(
-        this.getEventoRepository()
+        this.getEventoRepository(),
+        this.getParticipanteRepository()
       );
     }
     return this.getEventoDetalleUseCase;

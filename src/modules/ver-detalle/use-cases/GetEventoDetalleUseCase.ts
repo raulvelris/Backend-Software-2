@@ -1,8 +1,10 @@
-import { EventoRepository } from '../../../infrastructure/repositories/EventoRepository';
+import { IParticipanteRepository } from "domain/interfaces/IParticipanteRepository";
+import { IEventoRepository } from "domain/interfaces/IEventoRepository";
 
 export class GetEventoDetalleUseCase {
   constructor(
-    private readonly eventoRepository: EventoRepository,
+    private eventoRepository: IEventoRepository,
+    private participanteRepository: IParticipanteRepository,
   ) {}
 
   async execute(eventoId: number): Promise<any> {
@@ -15,7 +17,7 @@ export class GetEventoDetalleUseCase {
       throw new Error('Event not found');
     }
 
-    const attendeesCount = await this.eventoRepository.countAttendeesExcludingOrganizers(eventoId);
+    const attendeesCount = await this.participanteRepository.countAttendeesExcludingOrganizers(eventoId);
     const plain = typeof evento.toJSON === 'function' ? evento.toJSON() : evento;
     return { ...plain, attendeesCount };
   }

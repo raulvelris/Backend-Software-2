@@ -39,6 +39,34 @@ export class ParticipanteRepository implements IParticipanteRepository {
       throw error;
     }
   }
+
+  async countAttendeesExcludingOrganizers(eventoId: number): Promise<number> {
+    try {
+      const count = await db.Participante.count({
+        include: [
+          {
+            model: db.Evento,
+            as: 'eventos',
+            required: true,
+            through: { attributes: [] },
+            where: { evento_id: eventoId },
+          },
+          {
+            model: db.Rol,
+            as: 'rol',
+            required: true,
+            where: { nombre: { [db.Sequelize.Op.notIn]: ['Organizador', 'Coorganizador'] } },
+          },
+        ],
+        distinct: true,
+        col: 'participante_id',
+      })
+      return count
+    } catch (error) {
+      console.error('Error en countAttendeesExcludingOrganizers:', error)
+      throw error
+    }
+  }
 }
 
 
