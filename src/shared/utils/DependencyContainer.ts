@@ -5,6 +5,8 @@ import { EventoRepository } from '../../infrastructure/repositories/EventoReposi
 import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
 import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
+import { NotificacionAccionRepository } from '../../infrastructure/repositories/NotificacionAccionRepository';
+import { NotificacionUsuarioRepository } from '../../infrastructure/repositories/NotificacionUsuarioRepository';
 import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
 import { ParticipanteRepository } from '../../infrastructure/repositories/ParticipanteRepository';
 import { RolRepository } from '../../infrastructure/repositories/RolRepository';
@@ -18,6 +20,7 @@ import { CountInvitacionesPendientesUseCase } from '../../modules/envio-invitaci
 import { GetParticipantesByEventoUseCase } from '../../modules/ver-participantes/use-cases/GetParticipantesByEventoUseCase';
 import { RespondInvitacionUseCase } from '../../modules/confirmar-invitacion/use-cases/RespondInvitacionUseCase';
 import { GetInvitacionesPrivadasUseCase } from '../../modules/ver-invitaciones-privadas/use-cases/GetInvitacionesPrivadasUseCase';
+import { GetNotificacionesAccionUseCase } from '../../modules/ver-notificaciones-accion/use-cases/GetNotificacionesAccionUseCase';
 import { GetEventoDetalleUseCase } from '../../modules/ver-detalle/use-cases/GetEventoDetalleUseCase';
 import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/use-cases/ConfirmPublicAttendanceUseCase';
 import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
@@ -28,6 +31,9 @@ import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-case
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/DeleteEventoUseCase';
+
+import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
+import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
 
 import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
 import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
@@ -41,6 +47,8 @@ export class DependencyContainer {
   private static eventoParticipanteRepository: EventoParticipanteRepository;
   private static invitacionRepository: InvitacionRepository;
   private static invitacionUsuarioRepository: InvitacionUsuarioRepository;
+  private static notificacionAccionRepository: NotificacionAccionRepository;
+  private static notificacionUsuarioRepository: NotificacionUsuarioRepository;
   private static estadoInvitacionRepository: EstadoInvitacionRepository;
   private static participanteRepository: ParticipanteRepository;
   private static rolRepository: RolRepository;
@@ -49,39 +57,56 @@ export class DependencyContainer {
   // Servicios (Singleton)
   private static emailService: EmailService;
 
-  // Use Cases - Invitaciones
+  // Use Case - Envio Invitaciones
   private static searchUsuariosUseCase: SearchUsuariosUseCase;
   private static sendInvitacionUseCase: SendInvitacionUseCase;
   private static getNoElegiblesUseCase: GetNoElegiblesUseCase;
   private static countInvitacionesPendientesUseCase: CountInvitacionesPendientesUseCase;
+
+  // Use Case - Detalle Evento
   private static getEventoDetalleUseCase: GetEventoDetalleUseCase;
+
+  // Use Case - Confirmar Asistencia Pública
   private static confirmPublicAttendanceUseCase: ConfirmPublicAttendanceUseCase;
 
-  // Use Cases - Ver Invitados
+  // Use Case - Ver Invitados
   private static getParticipantesByEventoUseCase: GetParticipantesByEventoUseCase;
 
-  // Use Cases - Confirmar Invitación
+  // Use Case - Confirmar Invitación
   private static respondInvitacionUseCase: RespondInvitacionUseCase;
 
-  // Use Cases - Ver Invitaciones Privadas
+  // Use Case - Ver Invitaciones Privadas
   private static getInvitacionesPrivadasUseCase: GetInvitacionesPrivadasUseCase;
 
-  // Use Cases - Registrarse
+  // Use Case - Ver Notificaciones Accion
+  private static getNotificacionesAccionUseCase: GetNotificacionesAccionUseCase;
+
+  // Use Case - Registrarse
   private static registrarUsuarioUseCase: RegistrarUsuarioUseCase;
 
-  // Use Cases - Activar Cuenta
+  // Use Case - Activar Cuenta
   private static activarCuentaUseCase: ActivarCuentaUseCase;
 
-  // Use Cases - Auth
+  // Use Case - Auth
   private static loginUseCase: LoginUseCase;
 
-  // Use Cases - Eventos (particionados)
+  // Use Case - Crear Evento
   private static createEventoUseCase: CreateEventoUseCase;
+
+  // Use Case - Listar Eventos Publicos
   private static listPublicEventsUseCase: ListPublicEventsUseCase;
+
+  // Use Case - Listar Eventos Gestionados
   private static listManagedEventsUseCase: ListManagedEventsUseCase;
+
+  // Use Case - Listar Eventos Asistidos
   private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
   private static deleteEventoUseCase: DeleteEventoUseCase;
   
+  // Observadores (Singleton)
+  private static notificationManager: NotificationManager;
+  private static participantesObserver: ParticipantesObserver;
+
   // Middleware
   private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
   private static verifyOrganizerOrCoorganizerInEvent: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
@@ -135,6 +160,20 @@ export class DependencyContainer {
       this.estadoInvitacionRepository = new EstadoInvitacionRepository();
     }
     return this.estadoInvitacionRepository;
+  }
+
+  static getNotificacionAccionRepository(): NotificacionAccionRepository {
+    if (!this.notificacionAccionRepository) {
+      this.notificacionAccionRepository = new NotificacionAccionRepository();
+    }
+    return this.notificacionAccionRepository;
+  }
+
+  static getNotificacionUsuarioRepository(): NotificacionUsuarioRepository {
+    if (!this.notificacionUsuarioRepository) {
+      this.notificacionUsuarioRepository = new NotificacionUsuarioRepository();
+    }
+    return this.notificacionUsuarioRepository;
   }
 
   static getParticipanteRepository(): ParticipanteRepository {
@@ -242,6 +281,15 @@ export class DependencyContainer {
     return this.getInvitacionesPrivadasUseCase;
   }
 
+  static getGetNotificacionesAccionUseCase(): GetNotificacionesAccionUseCase {
+    if (!this.getNotificacionesAccionUseCase) {
+      this.getNotificacionesAccionUseCase = new GetNotificacionesAccionUseCase(
+        this.getNotificacionUsuarioRepository()
+      );
+    }
+    return this.getNotificacionesAccionUseCase;
+  }
+
   static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {
     if (!this.getEventoDetalleUseCase) {
       this.getEventoDetalleUseCase = new GetEventoDetalleUseCase(
@@ -333,6 +381,7 @@ export class DependencyContainer {
     return this.listAttendedEventsUseCase;
   }
 
+<<<<<<< HEAD
   static getDeleteEventoUseCase(): DeleteEventoUseCase {
     if (!this.deleteEventoUseCase) {
       this.deleteEventoUseCase = new DeleteEventoUseCase(
@@ -342,6 +391,26 @@ export class DependencyContainer {
       );
     }
     return this.deleteEventoUseCase;
+=======
+  // Getter para el NotificationManager
+  static getNotificationManager(): NotificationManager {
+    if (!this.notificationManager) {
+      this.notificationManager = new NotificationManager();
+      this.notificationManager.attach(this.getParticipantesObserver());
+    }
+    return this.notificationManager;
+  }
+
+  // Getter para el ParticipantesObserver
+  static getParticipantesObserver(): ParticipantesObserver {
+    if (!this.participantesObserver) {
+      this.participantesObserver = new ParticipantesObserver(
+        this.getEventoParticipanteRepository(),
+        this.getNotificacionUsuarioRepository()
+      );
+    }
+    return this.participantesObserver;
+>>>>>>> 483271e0288115b28392ad3601c08677d2d0ad79
   }
 
   // Getter para el middleware de verificación de organizador/coorganizador global

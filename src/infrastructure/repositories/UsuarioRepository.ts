@@ -1,5 +1,4 @@
 import { IUsuarioRepository } from '../../domain/interfaces/IUsuarioRepository';
-import { LIMITE_RESULTADOS_BUSQUEDA } from '../../domain/value-objects/Constantes';
 
 const db = require('../database/models');
 
@@ -58,7 +57,7 @@ export class UsuarioRepository implements IUsuarioRepository {
   }
 
   // optimizado para PostgreSQL
-  async searchByQuery(query: string, limit: number = LIMITE_RESULTADOS_BUSQUEDA): Promise<any[]> {
+  async searchActiveByQuery(query: string, limit: number): Promise<any[]> {
     try {
       // Normaliza y divide la búsqueda en palabras (ignora espacios múltiples)
       const searchTerms = query
@@ -76,6 +75,7 @@ export class UsuarioRepository implements IUsuarioRepository {
           }
         ],
         where: {
+          isActive: true,
           [db.Sequelize.Op.and]: searchTerms.map(term => ({
             [db.Sequelize.Op.or]: [
               { correo: { [db.Sequelize.Op.iLike]: `%${term}%` } },
