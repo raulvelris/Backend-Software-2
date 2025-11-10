@@ -15,6 +15,7 @@ import { PublicEventsController } from "./modules/eventos-publicos/controllers/P
 import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
+import { DeleteEventoController } from "modules/eventos-eliminar/controllers/DeleteEventoController";
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -100,6 +101,10 @@ app.use(attendedEventsController.getPath(), attendedEventsController.getRouter()
 
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
+
+// Módulo para eliminar eventos
+import { deleteEventoModule } from './modules/eventos-eliminar';
+app.use(deleteEventoModule.getPath(), deleteEventoModule.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

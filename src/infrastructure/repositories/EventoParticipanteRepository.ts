@@ -3,6 +3,8 @@ import { IEventoParticipanteRepository } from '../../domain/interfaces/IEventoPa
 const db = require('../database/models');
 
 export class EventoParticipanteRepository implements IEventoParticipanteRepository {
+  // Implementación de la propiedad sequelize requerida por la interfaz
+  public sequelize = db.sequelize;
   
   async findByEventoAndUsuario(eventoId: number, usuarioId: number): Promise<any | null> {
     try {
@@ -76,18 +78,25 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
           model: db.Participante,
           as: "participante",
           required: true,
-          include: [{
-            model: db.Usuario,
-            as: "usuario",
-            attributes: ["usuario_id", "correo"],
-            required: true,
-            include: [{
-              model: db.Cliente,
-              as: "cliente",
-              attributes: ["nombre", "apellido"],
-              required: true
-            }]
-          }]
+          include: [
+            {
+              model: db.Usuario,
+              as: "usuario",
+              attributes: ["usuario_id", "correo"],
+              required: true,
+              include: [{
+                model: db.Cliente,
+                as: "cliente",
+                attributes: ["nombre", "apellido"],
+                required: true
+              }]
+            },
+            {
+              model: db.Rol,
+              as: "rol",
+              attributes: ["rol_id", "nombre"]
+            }
+          ]
         }]
       });
       return links;
@@ -158,6 +167,32 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
       return link;
     } catch (error) {
       console.error('Error en findByParticipante:', error);
+      throw error;
+    }
+  }
+
+  // Eliminar todos los registros de EventoParticipante para un evento
+  async deleteByEventoId(eventoId: number): Promise<boolean> {
+    try {
+      const result = await db.EventoParticipante.destroy({
+        where: { evento_id: eventoId }
+      });
+      return result > 0;
+    } catch (error) {
+      console.error('Error en deleteByEventoId:', error);
+      throw error;
+    }
+  }
+
+  // Buscar todos los registros de EventoParticipante para un evento
+  async findByEventoId(eventoId: number): Promise<any[]> {
+    try {
+      const participantes = await db.EventoParticipante.findAll({
+        where: { evento_id: eventoId }
+      });
+      return participantes;
+    } catch (error) {
+      console.error('Error en findByEventoId:', error);
       throw error;
     }
   }

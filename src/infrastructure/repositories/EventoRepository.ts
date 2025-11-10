@@ -1,12 +1,16 @@
 import { IEventoRepository } from '../../domain/interfaces/IEventoRepository';
+import { Transaction } from 'sequelize';
 
 const db = require('../database/models');
 
 export class EventoRepository implements IEventoRepository {
-  
-  async findById(id: number): Promise<any | null> {
+  // Implementación de la propiedad sequelize requerida por la interfaz
+  public sequelize = db.sequelize;
+
+  async findById(id: number, options?: { transaction?: Transaction }): Promise<any | null> {
     try {
       const evento = await db.Evento.findByPk(id, {
+        transaction: options?.transaction,
         include: [
           {
             model: db.Ubicacion,
@@ -23,9 +27,9 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  async create(data: any): Promise<any> {
+  async create(data: any, options?: { transaction?: Transaction }): Promise<any> {
     try {
-      const nuevoEvento = await db.Evento.create(data);
+      const nuevoEvento = await db.Evento.create(data, { transaction: options?.transaction });
       return nuevoEvento;
     } catch (error) {
       console.error('Error en create:', error);
@@ -33,12 +37,12 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  async update(id: number, data: any): Promise<any | null> {
+  async update(id: number, data: any, options?: { transaction?: Transaction }): Promise<any | null> {
     try {
-      const evento = await db.Evento.findByPk(id);
+      const evento = await db.Evento.findByPk(id, { transaction: options?.transaction });
       if (!evento) return null;
       
-      await evento.update(data);
+      await evento.update(data, { transaction: options?.transaction });
       return evento;
     } catch (error) {
       console.error('Error en update:', error);
@@ -46,9 +50,10 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: number, options?: { transaction?: Transaction }): Promise<boolean> {
     try {
-      const result = await db.Evento.destroy({ where: { evento_id: id } });
+      const result = await db.Evento.destroy({
+        transaction: options?.transaction, where: { evento_id: id } });
       return result > 0;
     } catch (error) {
       console.error('Error en delete:', error);

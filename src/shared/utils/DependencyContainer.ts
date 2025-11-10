@@ -27,6 +27,7 @@ import { CreateEventoUseCase } from '../../modules/eventos-crear/use-cases/Creat
 import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-cases/ListPublicEventsUseCase';
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
+import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/DeleteEventoUseCase';
 
 import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
 import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
@@ -79,6 +80,7 @@ export class DependencyContainer {
   private static listPublicEventsUseCase: ListPublicEventsUseCase;
   private static listManagedEventsUseCase: ListManagedEventsUseCase;
   private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
+  private static deleteEventoUseCase: DeleteEventoUseCase;
   
   // Middleware
   private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
@@ -329,6 +331,17 @@ export class DependencyContainer {
       );
     }
     return this.listAttendedEventsUseCase;
+  }
+
+  static getDeleteEventoUseCase(): DeleteEventoUseCase {
+    if (!this.deleteEventoUseCase) {
+      this.deleteEventoUseCase = new DeleteEventoUseCase(
+        this.getEventoRepository(),
+        this.getUbicacionRepository(),
+        this.getEventoParticipanteRepository()
+      );
+    }
+    return this.deleteEventoUseCase;
   }
 
   // Getter para el middleware de verificación de organizador/coorganizador global
