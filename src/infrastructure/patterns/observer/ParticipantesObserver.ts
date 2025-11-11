@@ -52,20 +52,27 @@ export class ParticipantesObserver implements Observer {
             mensaje
         );
     
-        const tipoRol = soloParaOrganizadores ? TipoRol.ORGANIZADOR : TipoRol.ASISTENTE;
-        const Rol = await this.rolRepository.findByNombre(tipoRol);
-        const destinatarios = await this.eventoParticipanteRepository.findAllWithFilters(eventoId, [Rol.rol_id], emisorId);
+        // Buscar roles base
+        const org = await this.rolRepository.findByNombre(TipoRol.ORGANIZADOR);
+        const coorg = await this.rolRepository.findByNombre(TipoRol.COORGANIZADOR);
 
-        // Crear notificaciones para los destinatarios
-        for (const destinatario of destinatarios) {
-            await this.notificacionUsuarioRepository.create({
-                notificacion_accion_id: nuevaNotificacion.notificacion_id,
-                usuario_id: destinatario.usuario_id,
-            });
+        let rolesIds = [org.rol_id, coorg.rol_id];
+
+        // Agregar asistentes si corresponde
+        if (!soloParaOrganizadores) {
+            const asist = await this.rolRepository.findByNombre(TipoRol.ASISTENTE);
+            rolesIds.push(asist.rol_id);
         }
 
+        // Buscar destinatarios filtrando por roles y excluyendo al emisor
+        const destinatarios = await this.eventoParticipanteRepository.findAllWithFilters(
+            eventoId,
+            rolesIds,
+            emisorId
+        );
+
         console.log(
-            `Notificados ${destinatarios.length} usuarios (${soloParaOrganizadores ? 'ORGANIZADORES' : 'TODOS'}) de evento_id ${eventoId} sobre ${eventType}`
+            `Notificados ${destinatarios.length} usuarios (${soloParaOrganizadores ? 'ORGANIZADORES Y COORGANIZADORES' : 'TODOS LOS PARTICIPANTES'}) de evento_id ${eventoId} sobre ${eventType}`
         );
     }
 }
