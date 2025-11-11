@@ -40,7 +40,7 @@ export class ParticipanteRepository implements IParticipanteRepository {
     }
   }
 
-  async countAttendeesExcludingOrganizers(eventoId: number): Promise<number> {
+  async countAttendees(eventoId: number): Promise<number> {
     try {
       const count = await db.Participante.count({
         include: [
@@ -55,7 +55,7 @@ export class ParticipanteRepository implements IParticipanteRepository {
             model: db.Rol,
             as: 'rol',
             required: true,
-            where: { nombre: { [db.Sequelize.Op.notIn]: ['Organizador', 'Coorganizador'] } },
+            where: { nombre: 'Asistente' },
           },
         ],
         distinct: true,
@@ -63,7 +63,7 @@ export class ParticipanteRepository implements IParticipanteRepository {
       })
       return count
     } catch (error) {
-      console.error('Error en countAttendeesExcludingOrganizers:', error)
+      console.error('Error en countAttendees:', error)
       throw error
     }
   }
