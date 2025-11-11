@@ -10,7 +10,7 @@ import {
   LIMITE_INVITACIONES_PENDIENTES_COORGANIZADORES
 } from '../../../domain/value-objects/Constantes';
 import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
-import { NotificacionFabrica } from '../../../infrastructure/patterns/observer/factoryMethod/NotificacionFabrica';
+import { NotificacionFabrica } from '../../../infrastructure/patterns/factoryMethod/NotificacionFabrica';
 
 export class SendInvitacionUseCase {
   constructor(
