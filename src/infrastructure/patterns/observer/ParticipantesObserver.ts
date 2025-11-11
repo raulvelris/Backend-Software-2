@@ -71,6 +71,14 @@ export class ParticipantesObserver implements Observer {
             emisorId
         );
 
+        // Crear notificaciones para los destinatarios
+        for (const destinatario of destinatarios) {
+            await this.notificacionUsuarioRepository.create({
+                notificacion_accion_id: nuevaNotificacion.notificacion_id,
+                usuario_id: destinatario.usuario_id,
+            });
+        }
+
         console.log(
             `Notificados ${destinatarios.length} usuarios (${soloParaOrganizadores ? 'ORGANIZADORES Y COORGANIZADORES' : 'TODOS LOS PARTICIPANTES'}) de evento_id ${eventoId} sobre ${eventType}`
         );
