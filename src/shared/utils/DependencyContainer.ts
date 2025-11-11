@@ -3,6 +3,7 @@ import { UsuarioRepository } from '../../infrastructure/repositories/UsuarioRepo
 import { ClienteRepository } from '../../infrastructure/repositories/ClienteRepository';
 import { EventoRepository } from '../../infrastructure/repositories/EventoRepository';
 import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
+import { NotificacionRepository } from '../../infrastructure/repositories/NotificacionRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
 import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
 import { NotificacionAccionRepository } from '../../infrastructure/repositories/NotificacionAccionRepository';
@@ -36,6 +37,9 @@ import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-c
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
 
+import { AccionFabrica } from '../../infrastructure/patterns/factoryMethod/AccionFabrica';
+import { InvitacionFabrica } from '../../infrastructure/patterns/factoryMethod/InvitacionFabrica';
+
 import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
 import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
 import { Request, Response, NextFunction } from 'express';
@@ -46,6 +50,7 @@ export class DependencyContainer {
   private static clienteRepository: ClienteRepository;
   private static eventoRepository: EventoRepository;
   private static eventoParticipanteRepository: EventoParticipanteRepository;
+  private static notificacionRepository: NotificacionRepository;
   private static invitacionRepository: InvitacionRepository;
   private static invitacionUsuarioRepository: InvitacionUsuarioRepository;
   private static notificacionAccionRepository: NotificacionAccionRepository;
@@ -109,6 +114,10 @@ export class DependencyContainer {
   private static notificationManager: NotificationManager;
   private static participantesObserver: ParticipantesObserver;
 
+  // Factory
+  private static invitacionFabrica: InvitacionFabrica;
+  private static accionFabrica: AccionFabrica;
+
   // Middleware
   private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
   private static verifyOrganizerOrCoorganizerInEvent: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
@@ -141,6 +150,13 @@ export class DependencyContainer {
       this.eventoParticipanteRepository = new EventoParticipanteRepository();
     }
     return this.eventoParticipanteRepository;
+  }
+
+  static getNotificacionRepository(): NotificacionRepository {
+    if (!this.notificacionRepository) {
+      this.notificacionRepository = new NotificacionRepository();
+    }
+    return this.notificacionRepository;
   }
 
   static getInvitacionRepository(): InvitacionRepository {
@@ -417,10 +433,33 @@ export class DependencyContainer {
     if (!this.participantesObserver) {
       this.participantesObserver = new ParticipantesObserver(
         this.getEventoParticipanteRepository(),
-        this.getNotificacionUsuarioRepository()
+        this.getNotificacionUsuarioRepository(),
+        this.getRolRepository()
       );
     }
     return this.participantesObserver;
+  }
+
+  // Getter para la Fabrica Concreta: Invitacion
+  static getInvitacionFabrica(): InvitacionFabrica {
+    if (!this.invitacionFabrica) {
+      this.invitacionFabrica = new InvitacionFabrica(
+        this.getInvitacionRepository(),
+        this.getNotificacionRepository(),
+      );
+    }
+    return this.invitacionFabrica;
+  }
+
+  // Getter para la Fabrica Concreta: Accion
+  static getAccionFabrica(): AccionFabrica {
+    if (!this.accionFabrica) {
+      this.accionFabrica = new AccionFabrica(
+        this.getNotificacionAccionRepository(),
+        this.getNotificacionRepository(),
+      );
+    }
+    return this.accionFabrica;
   }
 
   // Getter para el middleware de verificación de organizador/coorganizador global
