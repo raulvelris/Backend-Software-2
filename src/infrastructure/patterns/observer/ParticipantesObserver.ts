@@ -1,6 +1,7 @@
 import { Observer } from './Observer';
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
 import { INotificacionUsuarioRepository } from '../../../domain/interfaces/INotificacionUsuarioRepository';
+import { IRolRepository } from '../../../domain/interfaces/IRolRepository';
 import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
 import { NotificacionFabrica } from '../factoryMethod/NotificacionFabrica';
 import { TipoRol } from '../../../domain/value-objects/TipoRol';
@@ -9,7 +10,8 @@ import { Payload } from './Payload';
 export class ParticipantesObserver implements Observer {
   constructor(
     private eventoParticipanteRepository: IEventoParticipanteRepository,
-    private notificacionUsuarioRepository: INotificacionUsuarioRepository
+    private notificacionUsuarioRepository: INotificacionUsuarioRepository,
+    private rolRepository: IRolRepository
   ) {}
 
     async update(eventType: string, payload: Payload): Promise<void> {
@@ -50,15 +52,9 @@ export class ParticipantesObserver implements Observer {
             mensaje
         );
     
-        // Seleccionar destinatarios según público
-        let destinatarios = await this.eventoParticipanteRepository.findParticipantesByEventoAndRol(eventoId);
-
-        if (soloParaOrganizadores) {
-            destinatarios = destinatarios.filter(p => p.rol === TipoRol.ORGANIZADOR || p.rol === TipoRol.COORGANIZADOR);
-        }
-
-        // Filtrar destinatarios   
-        destinatarios = destinatarios.filter(p => p.usuario_id !== emisorId);
+        const tipoRol = soloParaOrganizadores ? TipoRol.ORGANIZADOR : TipoRol.ASISTENTE;
+        const Rol = await this.rolRepository.findByNombre(tipoRol);
+        const destinatarios = await this.eventoParticipanteRepository.findAllWithFilters(eventoId, [Rol.rol_id], emisorId);
 
         // Crear notificaciones para los destinatarios
         for (const destinatario of destinatarios) {
