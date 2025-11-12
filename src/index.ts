@@ -17,6 +17,7 @@ import { ManagedEventsController } from "./modules/eventos-gestionados/controlle
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
 import { ProfileController } from "./modules/perfil/controllers/ProfileController";
+import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -109,6 +110,9 @@ app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasCont
 
 const verNotificacionesAccionController = new VerNotificacionesAccionController();
 app.use(verNotificacionesAccionController.getPath(), verNotificacionesAccionController.getRouter());
+
+const verCoordenadasController = new VerCoordenadasController();
+app.use(verCoordenadasController.getPath(), verCoordenadasController.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

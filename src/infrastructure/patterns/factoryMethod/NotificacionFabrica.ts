@@ -1,5 +1,5 @@
-import { DependencyContainer } from 'shared/utils/DependencyContainer';
-import { INotificacionRepository } from 'domain/interfaces/INotificacionRepository';
+import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
+import { INotificacionRepository } from '../../../domain/interfaces/INotificacionRepository';
 
 /**
  * Fábrica Abstracta - Patrón Factory Method

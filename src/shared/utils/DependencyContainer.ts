@@ -33,6 +33,7 @@ import { CreateEventoUseCase } from '../../modules/eventos-crear/use-cases/Creat
 import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-cases/ListPublicEventsUseCase';
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
+import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases/GetCoordenadasUseCase';
 
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
@@ -109,6 +110,9 @@ export class DependencyContainer {
 
   // Use Case - Listar Eventos Asistidos
   private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
+
+  // Use Case - Obtener Coordenadas
+  private static getCoordenadasUseCase: GetCoordenadasUseCase;
   
   // Observadores (Singleton)
   private static notificationManager: NotificationManager;
@@ -417,6 +421,15 @@ export class DependencyContainer {
       );
     }
     return this.listAttendedEventsUseCase;
+  }
+
+  static getGetCoordenadasUseCase(): GetCoordenadasUseCase {
+    if (!this.getCoordenadasUseCase) {
+      this.getCoordenadasUseCase = new GetCoordenadasUseCase(
+        this.getUbicacionRepository()
+      );
+    }
+    return this.getCoordenadasUseCase;
   }
 
   // Getter para el NotificationManager
