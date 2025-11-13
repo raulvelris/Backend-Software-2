@@ -1,5 +1,5 @@
-import { IParticipanteRepository } from "domain/interfaces/IParticipanteRepository";
-import { IEventoRepository } from "domain/interfaces/IEventoRepository";
+import { IParticipanteRepository } from "../../../domain/interfaces/IParticipanteRepository";
+import { IEventoRepository } from "../../../domain/interfaces/IEventoRepository";
 
 export class GetEventoDetalleUseCase {
   constructor(

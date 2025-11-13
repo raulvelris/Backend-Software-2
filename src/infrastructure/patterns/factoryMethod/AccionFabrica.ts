@@ -1,5 +1,5 @@
-import { INotificacionAccionRepository } from 'domain/interfaces/INotificacionAccionRepository';
-import { INotificacionRepository } from 'domain/interfaces/INotificacionRepository';
+import { INotificacionAccionRepository } from '../../../domain/interfaces/INotificacionAccionRepository';
+import { INotificacionRepository } from '../../../domain/interfaces/INotificacionRepository';
 import { NotificacionFabrica } from './NotificacionFabrica';
 
 const db = require('../../database/models');
