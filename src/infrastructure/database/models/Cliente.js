@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
       // Un cliente pertenece a un usuario
       Cliente.belongsTo(models.Usuario, {
         foreignKey: 'usuario_id',
-        as: 'usuario'
+        as: 'usuario',
+        onDelete: 'CASCADE'
       });
     }
   }
