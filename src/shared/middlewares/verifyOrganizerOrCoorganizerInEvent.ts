@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { IRolRepository } from "domain/interfaces/IRolRepository";
-import { IParticipanteRepository } from "domain/interfaces/IParticipanteRepository";
-import { IEventoParticipanteRepository } from "domain/interfaces/IEventoParticipanteRepository";
+import { IRolRepository } from "../../domain/interfaces/IRolRepository";
+import { IParticipanteRepository } from "../../domain/interfaces/IParticipanteRepository";
+import { IEventoParticipanteRepository } from "../../domain/interfaces/IEventoParticipanteRepository";
 import { TipoRol } from "../../domain/value-objects/TipoRol";
 
 export class VerifyOrganizerOrCoorganizerInEvent {
