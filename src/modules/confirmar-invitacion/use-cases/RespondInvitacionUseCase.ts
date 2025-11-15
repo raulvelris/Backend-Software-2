@@ -41,6 +41,7 @@ export class RespondInvitacionUseCase {
     const notificacion = invitacion?.notificacion;
     const evento = notificacion?.evento;
     const usuario = invitacionUsuario.usuario;
+    const esParaCoorganizar = Boolean(invitacionUsuario.esParaCoorganizar);
     const now = new Date();
 
     // Validar fecha límite
@@ -92,14 +93,25 @@ export class RespondInvitacionUseCase {
       return { success: true, message: 'Invitación rechazada' };
     }
 
-    // Aceptar invitación (según seeders: nombre 'Asistente')
-    const rolAsistente = await this.rolRepository.findByNombre('Asistente');
-    if (!rolAsistente) {
-      // Evitar asignar por defecto un rol incorrecto (p.ej. ORGANIZADOR)
-      throw new Error('Rol Asistente no configurado');
-    }
-    const rolId = rolAsistente.rol_id;
+    let rolId: number;
 
+    if (!esParaCoorganizar) {
+      // Aceptar invitación (según seeders: nombre 'Asistente')
+      const rolAsistente = await this.rolRepository.findByNombre('Asistente');
+      if (!rolAsistente) {
+        // Evitar asignar por defecto un rol incorrecto (p.ej. ORGANIZADOR)
+        throw new Error('Rol Asistente no configurado');
+      }
+      rolId = rolAsistente.rol_id;
+    } else { 
+      // Aceptar invitación (según seeders: nombre 'Coorganizador')
+      const rolCoorganizador = await this.rolRepository.findByNombre('Coorganizador');
+      if (!rolCoorganizador) {
+        // Evitar asignar por defecto un rol incorrecto (p.ej. ORGANIZADOR)
+        throw new Error('Rol Coorganizador no configurado');
+      }
+      rolId = rolCoorganizador.rol_id;
+    }
     // Buscar o crear participante
     let participante = await this.participanteRepository.findByUsuarioAndRol(usuario.usuario_id, rolId);
     
@@ -122,9 +134,6 @@ export class RespondInvitacionUseCase {
         evento.evento_id,
         participante.participante_id
       );
-
-      // Incrementar contador de participantes
-      await this.eventoRepository.incrementParticipantes(evento.evento_id);
     }
 
     // Actualizar estado de invitación a Aceptada
@@ -135,7 +144,19 @@ export class RespondInvitacionUseCase {
         estado_invitacion_id: estadoAceptada.estado_id,
       });
     }
+    
+    if (!esParaCoorganizar) {
+      // Incrementar contador de participantes
+      await this.eventoRepository.incrementParticipantes(evento.evento_id);
+    }
 
-    return { success: true, message: 'Invitación aceptada' };
+    const tipoInvitacion = esParaCoorganizar ? true : false;
+    const tipoInvitacionLabel = esParaCoorganizar ? 'coorganizador' : 'asistente';
+
+    return {
+      success: true,
+      message: `Invitación aceptada como ${tipoInvitacionLabel}`,
+      tipoInvitacion,
+    };
   }
 }

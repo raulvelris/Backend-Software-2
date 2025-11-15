@@ -2,4 +2,5 @@
 export interface RespondInvitacionResultDto {
   success: boolean;
   message: string;
+  tipoInvitacion?: boolean;
 }
