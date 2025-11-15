@@ -70,9 +70,9 @@ export class CreateEventoUseCase {
       : ID_PRIVACIDAD_PUBLICO
 
     // Límite por usuario: máximo 5 eventos como Organizador
-    const existingCount = await this.eventoRepository.countEventosByOrganizador(ownerId)
+    const existingCount = await this.eventoParticipanteRepository.countByParticipanteEventoActivo(ownerId)
 
-    if (existingCount >= 5) {
+    if (existingCount === 5) {
       throw new Error('You reached your event limit')
     }
 

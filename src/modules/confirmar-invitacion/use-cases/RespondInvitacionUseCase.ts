@@ -64,18 +64,18 @@ export class RespondInvitacionUseCase {
       }
     }
 
-    // Validar límite de eventos por usuario
+    // Validar límite de eventos por usuario (incluyendo organizar y asistir)
     if (dto.accept && usuario) {
       const participanteRows = await this.participanteRepository.findAllByUsuarioId(usuario.usuario_id);
       
       let userEventCount = 0;
       for (const participante of participanteRows) {
-        const eventosDelParticipante = await this.eventoParticipanteRepository.countByParticipante(participante.participante_id);
+        const eventosDelParticipante = await this.eventoParticipanteRepository.countByParticipanteEventoActivo(participante.usuario_id);
         userEventCount += eventosDelParticipante;
       }
       
-      const MAX_EVENTS_PER_USER = Number(process.env.MAX_EVENTS_PER_USER || 5);
-      if (userEventCount >= MAX_EVENTS_PER_USER) {
+      const MAX_EVENTS_PER_USER = Number(process.env.MAX_EVENTS_PER_USER);
+      if (userEventCount == MAX_EVENTS_PER_USER) {
         throw new Error('Alcanzó el límite de eventos permitidos');
       }
     }
