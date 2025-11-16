@@ -155,6 +155,10 @@ export class EventoRepository implements IEventoRepository {
         fechaFin: { [db.Sequelize.Op.gte]: new Date() },
       };
 
+      if (eventosExcluidos.length > 0) {
+        whereClause.evento_id = { [db.Sequelize.Op.notIn]: eventosExcluidos };
+      }
+
       const eventos = await db.Evento.findAll({
         attributes: [
           ['evento_id', 'id'],
