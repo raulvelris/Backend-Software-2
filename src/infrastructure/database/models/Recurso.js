@@ -27,11 +27,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     nombre: {
       type: DataTypes.STRING(200),
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     url: {
       type: DataTypes.STRING(200),
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     tipo_recurso: {
       type: DataTypes.INTEGER,

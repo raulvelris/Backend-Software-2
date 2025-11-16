@@ -19,6 +19,9 @@ import { AuthController } from "./modules/iniciar-sesion/controllers/AuthControl
 import { ProfileController } from "./modules/gestion-perfil/controllers/ProfileController";
 import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/DeleteEventoController";
 import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
+import { ListarRecursosController } from "./modules/listar-recursos/controllers/ListarRecursosController";
+import { CompartirRecursosController } from "./modules/compartir recursos/controllers/CompartirRecursosController";
+
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -117,6 +120,12 @@ app.use(deleteEventoController.getPath(), deleteEventoController.getRouter());
 
 const verCoordenadasController = new VerCoordenadasController();
 app.use(verCoordenadasController.getPath(), verCoordenadasController.getRouter());
+
+const listarRecursosController = new ListarRecursosController();
+app.use(listarRecursosController.getPath(), listarRecursosController.getRouter());
+
+const compartirRecursosController = new CompartirRecursosController();
+app.use(compartirRecursosController.getPath(), compartirRecursosController.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

@@ -13,6 +13,8 @@ import { ParticipanteRepository } from '../../infrastructure/repositories/Partic
 import { RolRepository } from '../../infrastructure/repositories/RolRepository';
 import { UbicacionRepository } from '../../infrastructure/repositories/UbicacionRepository';
 import { EstadoEventoRepository } from '../../infrastructure/repositories/EstadoEventoRepository';
+import { TipoRecursoRepository } from '../../infrastructure/repositories/TipoRecursoRepository';
+import { RecursoRepository } from '../../infrastructure/repositories/RecursoRepository';
 import { EmailService } from '../../infrastructure/services/EmailService';
 
 import { SearchUsuariosUseCase } from '../../modules/envio-invitaciones/use-cases/SearchUsuariosUseCase';
@@ -36,6 +38,9 @@ import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/DeleteEventoUseCase';
 import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases/GetCoordenadasUseCase';
+import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
+import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
+import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
 
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
@@ -63,6 +68,8 @@ export class DependencyContainer {
   private static rolRepository: RolRepository;
   private static estadoEventoRepository: EstadoEventoRepository;
   private static ubicacionRepository: UbicacionRepository;
+  private static tipoRecursoRepository: TipoRecursoRepository;
+  private static recursoRepository: RecursoRepository;
 
   // Servicios (Singleton)
   private static emailService: EmailService;
@@ -119,6 +126,15 @@ export class DependencyContainer {
   
   // Use Case - Obtener Coordenadas
   private static getCoordenadasUseCase: GetCoordenadasUseCase;
+  
+  // Use Case - Listar Recursos
+  private static listarRecursosUseCase: ListarRecursosUseCase;
+
+  // Use Case - Crear Recurso Enlace
+  private static crearRecursoEnlaceUseCase: CrearRecursoEnlaceUseCase;
+
+  // Use Case - Crear Recurso Archivo
+  private static crearRecursoArchivoUseCase: CrearRecursoArchivoUseCase;
   
   // Observadores (Singleton)
   private static notificationManager: NotificationManager;
@@ -230,6 +246,20 @@ export class DependencyContainer {
       this.ubicacionRepository = new UbicacionRepository();
     }
     return this.ubicacionRepository;
+  }
+
+  static getTipoRecursoRepository(): TipoRecursoRepository {
+    if (!this.tipoRecursoRepository) {
+      this.tipoRecursoRepository = new TipoRecursoRepository();
+    }
+    return this.tipoRecursoRepository;
+  }
+
+  static getRecursoRepository(): RecursoRepository {
+    if (!this.recursoRepository) {
+      this.recursoRepository = new RecursoRepository();
+    }
+    return this.recursoRepository;
   }
 
   // Getters para Servicios
@@ -458,6 +488,38 @@ export class DependencyContainer {
       );
     }
     return this.getCoordenadasUseCase;
+  }
+
+  static getListarRecursosUseCase(): ListarRecursosUseCase {
+    if (!this.listarRecursosUseCase) {
+      this.listarRecursosUseCase = new ListarRecursosUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository()
+      );
+    }
+    return this.listarRecursosUseCase;
+  }
+
+  static getCrearRecursoEnlaceUseCase(): CrearRecursoEnlaceUseCase {
+    if (!this.crearRecursoEnlaceUseCase) {
+      this.crearRecursoEnlaceUseCase = new CrearRecursoEnlaceUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoEnlaceUseCase;
+  }
+
+  static getCrearRecursoArchivoUseCase(): CrearRecursoArchivoUseCase {
+    if (!this.crearRecursoArchivoUseCase) {
+      this.crearRecursoArchivoUseCase = new CrearRecursoArchivoUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoArchivoUseCase;
   }
 
   // Getter para el NotificationManager

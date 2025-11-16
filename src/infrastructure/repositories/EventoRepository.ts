@@ -119,7 +119,7 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  async findPublicEvents(excludeUsuarioId?: number): Promise<any[]> {
+  async findPublicEvents(excludeUsuarioId: number): Promise<any[]> {
     try {
       const ID_ESTADO_PROGRAMADO = 1;
       const ID_PRIVACIDAD_PUBLICO = 1;
@@ -136,8 +136,12 @@ export class EventoRepository implements IEventoRepository {
               required: true,
               through: { attributes: [] },
               include: [
-                { model: db.Usuario, as: 'usuario', required: true, where: { usuario_id: excludeUsuarioId } },
-                { model: db.Rol, as: 'rol', required: true, where: { nombre: 'Organizador' } },
+                { 
+                  model: db.Usuario, 
+                  as: 'usuario', 
+                  required: true, 
+                  where: { usuario_id: excludeUsuarioId } 
+                },
               ],
             },
           ],
@@ -150,11 +154,6 @@ export class EventoRepository implements IEventoRepository {
         privacidad: ID_PRIVACIDAD_PUBLICO,
         fechaFin: { [db.Sequelize.Op.gte]: new Date() },
       };
-
-      // Excluir eventos donde el usuario es organizador
-      if (eventosExcluidos.length > 0) {
-        whereClause.evento_id = { [db.Sequelize.Op.notIn]: eventosExcluidos };
-      }
 
       const eventos = await db.Evento.findAll({
         attributes: [
@@ -238,6 +237,9 @@ export class EventoRepository implements IEventoRepository {
 
   async findAttendedEventsByUsuario(usuarioId: number): Promise<any[]> {
     try {
+      // Eventos activos o que terminaron hace menos de 2 días
+      const cutoff = new Date(Date.now() - 1000 * 60 * 60 * 24 * 2);
+
       const eventos = await db.Evento.findAll({
         attributes: [
           ['evento_id', 'id'],
@@ -246,6 +248,9 @@ export class EventoRepository implements IEventoRepository {
           ['fechaFin', 'dateEnd'],
           ['imagen', 'imageUrl'],
         ],
+        where: {
+          fechaFin: { [db.Sequelize.Op.gt]: cutoff },
+        },
         include: [
           {
             model: db.Participante,
@@ -253,8 +258,18 @@ export class EventoRepository implements IEventoRepository {
             required: true,
             through: { attributes: [] },
             include: [
-              { model: db.Usuario, as: 'usuario', required: true, where: { usuario_id: usuarioId } },
-              { model: db.Rol, as: 'rol', required: true, where: { nombre: 'Asistente' } },
+              { 
+                model: db.Usuario, 
+                as: 'usuario', 
+                required: true, 
+                where: { usuario_id: usuarioId } 
+              },
+              { 
+                model: db.Rol, 
+                as: 'rol', 
+                required: true, 
+                where: { nombre: 'Asistente' } 
+              },
             ],
           },
         ],
