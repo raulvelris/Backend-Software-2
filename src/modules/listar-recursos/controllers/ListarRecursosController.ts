@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware';
 
 export class ListarRecursosController {
   private router: Router;
@@ -9,35 +10,61 @@ export class ListarRecursosController {
 
   constructor() {
     this.router = express.Router();
+    
+    // aplicar middleware a todas las rutas
+    this.router.use(authMiddleware);
+    
+    // inicializar rutas
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.get('/eventos/:evento_id/recursos', this.listarRecursos.bind(this));
+    // GET /api/eventos/:id/recursos
+    this.router.get('/eventos/:id/recursos', this.getRecursosForEvento.bind(this));
   }
 
-  private async listarRecursos(req: Request, res: Response): Promise<void> {
+  // Handler: Obtener recursos del evento
+  private async getRecursosForEvento(req: Request, res: Response): Promise<void> {
     try {
-      const { evento_id } = req.params;
+      const { id } = req.params;
+      const eventoId = parseInt(id!, 10);
       
-      const recursos = await this.listarRecursosUseCase.execute({
-        evento_id: Number(evento_id)
-      });
+      if (isNaN(eventoId)) {
+        res.status(400).json({ 
+          success: false, 
+          message: 'ID de evento no válido' 
+        });
+        return;
+      }
 
-      res.status(200).json(recursos);
-    } catch (error: any) {
-      const msg = String(error?.message || 'Internal error');
+      const recursos = await this.listarRecursosUseCase.execute({ evento_id: eventoId });
       
-      if (msg === 'Event not found') {
-        res.status(404).json({ success: false, message: msg });
+      res.status(200).json(recursos);
+      
+    } catch (error: any) {
+      console.error('Error al obtener recursos del evento:', error);
+      
+      if (error.message === 'Event not found') {
+        res.status(404).json({ 
+          success: false, 
+          message: 'Evento no encontrado'
+        });
         return;
       }
       
-      res.status(500).json({ success: false, message: 'Error al listar los recursos' });
+      res.status(500).json({ 
+        success: false, 
+        message: 'Error al obtener recursos del evento'
+      });
     }
   }
 
+  // Método público para obtener el router configurado
   public getRouter(): Router {
     return this.router;
+  }
+
+  public getPath(): string {
+    return this.path;
   }
 }

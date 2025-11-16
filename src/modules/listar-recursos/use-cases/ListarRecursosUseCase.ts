@@ -19,14 +19,18 @@ export class ListarRecursosUseCase {
     // Obtener los recursos del evento
     const recursos = await this.recursoRepository.findByEventoId(evento_id);
     
+    // Mapear al formato que espera el frontend
     return recursos.map(recurso => ({
-      recurso_id: recurso.recurso_id,
+      id: recurso.recurso_id,
       nombre: recurso.nombre,
       url: recurso.url,
       tipo_recurso: {
-        tipo_recurso_id: recurso.tipo_recurso,
+        id: recurso.tipo?.tipo_recurso_id || recurso.tipo_recurso,
         nombre: recurso.tipo?.nombre || ''
-      }
+      },
+      evento_id: recurso.evento_id,
+      created_at: recurso.created_at,
+      updated_at: recurso.updated_at
     }));
   }
 }

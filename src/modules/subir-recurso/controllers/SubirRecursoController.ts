@@ -78,4 +78,8 @@ export class SubirRecursoController {
   public getRouter(): Router {
     return this.router;
   }
+
+  public getPath(): string {
+    return this.path;
+  }
 }

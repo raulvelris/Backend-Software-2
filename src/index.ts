@@ -17,6 +17,8 @@ import { ManagedEventsController } from "./modules/eventos-gestionados/controlle
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
 import { EventoRecursosController } from "./modules/eventos-recursos/controllers/EventoRecursosController";
+import { ListarRecursosController } from "./modules/listar-recursos/controllers/ListarRecursosController";
+import { SubirRecursoController } from "./modules/subir-recurso/controllers/SubirRecursoController";
 import { ProfileController } from "./modules/gestion-perfil/controllers/ProfileController";
 import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/DeleteEventoController";
 import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
@@ -59,11 +61,23 @@ app.use(cors({
     maxAge: 86400 // 24 horas
 }));
 
-app.use(bodyParser.json({ limit: '3mb' }))
-app.use(bodyParser.urlencoded({
-    extended : true,
-    limit: '3mb'
-}))
+// Body parser solo para JSON y urlencoded, NO para multipart/form-data (eso lo maneja multer)
+// IMPORTANTE: El bodyParser debe estar ANTES de las rutas para que funcione correctamente
+// Pero debe saltar multipart/form-data para que multer lo procese
+// Usar un middleware condicional para asegurar que multipart/form-data no se procese
+app.use((req, res, next) => {
+    const contentType = req.headers['content-type'] || '';
+    
+    // Si es multipart/form-data, NO usar bodyParser en absoluto
+    if (contentType.includes('multipart/form-data')) {
+        return next();
+    }
+    
+    // Si no es multipart, usar bodyParser normalmente
+    bodyParser.json({ limit: '3mb' })(req, res, () => {
+        bodyParser.urlencoded({ extended: true, limit: '3mb' })(req, res, next);
+    });
+});
 app.use(express.static("assets")) // Carpeta archivos estaticos
 
 const port = process.env.PORT || 5000;
@@ -108,9 +122,19 @@ app.use(managedEventsController.getPath(), managedEventsController.getRouter());
 const attendedEventsController = new AttendedEventsController();
 app.use(attendedEventsController.getPath(), attendedEventsController.getRouter());
 
-// Agregar controlador para recursos de eventos
+// Agregar controlador para listar recursos de eventos (GET)
+const listarRecursosController = new ListarRecursosController();
+app.use(listarRecursosController.getPath(), listarRecursosController.getRouter());
+console.log('✅ ListarRecursosController registrado en /api');
+
+// Agregar controlador para crear recursos de eventos (POST)
 const eventoRecursosController = new EventoRecursosController();
 app.use('/api/eventos', eventoRecursosController.getRouter());
+console.log('✅ EventoRecursosController registrado en /api/eventos');
+
+// Nota: SubirRecursoController está duplicado - EventoRecursosController ya maneja POST
+// const subirRecursoController = new SubirRecursoController();
+// app.use(subirRecursoController.getPath(), subirRecursoController.getRouter());
 
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());

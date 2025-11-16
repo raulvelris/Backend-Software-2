@@ -51,6 +51,8 @@ import { TipoRecursoRepository } from '../../infrastructure/repositories/TipoRec
 import { SubirRecursoUseCase } from '../../modules/subir-recurso/use-cases/SubirRecursoUseCase';
 import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
 import { EliminarRecursoUseCase } from '../../modules/eliminar-recurso/use-cases/EliminarRecursoUseCase';
+import { CrearRecursoEnlaceUseCase } from '../../modules/eventos-recursos/use-cases/CrearRecursoEnlaceUseCase';
+import { CrearRecursoArchivoUseCase } from '../../modules/eventos-recursos/use-cases/CrearRecursoArchivoUseCase';
 
 import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
 import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
@@ -130,6 +132,8 @@ export class DependencyContainer {
   private static subirRecursoUseCase: SubirRecursoUseCase;
   private static listarRecursosUseCase: ListarRecursosUseCase;
   private static eliminarRecursoUseCase: EliminarRecursoUseCase;
+  private static crearRecursoEnlaceUseCase: CrearRecursoEnlaceUseCase;
+  private static crearRecursoArchivoUseCase: CrearRecursoArchivoUseCase;
 
   // Use Case - Eliminar Evento
   private static deleteEventoUseCase: DeleteEventoUseCase;
@@ -497,6 +501,28 @@ export class DependencyContainer {
       );
     }
     return this.eliminarRecursoUseCase;
+  }
+
+  static getCrearRecursoEnlaceUseCase(): CrearRecursoEnlaceUseCase {
+    if (!this.crearRecursoEnlaceUseCase) {
+      this.crearRecursoEnlaceUseCase = new CrearRecursoEnlaceUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoEnlaceUseCase;
+  }
+
+  static getCrearRecursoArchivoUseCase(): CrearRecursoArchivoUseCase {
+    if (!this.crearRecursoArchivoUseCase) {
+      this.crearRecursoArchivoUseCase = new CrearRecursoArchivoUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoArchivoUseCase;
   }
 
   static getDeleteEventoUseCase(): DeleteEventoUseCase {

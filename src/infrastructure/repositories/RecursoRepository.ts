@@ -65,7 +65,7 @@ export class RecursoRepository implements IRecursoRepository {
           {
             model: db.TipoRecurso,
             as: 'tipo',
-            attributes: ['nombre']
+            attributes: ['tipo_recurso_id', 'nombre']
           }
         ]
       });
