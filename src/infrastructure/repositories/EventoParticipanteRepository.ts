@@ -139,6 +139,37 @@ async countByEvento(eventoId: number, rolId?: number[]): Promise<number> {
     }
   }
 
+  async countByParticipanteEventoActivo(usuarioId: number): Promise<number> {
+  try {
+    const count = await db.EventoParticipante.count({
+      include: [
+        {
+          model: db.Participante,
+          as: 'participante',
+          required: true,
+          where: {
+            usuario_id: usuarioId
+          }
+        },
+        {
+          model: db.Evento,
+          as: 'evento',
+          required: true,
+          where: {
+            fechaFin: {
+              [db.Sequelize.Op.gt]: new Date()
+            }
+          }
+        }
+      ]
+    });
+
+    return count;
+  } catch (error) {
+    console.error('Error en countByParticipanteEventoActivo:', error);
+    throw error;
+  }
+}
   async findByEventoAndParticipante(eventoId: number, participanteId: number): Promise<any | null> {
     try {
       const link = await db.EventoParticipante.findOne({

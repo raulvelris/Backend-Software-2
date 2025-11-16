@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       // Un recurso pertenece a un evento
       Recurso.belongsTo(models.Evento, {
         foreignKey: 'evento_id',
-        as: 'evento'
+        as: 'evento',
+        onDelete: 'CASCADE'
       });
     }
   }
@@ -38,9 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'TipoRecurso',
         key: 'tipo_recurso_id'
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'RESTRICT'
+      }
     },
     evento_id: {
       type: DataTypes.INTEGER,
@@ -48,9 +47,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Evento',
         key: 'evento_id'
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'CASCADE'
+      }
     }
   }, {
     sequelize,

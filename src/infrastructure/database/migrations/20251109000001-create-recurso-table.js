@@ -23,9 +23,7 @@ module.exports = {
         references: {
           model: 'TipoRecurso',
           key: 'tipo_recurso_id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT'
+        }
       },
       evento_id: {
         type: Sequelize.INTEGER,
@@ -34,7 +32,6 @@ module.exports = {
           model: 'Evento',
           key: 'evento_id'
         },
-        onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       }
     });

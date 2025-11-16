@@ -16,10 +16,8 @@ import { PublicEventsController } from "./modules/eventos-publicos/controllers/P
 import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
-
 import { EventoRecursosController } from "./modules/eventos-recursos/controllers/EventoRecursosController";
-
-import { ProfileController } from "./modules/perfil/controllers/ProfileController";
+import { ProfileController } from "./modules/gestion-perfil/controllers/ProfileController";
 import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/DeleteEventoController";
 import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
 

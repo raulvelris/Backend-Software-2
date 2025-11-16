@@ -11,7 +11,7 @@ export class EventoRepository implements IEventoRepository {
           {
             model: db.Ubicacion,
             as: 'ubicacion',
-            attributes: ['direccion', 'latitud', 'longitud'],
+            attributes: ['direccion'],
             required: false,
           }
         ]
@@ -236,8 +236,6 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  // Arreglar: Esta mal que filtre solo rol Asistente 
-  // Esta linea esta mal: { model: db.Rol, as: 'rol', required: true, where: { nombre: { [db.Sequelize.Op.ne]: 'Organizador' } } },
   async findAttendedEventsByUsuario(usuarioId: number): Promise<any[]> {
     try {
       const eventos = await db.Evento.findAll({
@@ -256,7 +254,7 @@ export class EventoRepository implements IEventoRepository {
             through: { attributes: [] },
             include: [
               { model: db.Usuario, as: 'usuario', required: true, where: { usuario_id: usuarioId } },
-              { model: db.Rol, as: 'rol', required: true, where: { nombre: { [db.Sequelize.Op.ne]: 'Organizador' } } },
+              { model: db.Rol, as: 'rol', required: true, where: { nombre: 'Asistente' } },
             ],
           },
         ],
