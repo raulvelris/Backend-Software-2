@@ -1,5 +1,4 @@
 import { IUsuarioRepository } from '../../domain/interfaces/IUsuarioRepository';
-import { LIMITE_RESULTADOS_BUSQUEDA } from '../../domain/value-objects/Constantes';
 
 const db = require('../database/models');
 
@@ -11,7 +10,7 @@ export class UsuarioRepository implements IUsuarioRepository {
         include: [{
           model: db.Cliente,
           as: 'cliente',
-          attributes: ['nombre', 'apellido']
+          attributes: ['nombre', 'apellido', 'foto_perfil']
         }]
       });
       
@@ -28,7 +27,8 @@ export class UsuarioRepository implements IUsuarioRepository {
         where: { correo: email },
         include: [{
           model: db.Cliente,
-          as: 'cliente'
+          as: 'cliente',
+          attributes: ['nombre', 'apellido', 'foto_perfil']
         }]
       });
       

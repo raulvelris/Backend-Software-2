@@ -8,6 +8,7 @@ import { ConfirmarInvitacionController } from "./modules/confirmar-invitacion/co
 import { VerDetalleController } from "./modules/ver-detalle/controllers/VerDetalleController";
 import { ConfirmarPublicoController } from "./modules/confirmar-publico/controllers/ConfirmarPublicoController";
 import { VerInvitacionesPrivadasController } from "./modules/ver-invitaciones-privadas/controllers/VerInvitacionesPrivadasController";
+import { VerNotificacionesAccionController } from "./modules/ver-notificaciones-accion/controllers/VerNotificacionesAccionController";
 import { RegistrarseController } from "./modules/registrarse/controllers/RegistrarseController";
 import { ActivarCuentaController } from "./modules/activar-cuenta/controllers/ActivarCuentaController";
 import { CreateEventoController } from "./modules/eventos-crear/controllers/CreateEventoController";
@@ -15,7 +16,13 @@ import { PublicEventsController } from "./modules/eventos-publicos/controllers/P
 import { ManagedEventsController } from "./modules/eventos-gestionados/controllers/ManagedEventsController";
 import { AttendedEventsController } from "./modules/eventos-asistidos/controllers/AttendedEventsController";
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
+
 import { EventoRecursosController } from "./modules/eventos-recursos/controllers/EventoRecursosController";
+
+import { ProfileController } from "./modules/perfil/controllers/ProfileController";
+import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/DeleteEventoController";
+import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
+
 const db = require("./infrastructure/database/models");
 
 dotenv.config();
@@ -54,9 +61,10 @@ app.use(cors({
     maxAge: 86400 // 24 horas
 }));
 
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '3mb' }))
 app.use(bodyParser.urlencoded({
-    extended : true
+    extended : true,
+    limit: '3mb'
 }))
 app.use(express.static("assets")) // Carpeta archivos estaticos
 
@@ -71,6 +79,9 @@ app.use(activarCuentaController.getPath(), activarCuentaController.getRouter())
 
 const authController = new AuthController();
 app.use(authController.getPath(), authController.getRouter());
+
+const profileController = new ProfileController();
+app.use(profileController.getPath(), profileController.getRouter());
 
 const invitacionController = new InvitacionController();
 app.use(invitacionController.getPath(), invitacionController.getRouter())
@@ -105,6 +116,15 @@ app.use('/api/eventos', eventoRecursosController.getRouter());
 
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
+
+const verNotificacionesAccionController = new VerNotificacionesAccionController();
+app.use(verNotificacionesAccionController.getPath(), verNotificacionesAccionController.getRouter());
+
+const deleteEventoController = new DeleteEventoController();
+app.use(deleteEventoController.getPath(), deleteEventoController.getRouter());
+
+const verCoordenadasController = new VerCoordenadasController();
+app.use(verCoordenadasController.getPath(), verCoordenadasController.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

@@ -18,7 +18,7 @@ export class SendInvitacionUseCase {
     private eventoRepository: IEventoRepository,
     private eventoParticipanteRepository: IEventoParticipanteRepository,
     private invitacionUsuarioRepository: IInvitacionUsuarioRepository,
-    private estadoInvitacionRepository: IEstadoInvitacionRepository
+    private estadoInvitacionRepository: IEstadoInvitacionRepository,
   ) {}
 
   async execute(dto: SendInvitacionDto): Promise<SendInvitacionResultDto> {
