@@ -28,8 +28,8 @@ import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/
 import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
 import { ActivarCuentaUseCase } from '../../modules/activar-cuenta/use-cases/ActivarCuentaUseCase';
 import { LoginUseCase } from '../../modules/iniciar-sesion/use-cases/LoginUseCase';
-import { GetProfileUseCase } from '../../modules/perfil/use-cases/GetProfileUseCase';
-import { UpdateProfileUseCase } from '../../modules/perfil/use-cases/UpdateProfileUseCase';
+import { GetProfileUseCase } from '../../modules/gestion-perfil/use-cases/GetProfileUseCase';
+import { UpdateProfileUseCase } from '../../modules/gestion-perfil/use-cases/UpdateProfileUseCase';
 import { CreateEventoUseCase } from '../../modules/eventos-crear/use-cases/CreateEventoUseCase';
 import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-cases/ListPublicEventsUseCase';
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';

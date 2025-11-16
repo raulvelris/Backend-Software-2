@@ -3,7 +3,7 @@ import { DependencyContainer } from "../../../shared/utils/DependencyContainer";
 
 export class VerCoordenadasController {
     private router: Router;
-    private path: string = "/api/coordenadas";
+    private path: string = "/api/event/coordinates";
 
     // Use Cases (inyectados desde el contenedor)   
     private getCoordenadasUseCase = DependencyContainer.getGetCoordenadasUseCase();
