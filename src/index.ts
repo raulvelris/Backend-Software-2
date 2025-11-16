@@ -18,6 +18,8 @@ import { AttendedEventsController } from "./modules/eventos-asistidos/controller
 import { AuthController } from "./modules/iniciar-sesion/controllers/AuthController";
 import { ProfileController } from "./modules/perfil/controllers/ProfileController";
 import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/DeleteEventoController";
+import { DesvincularController } from "./modules/desvincular-evento/controllers/DesvincularController";
+import { EliminarInvitadoController } from "./modules/eliminar-invitado/controllers/EliminarInvitadoController";
 import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
 const db = require("./infrastructure/database/models");
 
@@ -114,6 +116,12 @@ app.use(verNotificacionesAccionController.getPath(), verNotificacionesAccionCont
 
 const deleteEventoController = new DeleteEventoController();
 app.use(deleteEventoController.getPath(), deleteEventoController.getRouter());
+
+const desvincularController = new DesvincularController();
+app.use(desvincularController.getPath(), desvincularController.getRouter());
+
+const eliminarInvitadoController = new EliminarInvitadoController();
+app.use(eliminarInvitadoController.getPath(), eliminarInvitadoController.getRouter());
 
 const verCoordenadasController = new VerCoordenadasController();
 app.use(verCoordenadasController.getPath(), verCoordenadasController.getRouter());

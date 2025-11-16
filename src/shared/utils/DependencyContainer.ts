@@ -36,6 +36,8 @@ import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/DeleteEventoUseCase';
 import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases/GetCoordenadasUseCase';
+import { EliminarInvitadoUseCase } from '../../modules/eliminar-invitado/use-cases/EliminarInvitadoUseCase';
+import { DesvincularUseCase } from '../../modules/desvincular-evento/use-cases/DesvincularUseCase';
 
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
@@ -116,6 +118,10 @@ export class DependencyContainer {
 
   // Use Case - Eliminar Evento
   private static deleteEventoUseCase: DeleteEventoUseCase;
+  // Use Case - Eliminar Invitado
+  private static eliminarInvitadoUseCase: EliminarInvitadoUseCase;
+  // Use Case - Desvincular participante
+  private static desvincularUseCase: DesvincularUseCase;
   
   // Use Case - Obtener Coordenadas
   private static getCoordenadasUseCase: GetCoordenadasUseCase;
@@ -449,6 +455,29 @@ export class DependencyContainer {
       );
     }
     return this.deleteEventoUseCase;
+  }
+
+  static getEliminarInvitadoUseCase(): EliminarInvitadoUseCase {
+    if (!this.eliminarInvitadoUseCase) {
+      this.eliminarInvitadoUseCase = new EliminarInvitadoUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificacionUsuarioRepository()
+      );
+    }
+    return this.eliminarInvitadoUseCase;
+  }
+
+  static getDesvincularUseCase(): DesvincularUseCase {
+    if (!this.desvincularUseCase) {
+      this.desvincularUseCase = new DesvincularUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getParticipanteRepository(),
+        this.getNotificationManager()
+      );
+    }
+    return this.desvincularUseCase;
   }
   
   static getGetCoordenadasUseCase(): GetCoordenadasUseCase {
