@@ -10,9 +10,9 @@ export interface IEventoRepository {
   findAll(): Promise<any[]>;
   
   // Métodos para consultas específicas
-  findByTituloLowerCase(titulo: string, options?: { transaction?: Transaction }): Promise<any | null>;
-  countEventosByOrganizador(usuarioId: number, options?: { transaction?: Transaction }): Promise<number>;
-  findPublicEvents(excludeUsuarioId?: number, options?: { transaction?: Transaction }): Promise<any[]>;
-  findManagedEventsByUsuario(usuarioId: number, options?: { transaction?: Transaction }): Promise<any[]>;
-  findAttendedEventsByUsuario(usuarioId: number, options?: { transaction?: Transaction }): Promise<any[]>;
+  findByTituloLowerCase(titulo: string): Promise<any | null>;
+  countEventosByOrganizador(usuarioId: number): Promise<number>;
+  findPublicEvents(excludeUsuarioId?: number): Promise<any[]>;
+  findManagedEventsByUsuario(usuarioId: number): Promise<any[]>;
+  findAttendedEventsByUsuario(usuarioId: number): Promise<any[]>;
 }
