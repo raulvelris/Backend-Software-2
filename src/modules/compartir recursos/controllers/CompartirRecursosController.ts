@@ -10,15 +10,48 @@ export class CompartirRecursosController {
     // Use Cases
     private crearRecursoEnlaceUseCase = DependencyContainer.getCrearRecursoEnlaceUseCase();
     private crearRecursoArchivoUseCase = DependencyContainer.getCrearRecursoArchivoUseCase();
+    private deleteRecursoUseCase = DependencyContainer.getDeleteRecursoUseCase();
 
     constructor() {
         this.router = express.Router();
         this.initializeRoutes();
     }
 
+    // Handler: Eliminar recurso
+    private async eliminarRecurso(req: Request, res: Response): Promise<void> {
+        try {
+            const { eventoId, recursoId } = req.params;
+            const evento_id = parseInt(eventoId!, 10);
+            const recurso_id = parseInt(recursoId!, 10);
+
+            if (isNaN(evento_id) || isNaN(recurso_id)) {
+                res.status(400).json({ success: false, message: 'IDs no válidos' });
+                return;
+            }
+
+            const result = await this.deleteRecursoUseCase.execute({ evento_id, recurso_id });
+            res.status(200).json(result);
+        } catch (error: any) {
+            console.error('Error al eliminar recurso:', error);
+
+            if (error.message?.includes('no encontrado') || error.message?.includes('no pertenece')) {
+                res.status(404).json({ success: false, message: error.message });
+                return;
+            }
+
+            if (error.message?.includes('requeridos')) {
+                res.status(400).json({ success: false, message: error.message });
+                return;
+            }
+
+            res.status(500).json({ success: false, message: 'Error interno del servidor' });
+        }
+    }
+
     private initializeRoutes(): void {
         this.router.post('/:id/recursos/enlace', this.crearRecursoEnlace.bind(this));
         this.router.post('/:id/recursos/archivo', uploadEventoRecursoArchivo, this.crearRecursoArchivo.bind(this));
+        this.router.delete('/:eventoId/recursos/:recursoId', this.eliminarRecurso.bind(this));
     }
 
     // Handler: Crear recurso de tipo ENLACE (JSON normal, sin multer)
