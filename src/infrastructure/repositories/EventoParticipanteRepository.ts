@@ -98,7 +98,7 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
     }
   }
 
-async countByEvento(eventoId: number, rolId?: number[]): Promise<number> {
+async countByEvento(eventoId: number, rolId?: number[]): Promise<number> {  //?
     try {
       const includeClause: any[] = [];
 

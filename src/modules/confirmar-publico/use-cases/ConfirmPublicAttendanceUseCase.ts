@@ -38,16 +38,16 @@ export class ConfirmPublicAttendanceUseCase {
     }
 
     // Verificar capacidad
-    const current = await this.eventoParticipanteRepository.countByEvento(evento_id);
+    const current = await this.participanteRepository.countAttendees(evento_id);
     const capacity = typeof evento.aforo === 'number' ? evento.aforo : 0;
-    if (current >= capacity) {
+    if (current === capacity) {
       throw new Error('Event is full');
     }
 
     // Límite por usuario (todos los roles)
     const userEventCount = await this.eventoParticipanteRepository.countByUsuarioEventoActivo(usuario_id);
 
-    if (userEventCount >= MAXIMO_EVENTOS_POR_USUARIO) {
+    if (userEventCount === MAXIMO_EVENTOS_POR_USUARIO) {
       throw new Error('You reached your event limit');
     }
 

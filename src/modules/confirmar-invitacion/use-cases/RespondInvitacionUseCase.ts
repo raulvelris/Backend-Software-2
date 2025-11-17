@@ -55,10 +55,10 @@ export class RespondInvitacionUseCase {
 
     // Validar capacidad del evento
     if (dto.accept && evento) {
-        const current = await this.eventoParticipanteRepository.countByEvento(evento.evento_id);
+        const current = await this.participanteRepository.countAttendees(evento.evento_id);
         const capacity = typeof evento.aforo === 'number' ? evento.aforo : 0;
 
-        if (current >= capacity) {
+        if (current === capacity) {
           throw new Error('El evento está lleno');
         }
     }
