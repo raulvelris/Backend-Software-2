@@ -1,0 +1,597 @@
+// Dependency Injection Container
+import { UsuarioRepository } from '../../infrastructure/repositories/UsuarioRepository';
+import { ClienteRepository } from '../../infrastructure/repositories/ClienteRepository';
+import { EventoRepository } from '../../infrastructure/repositories/EventoRepository';
+import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
+import { NotificacionRepository } from '../../infrastructure/repositories/NotificacionRepository';
+import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
+import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
+import { NotificacionAccionRepository } from '../../infrastructure/repositories/NotificacionAccionRepository';
+import { NotificacionUsuarioRepository } from '../../infrastructure/repositories/NotificacionUsuarioRepository';
+import { EstadoInvitacionRepository } from '../../infrastructure/repositories/EstadoInvitacionRepository';
+import { ParticipanteRepository } from '../../infrastructure/repositories/ParticipanteRepository';
+import { RolRepository } from '../../infrastructure/repositories/RolRepository';
+import { UbicacionRepository } from '../../infrastructure/repositories/UbicacionRepository';
+import { EstadoEventoRepository } from '../../infrastructure/repositories/EstadoEventoRepository';
+import { TipoRecursoRepository } from '../../infrastructure/repositories/TipoRecursoRepository';
+import { RecursoRepository } from '../../infrastructure/repositories/RecursoRepository';
+import { EmailService } from '../../infrastructure/services/EmailService';
+
+import { SearchUsuariosUseCase } from '../../modules/envio-invitaciones/use-cases/SearchUsuariosUseCase';
+import { SendInvitacionUseCase } from '../../modules/envio-invitaciones/use-cases/SendInvitacionUseCase';
+import { GetNoElegiblesUseCase } from '../../modules/envio-invitaciones/use-cases/GetNoElegiblesUseCase';
+import { CountInvitacionesPendientesUseCase } from '../../modules/envio-invitaciones/use-cases/CountInvitacionesPendientesUseCase';
+import { GetParticipantesByEventoUseCase } from '../../modules/ver-participantes/use-cases/GetParticipantesByEventoUseCase';
+import { RespondInvitacionUseCase } from '../../modules/confirmar-invitacion/use-cases/RespondInvitacionUseCase';
+import { GetInvitacionesPrivadasUseCase } from '../../modules/ver-invitaciones-privadas/use-cases/GetInvitacionesPrivadasUseCase';
+import { GetNotificacionesAccionUseCase } from '../../modules/ver-notificaciones-accion/use-cases/GetNotificacionesAccionUseCase';
+import { GetEventoDetalleUseCase } from '../../modules/ver-detalle/use-cases/GetEventoDetalleUseCase';
+import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/use-cases/ConfirmPublicAttendanceUseCase';
+import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
+import { ActivarCuentaUseCase } from '../../modules/activar-cuenta/use-cases/ActivarCuentaUseCase';
+import { LoginUseCase } from '../../modules/iniciar-sesion/use-cases/LoginUseCase';
+import { GetProfileUseCase } from '../../modules/gestion-perfil/use-cases/GetProfileUseCase';
+import { UpdateProfileUseCase } from '../../modules/gestion-perfil/use-cases/UpdateProfileUseCase';
+import { CreateEventoUseCase } from '../../modules/eventos-crear/use-cases/CreateEventoUseCase';
+import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-cases/ListPublicEventsUseCase';
+import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
+import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
+import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/DeleteEventoUseCase';
+import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases/GetCoordenadasUseCase';
+import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
+import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
+import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
+
+import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
+import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
+
+import { AccionFabrica } from '../../infrastructure/patterns/factoryMethod/AccionFabrica';
+import { InvitacionFabrica } from '../../infrastructure/patterns/factoryMethod/InvitacionFabrica';
+
+import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
+import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
+import { Request, Response, NextFunction } from 'express';
+
+export class DependencyContainer {
+  // Repositorios (Singleton)
+  private static usuarioRepository: UsuarioRepository;
+  private static clienteRepository: ClienteRepository;
+  private static eventoRepository: EventoRepository;
+  private static eventoParticipanteRepository: EventoParticipanteRepository;
+  private static notificacionRepository: NotificacionRepository;
+  private static invitacionRepository: InvitacionRepository;
+  private static invitacionUsuarioRepository: InvitacionUsuarioRepository;
+  private static notificacionAccionRepository: NotificacionAccionRepository;
+  private static notificacionUsuarioRepository: NotificacionUsuarioRepository;
+  private static estadoInvitacionRepository: EstadoInvitacionRepository;
+  private static participanteRepository: ParticipanteRepository;
+  private static rolRepository: RolRepository;
+  private static estadoEventoRepository: EstadoEventoRepository;
+  private static ubicacionRepository: UbicacionRepository;
+  private static tipoRecursoRepository: TipoRecursoRepository;
+  private static recursoRepository: RecursoRepository;
+
+  // Servicios (Singleton)
+  private static emailService: EmailService;
+
+  // Use Case - Envio Invitaciones
+  private static searchUsuariosUseCase: SearchUsuariosUseCase;
+  private static sendInvitacionUseCase: SendInvitacionUseCase;
+  private static getNoElegiblesUseCase: GetNoElegiblesUseCase;
+  private static countInvitacionesPendientesUseCase: CountInvitacionesPendientesUseCase;
+
+  // Use Case - Detalle Evento
+  private static getEventoDetalleUseCase: GetEventoDetalleUseCase;
+
+  // Use Case - Confirmar Asistencia Pública
+  private static confirmPublicAttendanceUseCase: ConfirmPublicAttendanceUseCase;
+
+  // Use Case - Ver Invitados
+  private static getParticipantesByEventoUseCase: GetParticipantesByEventoUseCase;
+
+  // Use Case - Confirmar Invitación
+  private static respondInvitacionUseCase: RespondInvitacionUseCase;
+
+  // Use Case - Ver Invitaciones Privadas
+  private static getInvitacionesPrivadasUseCase: GetInvitacionesPrivadasUseCase;
+
+  // Use Case - Ver Notificaciones Accion
+  private static getNotificacionesAccionUseCase: GetNotificacionesAccionUseCase;
+
+  // Use Case - Registrarse
+  private static registrarUsuarioUseCase: RegistrarUsuarioUseCase;
+
+  // Use Case - Activar Cuenta
+  private static activarCuentaUseCase: ActivarCuentaUseCase;
+
+  // Use Case - Auth
+  private static loginUseCase: LoginUseCase;
+  private static getProfileUseCase: GetProfileUseCase;
+  private static updateProfileUseCase: UpdateProfileUseCase;
+
+  // Use Case - Crear Evento
+  private static createEventoUseCase: CreateEventoUseCase;
+
+  // Use Case - Listar Eventos Publicos
+  private static listPublicEventsUseCase: ListPublicEventsUseCase;
+
+  // Use Case - Listar Eventos Gestionados
+  private static listManagedEventsUseCase: ListManagedEventsUseCase;
+
+  // Use Case - Listar Eventos Asistidos
+  private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
+
+  // Use Case - Eliminar Evento
+  private static deleteEventoUseCase: DeleteEventoUseCase;
+  
+  // Use Case - Obtener Coordenadas
+  private static getCoordenadasUseCase: GetCoordenadasUseCase;
+  
+  // Use Case - Listar Recursos
+  private static listarRecursosUseCase: ListarRecursosUseCase;
+
+  // Use Case - Crear Recurso Enlace
+  private static crearRecursoEnlaceUseCase: CrearRecursoEnlaceUseCase;
+
+  // Use Case - Crear Recurso Archivo
+  private static crearRecursoArchivoUseCase: CrearRecursoArchivoUseCase;
+  
+  // Observadores (Singleton)
+  private static notificationManager: NotificationManager;
+  private static participantesObserver: ParticipantesObserver;
+
+  // Factory
+  private static invitacionFabrica: InvitacionFabrica;
+  private static accionFabrica: AccionFabrica;
+
+  // Middleware
+  private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
+  private static verifyOrganizerOrCoorganizerInEvent: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
+  
+
+  // Getters para Repositorios
+  static getUsuarioRepository(): UsuarioRepository {
+    if (!this.usuarioRepository) {
+      this.usuarioRepository = new UsuarioRepository();
+    }
+    return this.usuarioRepository;
+  }
+
+  static getClienteRepository(): ClienteRepository {
+    if (!this.clienteRepository) {
+      this.clienteRepository = new ClienteRepository();
+    }
+    return this.clienteRepository;
+  }
+
+  static getEventoRepository(): EventoRepository {
+    if (!this.eventoRepository) {
+      this.eventoRepository = new EventoRepository();
+    }
+    return this.eventoRepository;
+  }
+
+  static getEventoParticipanteRepository(): EventoParticipanteRepository {
+    if (!this.eventoParticipanteRepository) {
+      this.eventoParticipanteRepository = new EventoParticipanteRepository();
+    }
+    return this.eventoParticipanteRepository;
+  }
+
+  static getNotificacionRepository(): NotificacionRepository {
+    if (!this.notificacionRepository) {
+      this.notificacionRepository = new NotificacionRepository();
+    }
+    return this.notificacionRepository;
+  }
+
+  static getInvitacionRepository(): InvitacionRepository {
+    if (!this.invitacionRepository) {
+      this.invitacionRepository = new InvitacionRepository();
+    }
+    return this.invitacionRepository;
+  }
+
+  static getInvitacionUsuarioRepository(): InvitacionUsuarioRepository {
+    if (!this.invitacionUsuarioRepository) {
+      this.invitacionUsuarioRepository = new InvitacionUsuarioRepository();
+    }
+    return this.invitacionUsuarioRepository;
+  }
+
+  static getEstadoInvitacionRepository(): EstadoInvitacionRepository {
+    if (!this.estadoInvitacionRepository) {
+      this.estadoInvitacionRepository = new EstadoInvitacionRepository();
+    }
+    return this.estadoInvitacionRepository;
+  }
+
+  static getNotificacionAccionRepository(): NotificacionAccionRepository {
+    if (!this.notificacionAccionRepository) {
+      this.notificacionAccionRepository = new NotificacionAccionRepository();
+    }
+    return this.notificacionAccionRepository;
+  }
+
+  static getNotificacionUsuarioRepository(): NotificacionUsuarioRepository {
+    if (!this.notificacionUsuarioRepository) {
+      this.notificacionUsuarioRepository = new NotificacionUsuarioRepository();
+    }
+    return this.notificacionUsuarioRepository;
+  }
+
+  static getParticipanteRepository(): ParticipanteRepository {
+    if (!this.participanteRepository) {
+      this.participanteRepository = new ParticipanteRepository();
+    }
+    return this.participanteRepository;
+  }
+
+  static getRolRepository(): RolRepository {
+    if (!this.rolRepository) {
+      this.rolRepository = new RolRepository();
+    }
+    return this.rolRepository;
+  }
+
+  static getEstadoEventoRepository(): EstadoEventoRepository {
+    if (!this.estadoEventoRepository) {
+      this.estadoEventoRepository = new EstadoEventoRepository();
+    }
+    return this.estadoEventoRepository;
+  }
+
+  static getUbicacionRepository(): UbicacionRepository {
+    if (!this.ubicacionRepository) {
+      this.ubicacionRepository = new UbicacionRepository();
+    }
+    return this.ubicacionRepository;
+  }
+
+  static getTipoRecursoRepository(): TipoRecursoRepository {
+    if (!this.tipoRecursoRepository) {
+      this.tipoRecursoRepository = new TipoRecursoRepository();
+    }
+    return this.tipoRecursoRepository;
+  }
+
+  static getRecursoRepository(): RecursoRepository {
+    if (!this.recursoRepository) {
+      this.recursoRepository = new RecursoRepository();
+    }
+    return this.recursoRepository;
+  }
+
+  // Getters para Servicios
+  static getEmailService(): EmailService {
+    if (!this.emailService) {
+      this.emailService = new EmailService();
+    }
+    return this.emailService;
+  }
+
+  // Getters para Use Cases
+  static getSearchUsuariosUseCase(): SearchUsuariosUseCase {
+    if (!this.searchUsuariosUseCase) {
+      this.searchUsuariosUseCase = new SearchUsuariosUseCase(
+        this.getUsuarioRepository()
+      );
+    }
+    return this.searchUsuariosUseCase;
+  }
+
+  static getSendInvitacionUseCase(): SendInvitacionUseCase {
+    if (!this.sendInvitacionUseCase) {
+      this.sendInvitacionUseCase = new SendInvitacionUseCase(
+        this.getUsuarioRepository(),
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository()
+      );
+    }
+    return this.sendInvitacionUseCase;
+  }
+
+  static getGetNoElegiblesUseCase(): GetNoElegiblesUseCase {
+    if (!this.getNoElegiblesUseCase) {
+      this.getNoElegiblesUseCase = new GetNoElegiblesUseCase(
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository(),
+        this.getEventoParticipanteRepository()
+      );
+    }
+    return this.getNoElegiblesUseCase;
+  }
+
+  static getCountInvitacionesPendientesUseCase(): CountInvitacionesPendientesUseCase {
+    if (!this.countInvitacionesPendientesUseCase) {
+      this.countInvitacionesPendientesUseCase = new CountInvitacionesPendientesUseCase(
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository()
+      );
+    }
+    return this.countInvitacionesPendientesUseCase;
+  }
+
+  static getGetParticipantesByEventoUseCase(): GetParticipantesByEventoUseCase {
+    if (!this.getParticipantesByEventoUseCase) {
+      this.getParticipantesByEventoUseCase = new GetParticipantesByEventoUseCase(
+        this.getEventoParticipanteRepository()
+      );
+    }
+    return this.getParticipantesByEventoUseCase;
+  }
+
+  static getRespondInvitacionUseCase(): RespondInvitacionUseCase {
+    if (!this.respondInvitacionUseCase) {
+      this.respondInvitacionUseCase = new RespondInvitacionUseCase(
+        this.getInvitacionUsuarioRepository(),
+        this.getEstadoInvitacionRepository(),
+        this.getParticipanteRepository(),
+        this.getRolRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getEventoRepository()
+      );
+    }
+    return this.respondInvitacionUseCase;
+  }
+
+  static getGetInvitacionesPrivadasUseCase(): GetInvitacionesPrivadasUseCase {
+    if (!this.getInvitacionesPrivadasUseCase) {
+      this.getInvitacionesPrivadasUseCase = new GetInvitacionesPrivadasUseCase(
+        this.getInvitacionUsuarioRepository()
+      );
+    }
+    return this.getInvitacionesPrivadasUseCase;
+  }
+
+  static getGetNotificacionesAccionUseCase(): GetNotificacionesAccionUseCase {
+    if (!this.getNotificacionesAccionUseCase) {
+      this.getNotificacionesAccionUseCase = new GetNotificacionesAccionUseCase(
+        this.getNotificacionUsuarioRepository()
+      );
+    }
+    return this.getNotificacionesAccionUseCase;
+  }
+
+  static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {
+    if (!this.getEventoDetalleUseCase) {
+      this.getEventoDetalleUseCase = new GetEventoDetalleUseCase(
+        this.getEventoRepository(),
+        this.getParticipanteRepository()
+      );
+    }
+    return this.getEventoDetalleUseCase;
+  }
+
+  static getConfirmPublicAttendanceUseCase(): ConfirmPublicAttendanceUseCase {
+    if (!this.confirmPublicAttendanceUseCase) {
+      this.confirmPublicAttendanceUseCase = new ConfirmPublicAttendanceUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getRolRepository(),
+        this.getParticipanteRepository()
+      );
+    }
+    return this.confirmPublicAttendanceUseCase;
+  }
+
+  static getRegistrarUsuarioUseCase(): RegistrarUsuarioUseCase {
+    if (!this.registrarUsuarioUseCase) {
+      this.registrarUsuarioUseCase = new RegistrarUsuarioUseCase(
+        this.getUsuarioRepository(),
+        this.getClienteRepository(),
+        this.getEmailService()
+      );
+    }
+    return this.registrarUsuarioUseCase;
+  }
+
+  static getActivarCuentaUseCase(): ActivarCuentaUseCase {
+    if (!this.activarCuentaUseCase) {
+      this.activarCuentaUseCase = new ActivarCuentaUseCase(
+        this.getUsuarioRepository(),
+        this.getEmailService()
+      );
+    }
+    return this.activarCuentaUseCase;
+  }
+
+  static getLoginUseCase(): LoginUseCase {
+    if (!this.loginUseCase) {
+      this.loginUseCase = new LoginUseCase(
+        this.getUsuarioRepository()
+      );
+    }
+    return this.loginUseCase;
+  }
+
+  static getGetProfileUseCase(): GetProfileUseCase {
+    if (!this.getProfileUseCase) {
+      this.getProfileUseCase = new GetProfileUseCase(
+        this.getUsuarioRepository()
+      );
+    }
+    return this.getProfileUseCase;
+  }
+
+  static getUpdateProfileUseCase(): UpdateProfileUseCase {
+    if (!this.updateProfileUseCase) {
+      this.updateProfileUseCase = new UpdateProfileUseCase(
+        this.getUsuarioRepository(),
+        this.getClienteRepository(),
+      );
+    }
+    return this.updateProfileUseCase;
+  }
+
+  static getCreateEventoUseCase(): CreateEventoUseCase {
+    if (!this.createEventoUseCase) {
+      this.createEventoUseCase = new CreateEventoUseCase(
+        this.getEventoRepository(),
+        this.getUbicacionRepository(),
+        this.getRolRepository(),
+        this.getParticipanteRepository(),
+        this.getEventoParticipanteRepository()
+      );
+    }
+    return this.createEventoUseCase;
+  }
+
+  static getListPublicEventsUseCase(): ListPublicEventsUseCase {
+    if (!this.listPublicEventsUseCase) {
+      this.listPublicEventsUseCase = new ListPublicEventsUseCase(
+        this.getEventoRepository()
+      );
+    }
+    return this.listPublicEventsUseCase;
+  }
+
+  static getListManagedEventsUseCase(): ListManagedEventsUseCase {
+    if (!this.listManagedEventsUseCase) {
+      this.listManagedEventsUseCase = new ListManagedEventsUseCase(
+        this.getEventoRepository()
+      );
+    }
+    return this.listManagedEventsUseCase;
+  }
+
+  static getListAttendedEventsUseCase(): ListAttendedEventsUseCase {
+    if (!this.listAttendedEventsUseCase) {
+      this.listAttendedEventsUseCase = new ListAttendedEventsUseCase(
+        this.getEventoRepository()
+      );
+    }
+    return this.listAttendedEventsUseCase;
+  }
+
+  static getDeleteEventoUseCase(): DeleteEventoUseCase {
+    if (!this.deleteEventoUseCase) {
+      this.deleteEventoUseCase = new DeleteEventoUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getParticipanteRepository(),
+        this.getRolRepository(),
+        this.getUbicacionRepository(),
+        this.getEstadoEventoRepository(),
+        this.getNotificationManager()
+      );
+    }
+    return this.deleteEventoUseCase;
+  }
+  
+  static getGetCoordenadasUseCase(): GetCoordenadasUseCase {
+    if (!this.getCoordenadasUseCase) {
+      this.getCoordenadasUseCase = new GetCoordenadasUseCase(
+        this.getUbicacionRepository()
+      );
+    }
+    return this.getCoordenadasUseCase;
+  }
+
+  static getListarRecursosUseCase(): ListarRecursosUseCase {
+    if (!this.listarRecursosUseCase) {
+      this.listarRecursosUseCase = new ListarRecursosUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository()
+      );
+    }
+    return this.listarRecursosUseCase;
+  }
+
+  static getCrearRecursoEnlaceUseCase(): CrearRecursoEnlaceUseCase {
+    if (!this.crearRecursoEnlaceUseCase) {
+      this.crearRecursoEnlaceUseCase = new CrearRecursoEnlaceUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoEnlaceUseCase;
+  }
+
+  static getCrearRecursoArchivoUseCase(): CrearRecursoArchivoUseCase {
+    if (!this.crearRecursoArchivoUseCase) {
+      this.crearRecursoArchivoUseCase = new CrearRecursoArchivoUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoArchivoUseCase;
+  }
+
+  // Getter para el NotificationManager
+  static getNotificationManager(): NotificationManager {
+    if (!this.notificationManager) {
+      this.notificationManager = new NotificationManager();
+      this.notificationManager.attach(this.getParticipantesObserver());
+    }
+    return this.notificationManager;
+  }
+
+  // Getter para el ParticipantesObserver
+  static getParticipantesObserver(): ParticipantesObserver {
+    if (!this.participantesObserver) {
+      this.participantesObserver = new ParticipantesObserver(
+        this.getEventoParticipanteRepository(),
+        this.getNotificacionUsuarioRepository(),
+        this.getRolRepository()
+      );
+    }
+    return this.participantesObserver;
+  }
+
+  // Getter para la Fabrica Concreta: Invitacion
+  static getInvitacionFabrica(): InvitacionFabrica {
+    if (!this.invitacionFabrica) {
+      this.invitacionFabrica = new InvitacionFabrica(
+        this.getInvitacionRepository(),
+        this.getNotificacionRepository(),
+      );
+    }
+    return this.invitacionFabrica;
+  }
+
+  // Getter para la Fabrica Concreta: Accion
+  static getAccionFabrica(): AccionFabrica {
+    if (!this.accionFabrica) {
+      this.accionFabrica = new AccionFabrica(
+        this.getNotificacionAccionRepository(),
+        this.getNotificacionRepository(),
+      );
+    }
+    return this.accionFabrica;
+  }
+
+  // Getter para el middleware de verificación de organizador/coorganizador global
+  static getVerifyOrganizerOrCoorganizerGlobal() {
+    if (!this.verifyOrganizerOrCoorganizerGlobal) {
+      const middleware = new VerifyOrganizerOrCoorganizerGlobal(
+        this.getRolRepository(),
+        this.getParticipanteRepository(),
+        this.getEventoParticipanteRepository()
+      );
+      this.verifyOrganizerOrCoorganizerGlobal = (req: Request, res: Response, next: NextFunction) => {
+        return middleware.verify(req, res, next);
+      };
+    }
+    return this.verifyOrganizerOrCoorganizerGlobal;
+  }
+
+  // Getter para el middleware de verificación de organizador/coorganizador en evento
+  static getVerifyOrganizerOrCoorganizerInEvent() {
+    if (!this.verifyOrganizerOrCoorganizerInEvent) {
+      const middleware = new VerifyOrganizerOrCoorganizerInEvent(
+        this.getRolRepository(),
+        this.getParticipanteRepository(),
+        this.getEventoParticipanteRepository()
+      );
+      this.verifyOrganizerOrCoorganizerInEvent = (req: Request, res: Response, next: NextFunction) => {
+        return middleware.verify(req, res, next);
+      };
+    }
+    return this.verifyOrganizerOrCoorganizerInEvent;
+  }
+}
