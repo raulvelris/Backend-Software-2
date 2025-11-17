@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from "express";
 import { DependencyContainer } from "../../../shared/utils/DependencyContainer";
+import { authMiddleware } from "../../../shared/middlewares/authMiddleware";
 
 export class DeleteEventoController {
   private router: Router;
@@ -10,6 +11,7 @@ export class DeleteEventoController {
 
   constructor() {
     this.router = express.Router();
+    this.router.use(authMiddleware)
     this.initializeRoutes();
   }
 
@@ -22,7 +24,7 @@ export class DeleteEventoController {
   private async deleteEvento(req: Request, res: Response): Promise<void> {
     try {
       const { evento_id } = req.params;
-      const usuario_id = Number(req.body.usuario_id || req.query.usuario_id || req.params.usuario_id)
+      const usuario_id = Number(req.user?.id)
       if (!usuario_id || Number.isNaN(usuario_id)) {
         res.status(400).json({ success: false, message: 'Invalid user id' })
         return
