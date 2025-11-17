@@ -529,7 +529,9 @@ export class DependencyContainer {
     if (!this.deleteRecursoUseCase) {
       this.deleteRecursoUseCase = new DeleteRecursoUseCase(
         this.getRecursoRepository(),
-        this.getEventoRepository()
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificacionUsuarioRepository()
       );
     }
     return this.deleteRecursoUseCase;
