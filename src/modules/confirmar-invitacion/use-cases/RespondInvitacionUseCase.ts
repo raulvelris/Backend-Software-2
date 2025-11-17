@@ -3,7 +3,6 @@ import { IEstadoInvitacionRepository } from '../../../domain/interfaces/IEstadoI
 import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository';
 import { IRolRepository } from '../../../domain/interfaces/IRolRepository';
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
-import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
 import { RespondInvitacionDto } from '../dtos/RespondInvitacionDto';
 import { RespondInvitacionResultDto } from '../dtos/RespondInvitacionResultDto';
 import { EstadoInvitacionEnum } from '../../../domain/value-objects/EstadoInvitacion';
@@ -15,8 +14,7 @@ export class RespondInvitacionUseCase {
     private estadoInvitacionRepository: IEstadoInvitacionRepository,
     private participanteRepository: IParticipanteRepository,
     private rolRepository: IRolRepository,
-    private eventoParticipanteRepository: IEventoParticipanteRepository,
-    private eventoRepository: IEventoRepository
+    private eventoParticipanteRepository: IEventoParticipanteRepository
   ) {}
 
   async execute(dto: RespondInvitacionDto): Promise<RespondInvitacionResultDto> {
@@ -57,12 +55,12 @@ export class RespondInvitacionUseCase {
 
     // Validar capacidad del evento
     if (dto.accept && evento) {
-      const participantesCount = await this.eventoParticipanteRepository.countByEvento(evento.evento_id);
-      const EVENT_MAX_CAPACITY = Number(process.env.EVENT_MAX_CAPACITY || 1000);
-      
-      if (participantesCount >= EVENT_MAX_CAPACITY) {
-        throw new Error('El evento está lleno');
-      }
+        const current = await this.eventoParticipanteRepository.countByEvento(evento.evento_id);
+        const capacity = typeof evento.aforo === 'number' ? evento.aforo : 0;
+
+        if (current >= capacity) {
+          throw new Error('El evento está lleno');
+        }
     }
 
     if (!dto.accept) {

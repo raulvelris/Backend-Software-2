@@ -330,8 +330,7 @@ export class DependencyContainer {
         this.getEstadoInvitacionRepository(),
         this.getParticipanteRepository(),
         this.getRolRepository(),
-        this.getEventoParticipanteRepository(),
-        this.getEventoRepository()
+        this.getEventoParticipanteRepository()
       );
     }
     return this.respondInvitacionUseCase;
