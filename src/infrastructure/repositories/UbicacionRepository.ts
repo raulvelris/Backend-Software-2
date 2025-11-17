@@ -21,7 +21,7 @@ export class UbicacionRepository implements IUbicacionRepository {
     try {
       const ubicacion = await db.Ubicacion.findOne({
         where: { evento_id: eventoId },
-        transaction: options?.transaction
+        attributes: ['latitud', 'longitud']
       });
       return ubicacion;
     } catch (error) {
@@ -32,13 +32,19 @@ export class UbicacionRepository implements IUbicacionRepository {
 
   async update(id: number, data: any, options?: { transaction?: Transaction }): Promise<any | null> {
     try {
-      const ubicacion = await db.Ubicacion.findByPk(id, { transaction: options?.transaction });
-      if (!ubicacion) return null;
+      // Find the location by evento_id
+      const [updated] = await db.Ubicacion.update(data, {
+        where: { evento_id: id },
+        returning: true,
+        transaction: options?.transaction
+      });
+
+      if (updated === 0) return null;
       
-      await ubicacion.update(data, { transaction: options?.transaction });
-      return ubicacion;
+      // Return the first updated record
+      return await this.findByEventoId(id, options);
     } catch (error) {
-      console.error('Error en update:', error);
+      console.error('Error in update:', error);
       throw error;
     }
   }

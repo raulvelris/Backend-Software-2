@@ -1,99 +1,123 @@
+import { DeleteEventoDto} from '../dtos/DeleteEventoDto';
+import { DeleteEventoResultDto } from '../dtos/DeleteEventoResultDto';
 import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
-import { IUbicacionRepository } from '../../../domain/interfaces/IUbicacionRepository';
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
-import { TipoRol } from '../../../domain/value-objects/TipoRol';
-import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
+import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository';
+import { IRolRepository } from '../../../domain/interfaces/IRolRepository';
+import { IUbicacionRepository } from '../../../domain/interfaces/IUbicacionRepository';
+import { IEstadoEventoRepository } from '../../../domain/interfaces/IEstadoEventoRepository';
 import { NotificationManager } from '../../../infrastructure/patterns/observer/NotificationManager';
+import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
 
 export class DeleteEventoUseCase {
   constructor(
     private eventoRepository: IEventoRepository,
-    private ubicacionRepository: IUbicacionRepository,
     private eventoParticipanteRepository: IEventoParticipanteRepository,
+    private participanteRepository: IParticipanteRepository,
+    private rolRepository: IRolRepository,
+    private ubicacionRepository: IUbicacionRepository,
+    private estadoEventoRepository: IEstadoEventoRepository,
     private notificationManager: NotificationManager
   ) {}
 
-  async execute(
-    eventoId: number
-  ): Promise<{ success: boolean; message?: string; error?: string }> {
-    console.log('Iniciando proceso de eliminación para el evento ID:', eventoId);
-    
+  async execute(dto: DeleteEventoDto): Promise<DeleteEventoResultDto> {
     try {
-      // Verificar si el evento existe
-      console.log(`Buscando evento con ID: ${eventoId}`);
-      const evento = await this.eventoRepository.findById(eventoId);
+      // 1. Validar que el evento existe
+      const evento = await this.eventoRepository.findById(dto.evento_id);
       if (!evento) {
-        const errorMsg = `No se encontró el evento con ID: ${eventoId}`;
-        console.error(errorMsg);
-        return { success: false, error: errorMsg };
+        throw new Error('Evento no encontrado');
       }
 
-      // Verificar si el evento tiene asistentes
-      console.log('Verificando si el evento tiene asistentes...');
-      const participantes = await this.eventoParticipanteRepository.findParticipantesByEventoAndRol(eventoId);
-      console.log(`Total de participantes encontrados: ${participantes.length}`);
-      
-      const hasAsistentes = participantes.some((p: any) => {
-        const rolNombre = p.rol;
-        console.log(`Participante ${p.nombre} ${p.apellido} - rol: ${rolNombre}, esperado: ${TipoRol.ASISTENTE}`);
-        return rolNombre === TipoRol.ASISTENTE;
-      });
-      
-      console.log(`¿Tiene asistentes?: ${hasAsistentes}`);
-      
-      if (hasAsistentes) {
-        const errorMsg = 'No se puede eliminar el evento porque tiene asistentes registrados';
-        console.error(errorMsg);
-        return { 
-          success: false, 
-          error: errorMsg,
-          message: 'No se puede eliminar el evento porque tiene asistentes registrados.'
+      // 2. Verificar que el usuario es organizador del evento
+      const rolOrganizador = await this.rolRepository.findByNombre('Organizador');
+      if (!rolOrganizador) {
+        throw new Error('Rol organizador no encontrado');
+      }
+
+      const participante = await this.participanteRepository.findByUsuarioAndRol(dto.usuario_id, rolOrganizador.rol_id);
+      if (!participante) {
+        throw new Error('Usuario no es organizador');
+      }
+
+      const eventoParticipante = await this.eventoParticipanteRepository.findByEventoAndParticipante(
+        dto.evento_id,
+        participante.participante_id
+      );
+
+      if (!eventoParticipante) {
+        return {
+          success: false,
+          message: 'Usuario no es organizador de este evento'
         };
       }
 
-      // Notificar eliminación del evento
-      await this.notificationManager.notify(
-        TipoNotificacion.EVENTO_ELIMINADO,
-        {
-          eventoId,
-          emisorId: evento.usuario_id,
-        }
-      );
+      // 3. Verificar condiciones para eliminar vs cancelar
+      const fechaActual = new Date();
+      const eventoHaComenzado = new Date(evento.fechaInicio) <= fechaActual;
+
       
-      // 1. Eliminar relaciones de participantes del evento
-      console.log('Eliminando participantes del evento...');
-      await this.eventoParticipanteRepository.deleteByEventoId(eventoId);
-      
-      // 2. Eliminar ubicación si existe
-      console.log('Buscando ubicación del evento...');
-      const ubicacion = await this.ubicacionRepository.findByEventoId(eventoId);
-      
-      if (ubicacion) {
-        console.log('Eliminando ubicación...');
-        // Usar ubicacion.ubicacion_id en lugar de ubicacion.id
-        await this.ubicacionRepository.delete(ubicacion.ubicacion_id);
-      } else {
-        console.log('No se encontró ubicación para eliminar');
+      // Verificar si existe rol Asistente
+      const rolAsistente = await this.rolRepository.findByNombre('Asistente');
+      if (!rolAsistente) {
+        throw new Error('Rol asistente no encontrado');
       }
+
+      // Verificar si existe rol Coorganizador
+      const rolCoorganizador = await this.rolRepository.findByNombre('Coorganizador');
+      if (!rolCoorganizador) {
+        throw new Error('Rol coorganizador no encontrado');
+      }
+
+      // Contar asistentes
+      const totalParticipantes = 
+          await this.eventoParticipanteRepository.countByEvento(dto.evento_id, [rolAsistente.rol_id, rolCoorganizador.rol_id]);
+
+      // Verificar si hay asistentes
+      const tieneParticipantes = totalParticipantes > 0;
+
+      // 4. Decidir: Eliminar completamente o Cancelar
+      if (!eventoHaComenzado && !tieneParticipantes) { // Eliminar
+        await this.eventoRepository.delete(dto.evento_id);
+
+        return {
+          success: true,
+          message: 'Evento eliminado completamente',
+          evento_id: dto.evento_id
+        };
+
+      } else { // Cancelar
+        const estadoCancelado = await this.estadoEventoRepository.findByNombre('Cancelado');
+
+        if (!estadoCancelado) {
+          throw new Error('Estado "Cancelado" no encontrado en la base de datos');
+        }
+
+        if (tieneParticipantes) {
+          // Notificar a los usuarios
+          await this.notificationManager.notify(
+            TipoNotificacion.EVENTO_CANCELADO,
+            {eventoId: dto.evento_id, emisorId: dto.usuario_id}
+          );
+        }
+        
+        // Eliminar lo asociado al evento excepto notificaciones
+        await this.eventoParticipanteRepository.deleteByEvento(dto.evento_id);
+        await this.ubicacionRepository.delete(dto.evento_id);
+
+        // Actualizar estado del evento
+        await this.eventoRepository.update(dto.evento_id, {estadoEvento: estadoCancelado.estado_id});
+
+        return {
+          success: true,
+          message: 'Evento cancelado.',
+          evento_id: dto.evento_id,
+        };
+      }
+
+    } catch (error: any) {
+      console.error('Error en DeleteEventoUseCase:', error);
       
-      // 3. Eliminar el evento
-      console.log('Eliminando evento...');
-      await this.eventoRepository.delete(eventoId);
-      
-      console.log('Evento eliminado correctamente');
-      return { 
-        success: true, 
-        message: 'Evento eliminado correctamente' 
-      };
-      
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('Error en DeleteEventoUseCase:', errorMsg);
-      return { 
-        success: false, 
-        error: 'Error al eliminar el evento',
-        message: process.env.NODE_ENV === 'development' ? errorMsg : 'Error al procesar la solicitud'
-      };
+      throw error;
     }
   }
 }

@@ -3,9 +3,10 @@ import { IEstadoInvitacionRepository } from '../../../domain/interfaces/IEstadoI
 import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository';
 import { IRolRepository } from '../../../domain/interfaces/IRolRepository';
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
-import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
-import { RespondInvitacionDto, RespondInvitacionResultDto } from '../dtos/RespondInvitacionDto';
+import { RespondInvitacionDto } from '../dtos/RespondInvitacionDto';
+import { RespondInvitacionResultDto } from '../dtos/RespondInvitacionResultDto';
 import { EstadoInvitacionEnum } from '../../../domain/value-objects/EstadoInvitacion';
+import { MAXIMO_EVENTOS_POR_USUARIO } from '../../../domain/value-objects/Constantes';
 
 export class RespondInvitacionUseCase {
   constructor(
@@ -13,8 +14,7 @@ export class RespondInvitacionUseCase {
     private estadoInvitacionRepository: IEstadoInvitacionRepository,
     private participanteRepository: IParticipanteRepository,
     private rolRepository: IRolRepository,
-    private eventoParticipanteRepository: IEventoParticipanteRepository,
-    private eventoRepository: IEventoRepository
+    private eventoParticipanteRepository: IEventoParticipanteRepository
   ) {}
 
   async execute(dto: RespondInvitacionDto): Promise<RespondInvitacionResultDto> {
@@ -40,6 +40,7 @@ export class RespondInvitacionUseCase {
     const notificacion = invitacion?.notificacion;
     const evento = notificacion?.evento;
     const usuario = invitacionUsuario.usuario;
+    const esParaCoorganizar = Boolean(invitacionUsuario.esParaCoorganizar);
     const now = new Date();
 
     // Validar fecha límite
@@ -54,28 +55,12 @@ export class RespondInvitacionUseCase {
 
     // Validar capacidad del evento
     if (dto.accept && evento) {
-      const participantesCount = await this.eventoParticipanteRepository.countByEvento(evento.evento_id);
-      const EVENT_MAX_CAPACITY = Number(process.env.EVENT_MAX_CAPACITY || 1000);
-      
-      if (participantesCount >= EVENT_MAX_CAPACITY) {
-        throw new Error('El evento está lleno');
-      }
-    }
+        const current = await this.participanteRepository.countAttendees(evento.evento_id);
+        const capacity = typeof evento.aforo === 'number' ? evento.aforo : 0;
 
-    // Validar límite de eventos por usuario
-    if (dto.accept && usuario) {
-      const participanteRows = await this.participanteRepository.findAllByUsuarioId(usuario.usuario_id);
-      
-      let userEventCount = 0;
-      for (const participante of participanteRows) {
-        const eventosDelParticipante = await this.eventoParticipanteRepository.countByParticipante(participante.participante_id);
-        userEventCount += eventosDelParticipante;
-      }
-      
-      const MAX_EVENTS_PER_USER = Number(process.env.MAX_EVENTS_PER_USER || 5);
-      if (userEventCount >= MAX_EVENTS_PER_USER) {
-        throw new Error('Alcanzó el límite de eventos permitidos');
-      }
+        if (current === capacity) {
+          throw new Error('El evento está lleno');
+        }
     }
 
     if (!dto.accept) {
@@ -89,16 +74,33 @@ export class RespondInvitacionUseCase {
       }
       
       return { success: true, message: 'Invitación rechazada' };
+    } else {
+      const existingCount = await this.eventoParticipanteRepository.countByUsuarioEventoActivo(usuario.usuario_id);
+
+      if (existingCount === MAXIMO_EVENTOS_POR_USUARIO) {
+        throw new Error('Alcanzó el límite de eventos permitidos');
+      }
     }
 
-    // Aceptar invitación (según seeders: nombre 'Asistente')
-    const rolAsistente = await this.rolRepository.findByNombre('Asistente');
-    if (!rolAsistente) {
-      // Evitar asignar por defecto un rol incorrecto (p.ej. ORGANIZADOR)
-      throw new Error('Rol Asistente no configurado');
-    }
-    const rolId = rolAsistente.rol_id;
+    let rolId: number;
 
+    if (!esParaCoorganizar) {
+      // Aceptar invitación (según seeders: nombre 'Asistente')
+      const rolAsistente = await this.rolRepository.findByNombre('Asistente');
+      if (!rolAsistente) {
+        // Evitar asignar por defecto un rol incorrecto (p.ej. ORGANIZADOR)
+        throw new Error('Rol Asistente no configurado');
+      }
+      rolId = rolAsistente.rol_id;
+    } else { 
+      // Aceptar invitación (según seeders: nombre 'Coorganizador')
+      const rolCoorganizador = await this.rolRepository.findByNombre('Coorganizador');
+      if (!rolCoorganizador) {
+        // Evitar asignar por defecto un rol incorrecto (p.ej. ORGANIZADOR)
+        throw new Error('Rol Coorganizador no configurado');
+      }
+      rolId = rolCoorganizador.rol_id;
+    }
     // Buscar o crear participante
     let participante = await this.participanteRepository.findByUsuarioAndRol(usuario.usuario_id, rolId);
     
@@ -121,9 +123,6 @@ export class RespondInvitacionUseCase {
         evento.evento_id,
         participante.participante_id
       );
-
-      // Incrementar contador de participantes
-      await this.eventoRepository.incrementParticipantes(evento.evento_id);
     }
 
     // Actualizar estado de invitación a Aceptada
@@ -135,6 +134,13 @@ export class RespondInvitacionUseCase {
       });
     }
 
-    return { success: true, message: 'Invitación aceptada' };
+    const tipoInvitacion = esParaCoorganizar ? true : false;
+    const tipoInvitacionLabel = esParaCoorganizar ? 'coorganizador' : 'asistente';
+
+    return {
+      success: true,
+      message: `Invitación aceptada como ${tipoInvitacionLabel}`,
+      tipoInvitacion,
+    };
   }
 }

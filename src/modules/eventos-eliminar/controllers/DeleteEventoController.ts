@@ -1,61 +1,83 @@
-import express, { Request, Response, Router } from 'express';
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
-
+import express, { Request, Response, Router } from "express";
+import { DependencyContainer } from "../../../shared/utils/DependencyContainer";
+import { authMiddleware } from "../../../shared/middlewares/authMiddleware";
 
 export class DeleteEventoController {
   private router: Router;
-  private path: string = '/api';
+  private path: string = "/api/events/delete";
+
+  // Use Case (inyectado desde el contenedor)
   private deleteEventoUseCase = DependencyContainer.getDeleteEventoUseCase();
 
   constructor() {
     this.router = express.Router();
+    this.router.use(authMiddleware)
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.delete('/:id', this.delete.bind(this));
+    // Endpoint para eliminar evento
+    this.router.delete("/:evento_id", this.deleteEvento.bind(this));
   }
 
-  public async delete(req: Request, res: Response): Promise<void> {
+  // Handler: Eliminar evento
+  private async deleteEvento(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { evento_id } = req.params;
+      const usuario_id = Number(req.user?.id)
+      if (!usuario_id || Number.isNaN(usuario_id)) {
+        res.status(400).json({ success: false, message: 'Invalid user id' })
+        return
+      }
 
-      if (!id) {
-        res.status(400).json({ 
+      // Validar parámetros
+      if (!evento_id || isNaN(Number(evento_id))) {
+        res.status(400).json({
           success: false,
-          message: 'Se requiere el ID del evento' 
+          message: "ID de evento inválido"
         });
         return;
       }
 
-      const eventoId = parseInt(id, 10);
-      if (isNaN(eventoId) || eventoId <= 0) {
-        res.status(400).json({ 
-          success: false,
-          message: 'ID de evento no válido' 
-        });
-        return;
-      }
-
-      const result = await this.deleteEventoUseCase.execute(eventoId);
-
-      if (!result.success) {
-        res.status(400).json(result);
-        return;
-      }
-
+      const result = await this.deleteEventoUseCase.execute({evento_id: Number(evento_id), usuario_id});
       res.status(200).json(result);
-    } catch (error: unknown) {
-      console.error('[DeleteEventoController] Error eliminando evento:', error);
-      const message = error instanceof Error ? error.message : 'Error interno';
-      res.status(500).json({ 
-        success: false, 
-        message: 'Error al procesar la solicitud',
-        ...(process.env.NODE_ENV === 'development' && { details: message })
+
+    } catch (error: any) {
+      console.error("Error deleting event:", error);
+
+      if (error.message.includes('no encontrado')) {
+        res.status(404).json({
+          success: false,
+          message: error.message
+        });
+        return;
+      }
+
+      if (error.message.includes('no es organizador') || 
+          error.message.includes('Solo el organizador')) {
+        res.status(403).json({
+          success: false,
+          message: error.message
+        });
+        return;
+      }
+
+      if (error.message.includes('ya ha comenzado')) {
+        res.status(400).json({
+          success: false,
+          message: error.message
+        });
+        return;
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: "Error interno del servidor"
       });
     }
   }
 
+  // Método público para obtener el router configurado
   public getRouter(): Router {
     return this.router;
   }

@@ -29,11 +29,6 @@ module.exports = {
         type: Sequelize.STRING(200),
         allowNull: true
       },
-      nroParticipantes: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0
-      },
       aforo: {
         type: Sequelize.INTEGER,
         allowNull: false,

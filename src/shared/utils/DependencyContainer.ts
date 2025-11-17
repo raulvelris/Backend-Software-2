@@ -3,6 +3,7 @@ import { UsuarioRepository } from '../../infrastructure/repositories/UsuarioRepo
 import { ClienteRepository } from '../../infrastructure/repositories/ClienteRepository';
 import { EventoRepository } from '../../infrastructure/repositories/EventoRepository';
 import { EventoParticipanteRepository } from '../../infrastructure/repositories/EventoParticipanteRepository';
+import { NotificacionRepository } from '../../infrastructure/repositories/NotificacionRepository';
 import { InvitacionRepository } from '../../infrastructure/repositories/InvitacionRepository';
 import { InvitacionUsuarioRepository } from '../../infrastructure/repositories/InvitacionUsuarioRepository';
 import { NotificacionAccionRepository } from '../../infrastructure/repositories/NotificacionAccionRepository';
@@ -11,6 +12,9 @@ import { EstadoInvitacionRepository } from '../../infrastructure/repositories/Es
 import { ParticipanteRepository } from '../../infrastructure/repositories/ParticipanteRepository';
 import { RolRepository } from '../../infrastructure/repositories/RolRepository';
 import { UbicacionRepository } from '../../infrastructure/repositories/UbicacionRepository';
+import { EstadoEventoRepository } from '../../infrastructure/repositories/EstadoEventoRepository';
+import { TipoRecursoRepository } from '../../infrastructure/repositories/TipoRecursoRepository';
+import { RecursoRepository } from '../../infrastructure/repositories/RecursoRepository';
 import { EmailService } from '../../infrastructure/services/EmailService';
 
 import { SearchUsuariosUseCase } from '../../modules/envio-invitaciones/use-cases/SearchUsuariosUseCase';
@@ -26,14 +30,24 @@ import { ConfirmPublicAttendanceUseCase } from '../../modules/confirmar-publico/
 import { RegistrarUsuarioUseCase } from '../../modules/registrarse/use-cases/RegistrarUsuarioUseCase';
 import { ActivarCuentaUseCase } from '../../modules/activar-cuenta/use-cases/ActivarCuentaUseCase';
 import { LoginUseCase } from '../../modules/iniciar-sesion/use-cases/LoginUseCase';
+import { GetProfileUseCase } from '../../modules/gestion-perfil/use-cases/GetProfileUseCase';
+import { UpdateProfileUseCase } from '../../modules/gestion-perfil/use-cases/UpdateProfileUseCase';
 import { CreateEventoUseCase } from '../../modules/eventos-crear/use-cases/CreateEventoUseCase';
 import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-cases/ListPublicEventsUseCase';
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/DeleteEventoUseCase';
+import { UpdateEventoUseCase } from '../../modules/eventos-actualizar/use-cases/UpdateEventoUseCase';
+import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases/GetCoordenadasUseCase';
+import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
+import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
+import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
 
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
+
+import { AccionFabrica } from '../../infrastructure/patterns/factoryMethod/AccionFabrica';
+import { InvitacionFabrica } from '../../infrastructure/patterns/factoryMethod/InvitacionFabrica';
 
 import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
 import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
@@ -45,6 +59,7 @@ export class DependencyContainer {
   private static clienteRepository: ClienteRepository;
   private static eventoRepository: EventoRepository;
   private static eventoParticipanteRepository: EventoParticipanteRepository;
+  private static notificacionRepository: NotificacionRepository;
   private static invitacionRepository: InvitacionRepository;
   private static invitacionUsuarioRepository: InvitacionUsuarioRepository;
   private static notificacionAccionRepository: NotificacionAccionRepository;
@@ -52,7 +67,10 @@ export class DependencyContainer {
   private static estadoInvitacionRepository: EstadoInvitacionRepository;
   private static participanteRepository: ParticipanteRepository;
   private static rolRepository: RolRepository;
+  private static estadoEventoRepository: EstadoEventoRepository;
   private static ubicacionRepository: UbicacionRepository;
+  private static tipoRecursoRepository: TipoRecursoRepository;
+  private static recursoRepository: RecursoRepository;
 
   // Servicios (Singleton)
   private static emailService: EmailService;
@@ -89,6 +107,8 @@ export class DependencyContainer {
 
   // Use Case - Auth
   private static loginUseCase: LoginUseCase;
+  private static getProfileUseCase: GetProfileUseCase;
+  private static updateProfileUseCase: UpdateProfileUseCase;
 
   // Use Case - Crear Evento
   private static createEventoUseCase: CreateEventoUseCase;
@@ -101,11 +121,32 @@ export class DependencyContainer {
 
   // Use Case - Listar Eventos Asistidos
   private static listAttendedEventsUseCase: ListAttendedEventsUseCase;
+
+  // Use Case - Eliminar Evento
   private static deleteEventoUseCase: DeleteEventoUseCase;
+
+  // Use Case - Actualizar Evento
+  private static updateEventoUseCase: UpdateEventoUseCase;
+
+  // Use Case - Obtener Coordenadas
+  private static getCoordenadasUseCase: GetCoordenadasUseCase;
+  
+  // Use Case - Listar Recursos
+  private static listarRecursosUseCase: ListarRecursosUseCase;
+
+  // Use Case - Crear Recurso Enlace
+  private static crearRecursoEnlaceUseCase: CrearRecursoEnlaceUseCase;
+
+  // Use Case - Crear Recurso Archivo
+  private static crearRecursoArchivoUseCase: CrearRecursoArchivoUseCase;
   
   // Observadores (Singleton)
   private static notificationManager: NotificationManager;
   private static participantesObserver: ParticipantesObserver;
+
+  // Factory
+  private static invitacionFabrica: InvitacionFabrica;
+  private static accionFabrica: AccionFabrica;
 
   // Middleware
   private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
@@ -139,6 +180,13 @@ export class DependencyContainer {
       this.eventoParticipanteRepository = new EventoParticipanteRepository();
     }
     return this.eventoParticipanteRepository;
+  }
+
+  static getNotificacionRepository(): NotificacionRepository {
+    if (!this.notificacionRepository) {
+      this.notificacionRepository = new NotificacionRepository();
+    }
+    return this.notificacionRepository;
   }
 
   static getInvitacionRepository(): InvitacionRepository {
@@ -190,11 +238,32 @@ export class DependencyContainer {
     return this.rolRepository;
   }
 
+  static getEstadoEventoRepository(): EstadoEventoRepository {
+    if (!this.estadoEventoRepository) {
+      this.estadoEventoRepository = new EstadoEventoRepository();
+    }
+    return this.estadoEventoRepository;
+  }
+
   static getUbicacionRepository(): UbicacionRepository {
     if (!this.ubicacionRepository) {
       this.ubicacionRepository = new UbicacionRepository();
     }
     return this.ubicacionRepository;
+  }
+
+  static getTipoRecursoRepository(): TipoRecursoRepository {
+    if (!this.tipoRecursoRepository) {
+      this.tipoRecursoRepository = new TipoRecursoRepository();
+    }
+    return this.tipoRecursoRepository;
+  }
+
+  static getRecursoRepository(): RecursoRepository {
+    if (!this.recursoRepository) {
+      this.recursoRepository = new RecursoRepository();
+    }
+    return this.recursoRepository;
   }
 
   // Getters para Servicios
@@ -265,8 +334,7 @@ export class DependencyContainer {
         this.getEstadoInvitacionRepository(),
         this.getParticipanteRepository(),
         this.getRolRepository(),
-        this.getEventoParticipanteRepository(),
-        this.getEventoRepository()
+        this.getEventoParticipanteRepository()
       );
     }
     return this.respondInvitacionUseCase;
@@ -293,7 +361,8 @@ export class DependencyContainer {
   static getGetEventoDetalleUseCase(): GetEventoDetalleUseCase {
     if (!this.getEventoDetalleUseCase) {
       this.getEventoDetalleUseCase = new GetEventoDetalleUseCase(
-        this.getEventoRepository()
+        this.getEventoRepository(),
+        this.getParticipanteRepository()
       );
     }
     return this.getEventoDetalleUseCase;
@@ -341,6 +410,25 @@ export class DependencyContainer {
     return this.loginUseCase;
   }
 
+  static getGetProfileUseCase(): GetProfileUseCase {
+    if (!this.getProfileUseCase) {
+      this.getProfileUseCase = new GetProfileUseCase(
+        this.getUsuarioRepository()
+      );
+    }
+    return this.getProfileUseCase;
+  }
+
+  static getUpdateProfileUseCase(): UpdateProfileUseCase {
+    if (!this.updateProfileUseCase) {
+      this.updateProfileUseCase = new UpdateProfileUseCase(
+        this.getUsuarioRepository(),
+        this.getClienteRepository(),
+      );
+    }
+    return this.updateProfileUseCase;
+  }
+
   static getCreateEventoUseCase(): CreateEventoUseCase {
     if (!this.createEventoUseCase) {
       this.createEventoUseCase = new CreateEventoUseCase(
@@ -385,12 +473,66 @@ export class DependencyContainer {
     if (!this.deleteEventoUseCase) {
       this.deleteEventoUseCase = new DeleteEventoUseCase(
         this.getEventoRepository(),
-        this.getUbicacionRepository(),
         this.getEventoParticipanteRepository(),
+        this.getParticipanteRepository(),
+        this.getRolRepository(),
+        this.getUbicacionRepository(),
+        this.getEstadoEventoRepository(),
         this.getNotificationManager()
       );
     }
     return this.deleteEventoUseCase;
+  }
+
+  static getUpdateEventoUseCase(): UpdateEventoUseCase {
+    if (!this.updateEventoUseCase) {
+      this.updateEventoUseCase = new UpdateEventoUseCase(
+        this.getEventoRepository(),
+        this.getUbicacionRepository()
+      );
+    }
+    return this.updateEventoUseCase;
+  }
+
+  static getGetCoordenadasUseCase(): GetCoordenadasUseCase {
+    if (!this.getCoordenadasUseCase) {
+      this.getCoordenadasUseCase = new GetCoordenadasUseCase(
+        this.getUbicacionRepository()
+      );
+    }
+    return this.getCoordenadasUseCase;
+  }
+
+  static getListarRecursosUseCase(): ListarRecursosUseCase {
+    if (!this.listarRecursosUseCase) {
+      this.listarRecursosUseCase = new ListarRecursosUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository()
+      );
+    }
+    return this.listarRecursosUseCase;
+  }
+
+  static getCrearRecursoEnlaceUseCase(): CrearRecursoEnlaceUseCase {
+    if (!this.crearRecursoEnlaceUseCase) {
+      this.crearRecursoEnlaceUseCase = new CrearRecursoEnlaceUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoEnlaceUseCase;
+  }
+
+  static getCrearRecursoArchivoUseCase(): CrearRecursoArchivoUseCase {
+    if (!this.crearRecursoArchivoUseCase) {
+      this.crearRecursoArchivoUseCase = new CrearRecursoArchivoUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getTipoRecursoRepository()
+      );
+    }
+    return this.crearRecursoArchivoUseCase;
   }
 
   // Getter para el NotificationManager
@@ -407,10 +549,33 @@ export class DependencyContainer {
     if (!this.participantesObserver) {
       this.participantesObserver = new ParticipantesObserver(
         this.getEventoParticipanteRepository(),
-        this.getNotificacionUsuarioRepository()
+        this.getNotificacionUsuarioRepository(),
+        this.getRolRepository()
       );
     }
     return this.participantesObserver;
+  }
+
+  // Getter para la Fabrica Concreta: Invitacion
+  static getInvitacionFabrica(): InvitacionFabrica {
+    if (!this.invitacionFabrica) {
+      this.invitacionFabrica = new InvitacionFabrica(
+        this.getInvitacionRepository(),
+        this.getNotificacionRepository(),
+      );
+    }
+    return this.invitacionFabrica;
+  }
+
+  // Getter para la Fabrica Concreta: Accion
+  static getAccionFabrica(): AccionFabrica {
+    if (!this.accionFabrica) {
+      this.accionFabrica = new AccionFabrica(
+        this.getNotificacionAccionRepository(),
+        this.getNotificacionRepository(),
+      );
+    }
+    return this.accionFabrica;
   }
 
   // Getter para el middleware de verificación de organizador/coorganizador global

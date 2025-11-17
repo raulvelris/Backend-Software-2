@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from 'express'
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware'
 
 export class PublicEventsController {
   private router: Router
@@ -9,6 +10,7 @@ export class PublicEventsController {
 
   constructor() {
     this.router = express.Router()
+    this.router.use(authMiddleware)
     this.initializeRoutes()
   }
 
@@ -18,15 +20,24 @@ export class PublicEventsController {
 
   private async list(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = req.query.usuarioId ? Number(req.query.usuarioId) : undefined
+      const usuarioId = Number(req.user?.id)
+      if (!usuarioId || Number.isNaN(usuarioId)) {
+        res.status(401).json({ success: false, message: 'No autenticado' })
+        return
+      }
       const result = await this.listPublicEventsUseCase.execute(usuarioId)
       res.json(result)
-    } catch (err) {
+    } catch (err: any) {
       console.error('[PublicEventsController] Error listando públicos:', err)
       res.status(500).json({ success: false, message: 'Error interno' })
     }
   }
 
-  public getRouter(): Router { return this.router }
-  public getPath(): string { return this.path }
+  public getRouter(): Router { 
+    return this.router 
+  }
+  
+  public getPath(): string { 
+    return this.path 
+  }
 }
