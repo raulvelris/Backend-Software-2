@@ -12,15 +12,6 @@ export class UpdateEventoController {
     this.updateEventoUseCase = DependencyContainer.getUpdateEventoUseCase();
     this.initializeRoutes();
   }
-
-  public getPath(): string {
-    return this.path;
-  }
-
-  public getRouter(): Router {
-    return this.router;
-  }
-
   private initializeRoutes(): void {
     this.router.put('/:id', this.update.bind(this));
   }
@@ -56,14 +47,34 @@ export class UpdateEventoController {
       } else {
         res.status(400).json(result);
       }
-    } catch (error) {
-      console.error('Error en UpdateEventoController:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Error al actualizar el evento' 
-      });
+    } catch (err: any) {
+      const msg = String(err?.message || 'Error interno')
+
+      // === ERRORES CONTROLADOS DEL USE CASE ===
+      if (
+        msg === 'Evento no encontrado' ||
+        msg === 'Event name must be unique' ||
+        msg === 'Capacity must be between 1 and 100' ||
+        msg === 'Invalid date' ||
+        msg === 'Event date must be today or in the future' ||
+        msg === 'Location must be within Lima' ||
+        msg === 'Image cannot be empty'
+      ) {
+        res.status(400).json({ success: false, message: msg })
+        return
+      }
+
+      console.error('[UpdateEventoController] Error actualizando evento:', err)
+      res.status(500).json({ success: false, message: 'Error interno' })
     }
   }
-}
 
-export default new UpdateEventoController();
+  public getPath(): string {
+    return this.path;
+  }
+
+  public getRouter(): Router {
+    return this.router;
+  }
+
+}

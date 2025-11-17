@@ -54,6 +54,12 @@ export class CreateEventoUseCase {
       throw new Error('Invalid date')
     }
 
+    // VALIDAR QUE LA FECHA SEA HOY O FUTURA
+    const hoy = new Date();
+    if (fechaInicio < hoy) {
+      throw new Error('Event date must be today or in the future');
+    }
+
     // Validar que esté en Lima por dirección o bounding box
     const isLimaByText = /lima/i.test(String(locationAddress || ''))
     const isLimaByCoords = typeof lat === 'number' && typeof lng === 'number'

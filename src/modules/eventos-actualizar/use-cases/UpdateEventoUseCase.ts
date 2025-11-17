@@ -25,7 +25,9 @@ export class UpdateEventoUseCase {
     evento?: any;
   }> {
     try {
-      // Verificar si el evento existe
+      // ============================================
+      // 1. Verificar si el evento existe
+      // ============================================
       const eventoExistente = await this.eventoRepository.findById(id);
       if (!eventoExistente) {
         return { 
@@ -33,42 +35,123 @@ export class UpdateEventoUseCase {
           message: 'Evento no encontrado' 
         };
       }
-      
-      // Mapear privacidad a ID numérico
-      const privacidadId = eventData.privacy === 'private' ? 2 : 1;
 
-      // Datos para actualizar la ubicación
-      const ubicacionData = {
-        direccion: eventData.locationAddress,
-        latitud: eventData.lat,
-        longitud: eventData.lng
-      };
+      // ============================================
+      // 2. Validación de nombre único (si cambia)
+      // ============================================
+      if (
+        eventData.name &&
+        eventData.name.trim().toLowerCase() !== eventoExistente.titulo.toLowerCase()
+      ) {
+        const existeNombre = await this.eventoRepository.findByTituloLowerCase(
+          eventData.name
+        );
+        if (existeNombre) {
+          throw new Error('Event name must be unique');
+        }
+      }
+
+      // ============================================
+      // 3. Capacidad válida
+      // ============================================
+      if (eventData.capacity < 1 || eventData.capacity > 100) {
+        throw new Error('Capacity must be between 1 and 100');
+      }
+
+      // ============================================
+      // 4. Validar fecha válida y fecha futura
+      // ============================================
+      const fechaInicio = new Date(eventData.date);
+      if (!(fechaInicio instanceof Date) || Number.isNaN(fechaInicio.getTime())) {
+        throw new Error('Invalid date');
+      }
+
+      const hoy = new Date();
+      // Evita poner fechas pasadas
+      if (fechaInicio < hoy) {
+        throw new Error('Event date must be today or in the future');
+      }
+
+      // ============================================
+      // 5. Validar ubicación Lima (si se manda)
+      // ============================================
+      const isLimaByText = /lima/i.test(String(eventData.locationAddress || ''));
+
+      const isLimaByCoords =
+        typeof eventData.lat === 'number' &&
+        typeof eventData.lng === 'number' &&
+        eventData.lat >= -12.5 &&
+        eventData.lat <= -11.7 &&
+        eventData.lng >= -77.3 &&
+        eventData.lng <= -76.6;
+
+      if (!isLimaByText && !isLimaByCoords) {
+        throw new Error('Location must be within Lima');
+      }
+
+      // Prohibir coordenadas (0,0)
+      if (eventData.lat === 0 && eventData.lng === 0) {
+        throw new Error('Invalid coordinates');
+      }
+
+      // ============================================
+      // 6. Validar imagen solo si se está enviando explícitamente
+      // ============================================
+      if (eventData.imageUrl !== undefined) {
+        if (String(eventData.imageUrl).trim().length === 0) {
+          throw new Error('Image cannot be empty');
+        }
+      }
+
+      // Datos para actualizar la ubicación (sólo si vienen válidos)
+      const locationPatch: any = {};
+      if (eventData.locationAddress && eventData.locationAddress.trim() !== '') {
+        locationPatch.direccion = eventData.locationAddress;
+      }
+      const hasValidCoords =
+        Number.isFinite(eventData.lat) &&
+        Number.isFinite(eventData.lng) &&
+        !(eventData.lat === 0 && eventData.lng === 0);
+
+      if (hasValidCoords) {
+        locationPatch.latitud = eventData.lat;
+        locationPatch.longitud = eventData.lng;
+      }
 
       // Buscar ubicación existente para este evento
       const ubicacionExistente = await this.ubicacionRepository.findByEventoId(id);
       let ubicacionId: number | undefined;
 
       if (ubicacionExistente) {
-        // Si existe, actualizarla
-        await this.ubicacionRepository.update(
-          id, 
-          ubicacionData
-        );
+        // Si existe y hay cambios, actualizarla
+        if (Object.keys(locationPatch).length > 0) {
+          await this.ubicacionRepository.update(
+            id, 
+            locationPatch
+          );
+        }
         ubicacionId = ubicacionExistente.ubicacion_id || ubicacionExistente.id;
       } else {
-        // Si no existe, crearla
-        const nuevaUbicacion = await this.ubicacionRepository.create({
-          ...ubicacionData,
-          evento_id: id
-        });
-        ubicacionId = nuevaUbicacion.ubicacion_id || nuevaUbicacion.id;
+        // Si no existe, crearla solo si tenemos coordenadas válidas
+        if (Object.keys(locationPatch).length > 0 && hasValidCoords) {
+          const nuevaUbicacion = await this.ubicacionRepository.create({
+            ...locationPatch,
+            evento_id: id
+          });
+          ubicacionId = nuevaUbicacion.ubicacion_id || nuevaUbicacion.id;
+        } else {
+          ubicacionId = undefined;
+        }
       }
+
+      // Mapear privacidad a ID numérico
+      const privacidadId = eventData.privacy === 'private' ? 2 : 1;
 
       // Actualizar el evento
       const eventoActualizado = await this.eventoRepository.update(
         id,
         {
-          nombre: eventData.name,
+          titulo: eventData.name,
           descripcion: eventData.description || '',
           fechaInicio: new Date(eventData.date),
           aforo: eventData.capacity,
