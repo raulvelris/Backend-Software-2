@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
 import { CrearRecursoDto } from '../dtos/CrearRecursoDto';
 import { uploadEventoRecursoArchivo } from '../../../shared/middlewares/uploadEventoRecursoArchivo';
+import fs from 'fs';
 
 export class CompartirRecursosController {
     private router: Router;
@@ -76,6 +77,8 @@ export class CompartirRecursosController {
             const eventoId = parseInt(id!, 10);
             
             if (isNaN(eventoId)) {
+                // borrar archivo subido
+                if ((req as any).file) fs.unlink((req as any).file.path, () => {});
                 res.status(400).json({ success: false, message: 'ID de evento no válido' });
                 return;
             }
@@ -112,6 +115,11 @@ export class CompartirRecursosController {
             res.status(201).json(result);
         } catch (error: any) {
             console.error('Error al crear recurso (archivo):', error);
+
+            // 🔥 borrar archivo subido si hubo error
+            if ((req as any).file) {
+                fs.unlink((req as any).file.path, () => {});
+            }
             
             if (error.message?.includes('no encontrado')) {
                 res.status(404).json({ 
