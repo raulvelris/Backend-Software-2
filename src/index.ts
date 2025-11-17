@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
+import path from "path";
 import { InvitacionController } from "./modules/envio-invitaciones/controllers/InvitacionController";
 import { VerParticipantesController } from "./modules/ver-participantes/controllers/VerParticipantesController";
 import { ConfirmarInvitacionController } from "./modules/confirmar-invitacion/controllers/ConfirmarInvitacionController";
@@ -65,7 +66,8 @@ app.use(bodyParser.urlencoded({
     extended : true,
     limit: '3mb'
 }))
-app.use(express.static("assets")) // Carpeta archivos estaticos
+const assetsPath = path.join(__dirname, "../assets");
+app.use("/assets", express.static(assetsPath)); // Carpeta archivos estaticos
 
 const port = process.env.PORT || 5000;
 
