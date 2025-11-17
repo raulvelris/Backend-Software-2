@@ -5,8 +5,7 @@ export interface IEventoParticipanteRepository {
   findParticipantesByEventoAndRol(eventoId: number): Promise<any[]>;
   findParticipantesByEvento(eventoId: number): Promise<any[]>;
   countByEvento(eventoId: number, rolId?: number[]): Promise<number>;
-  countByParticipante(participanteId: number): Promise<number>;
-  countByParticipanteEventoActivo(usuarioId: number): Promise<number>;
+  countByUsuarioEventoActivo(usuarioId: number): Promise<number>;
   findByEventoAndParticipante(eventoId: number, participanteId: number): Promise<any | null>;
   create(eventoId: number, participanteId: number): Promise<any>;
   findByParticipante(participanteId: number): Promise<any[]>

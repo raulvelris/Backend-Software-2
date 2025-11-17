@@ -124,22 +124,9 @@ async countByEvento(eventoId: number, rolId?: number[]): Promise<number> {
       console.error('Error en countByEvento:', error);
       throw error;
     }
-  }
+   }
 
-  async countByParticipante(participanteId: number): Promise<number> {
-    try {
-      const count = await db.EventoParticipante.count({
-        where: { participante_id: participanteId }
-      });
-      
-      return count;
-    } catch (error) {
-      console.error('Error en countByParticipante:', error);
-      throw error;
-    }
-  }
-
-  async countByParticipanteEventoActivo(usuarioId: number): Promise<number> {
+  async countByUsuarioEventoActivo(usuarioId: number): Promise<number> {
   try {
     const count = await db.EventoParticipante.count({
       include: [

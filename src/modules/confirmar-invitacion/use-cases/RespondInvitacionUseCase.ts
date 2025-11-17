@@ -7,6 +7,7 @@ import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository'
 import { RespondInvitacionDto } from '../dtos/RespondInvitacionDto';
 import { RespondInvitacionResultDto } from '../dtos/RespondInvitacionResultDto';
 import { EstadoInvitacionEnum } from '../../../domain/value-objects/EstadoInvitacion';
+import { MAXIMO_EVENTOS_POR_USUARIO } from '../../../domain/value-objects/Constantes';
 
 export class RespondInvitacionUseCase {
   constructor(
@@ -64,22 +65,6 @@ export class RespondInvitacionUseCase {
       }
     }
 
-    // Validar límite de eventos por usuario (incluyendo organizar y asistir)
-    if (dto.accept && usuario) {
-      const participanteRows = await this.participanteRepository.findAllByUsuarioId(usuario.usuario_id);
-      
-      let userEventCount = 0;
-      for (const participante of participanteRows) {
-        const eventosDelParticipante = await this.eventoParticipanteRepository.countByParticipanteEventoActivo(participante.usuario_id);
-        userEventCount += eventosDelParticipante;
-      }
-      
-      const MAX_EVENTS_PER_USER = Number(process.env.MAX_EVENTS_PER_USER);
-      if (userEventCount == MAX_EVENTS_PER_USER) {
-        throw new Error('Alcanzó el límite de eventos permitidos');
-      }
-    }
-
     if (!dto.accept) {
       // Rechazar invitación
       const estadoRechazada = await this.estadoInvitacionRepository.findByNombre(EstadoInvitacionEnum.RECHAZADA);
@@ -91,6 +76,12 @@ export class RespondInvitacionUseCase {
       }
       
       return { success: true, message: 'Invitación rechazada' };
+    } else {
+      const existingCount = await this.eventoParticipanteRepository.countByUsuarioEventoActivo(usuario.usuario_id);
+
+      if (existingCount === MAXIMO_EVENTOS_POR_USUARIO) {
+        throw new Error('Alcanzó el límite de eventos permitidos');
+      }
     }
 
     let rolId: number;
@@ -143,11 +134,6 @@ export class RespondInvitacionUseCase {
       await this.invitacionUsuarioRepository.update(dto.invitacion_usuario_id, {
         estado_invitacion_id: estadoAceptada.estado_id,
       });
-    }
-    
-    if (!esParaCoorganizar) {
-      // Incrementar contador de participantes
-      await this.eventoRepository.incrementParticipantes(evento.evento_id);
     }
 
     const tipoInvitacion = esParaCoorganizar ? true : false;

@@ -50,6 +50,10 @@ export class ConfirmarPublicoController {
         res.status(404).json({ success: false, message: msg });
         return;
       }
+      if (msg === 'You reached your event limit') {
+        res.status(409).json({ success: false, message: msg });
+        return;
+      }
       console.error('Error al confirmar asistencia pública:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }

@@ -4,6 +4,7 @@ import { IUbicacionRepository } from '../../../domain/interfaces/IUbicacionRepos
 import { IRolRepository } from '../../../domain/interfaces/IRolRepository'
 import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository'
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository'
+import { MAXIMO_EVENTOS_POR_USUARIO } from '../../../domain/value-objects/Constantes';
 
 const db = require('../../../infrastructure/database/models')
 
@@ -70,9 +71,9 @@ export class CreateEventoUseCase {
       : ID_PRIVACIDAD_PUBLICO
 
     // Límite por usuario: máximo 5 eventos como Organizador
-    const existingCount = await this.eventoParticipanteRepository.countByParticipanteEventoActivo(ownerId)
+    const existingCount = await this.eventoParticipanteRepository.countByUsuarioEventoActivo(ownerId)
 
-    if (existingCount === 5) {
+    if (existingCount === MAXIMO_EVENTOS_POR_USUARIO) {
       throw new Error('You reached your event limit')
     }
 

@@ -2,6 +2,7 @@ import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository'
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
 import { IRolRepository } from '../../../domain/interfaces/IRolRepository';
 import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository';
+import { MAXIMO_EVENTOS_POR_USUARIO } from '../../../domain/value-objects/Constantes';
 
 export class ConfirmPublicAttendanceUseCase {
   constructor(
@@ -41,6 +42,13 @@ export class ConfirmPublicAttendanceUseCase {
     const capacity = typeof evento.aforo === 'number' ? evento.aforo : 0;
     if (current >= capacity) {
       throw new Error('Event is full');
+    }
+
+    // Límite por usuario (todos los roles)
+    const userEventCount = await this.eventoParticipanteRepository.countByUsuarioEventoActivo(usuario_id);
+
+    if (userEventCount >= MAXIMO_EVENTOS_POR_USUARIO) {
+      throw new Error('You reached your event limit');
     }
 
     // Buscar el rol Asistente (según seeders)

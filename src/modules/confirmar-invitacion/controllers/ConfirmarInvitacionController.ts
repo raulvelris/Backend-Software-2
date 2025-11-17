@@ -15,7 +15,7 @@ export class ConfirmarInvitacionController {
 
   private initializeRoutes(): void {
     // Endpoint para responder a una invitación (aceptar o rechazar)
-    this.router.post("/invitaciones/respond", this.respondInvitacion.bind(this));
+    this.router.post("/invitations/respond", this.respondInvitacion.bind(this));
   }
 
   // Handler: Responder invitación
