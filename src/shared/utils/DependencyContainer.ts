@@ -49,10 +49,6 @@ import { ParticipantesObserver } from '../../infrastructure/patterns/observer/Pa
 import { AccionFabrica } from '../../infrastructure/patterns/factoryMethod/AccionFabrica';
 import { InvitacionFabrica } from '../../infrastructure/patterns/factoryMethod/InvitacionFabrica';
 
-import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
-import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
-import { Request, Response, NextFunction } from 'express';
-
 export class DependencyContainer {
   // Repositorios (Singleton)
   private static usuarioRepository: UsuarioRepository;
@@ -147,11 +143,6 @@ export class DependencyContainer {
   // Factory
   private static invitacionFabrica: InvitacionFabrica;
   private static accionFabrica: AccionFabrica;
-
-  // Middleware
-  private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
-  private static verifyOrganizerOrCoorganizerInEvent: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
-  
 
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
@@ -576,35 +567,5 @@ export class DependencyContainer {
       );
     }
     return this.accionFabrica;
-  }
-
-  // Getter para el middleware de verificación de organizador/coorganizador global
-  static getVerifyOrganizerOrCoorganizerGlobal() {
-    if (!this.verifyOrganizerOrCoorganizerGlobal) {
-      const middleware = new VerifyOrganizerOrCoorganizerGlobal(
-        this.getRolRepository(),
-        this.getParticipanteRepository(),
-        this.getEventoParticipanteRepository()
-      );
-      this.verifyOrganizerOrCoorganizerGlobal = (req: Request, res: Response, next: NextFunction) => {
-        return middleware.verify(req, res, next);
-      };
-    }
-    return this.verifyOrganizerOrCoorganizerGlobal;
-  }
-
-  // Getter para el middleware de verificación de organizador/coorganizador en evento
-  static getVerifyOrganizerOrCoorganizerInEvent() {
-    if (!this.verifyOrganizerOrCoorganizerInEvent) {
-      const middleware = new VerifyOrganizerOrCoorganizerInEvent(
-        this.getRolRepository(),
-        this.getParticipanteRepository(),
-        this.getEventoParticipanteRepository()
-      );
-      this.verifyOrganizerOrCoorganizerInEvent = (req: Request, res: Response, next: NextFunction) => {
-        return middleware.verify(req, res, next);
-      };
-    }
-    return this.verifyOrganizerOrCoorganizerInEvent;
   }
 }

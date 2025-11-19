@@ -1,6 +1,7 @@
 import express, { Request, Response, Router } from 'express'
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
 import { CrearEventoDto } from '../dtos/CrearEventoDto'
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware'
 
 export class CreateEventoController {
   private router: Router
@@ -10,6 +11,7 @@ export class CreateEventoController {
 
   constructor() {
     this.router = express.Router()
+    this.router.use(authMiddleware)
     this.initializeRoutes()
   }
 

@@ -1,15 +1,16 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
-import { UpdateEventoUseCase } from '../use-cases/UpdateEventoUseCase';
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware';
 
 export class UpdateEventoController {
   private router: Router;
   private path: string = '/api/eventos/update';
-  private updateEventoUseCase: UpdateEventoUseCase;
+
+  private updateEventoUseCase = DependencyContainer.getUpdateEventoUseCase()
   
   constructor() {
     this.router = express.Router();
-    this.updateEventoUseCase = DependencyContainer.getUpdateEventoUseCase();
+    this.router.use(authMiddleware)
     this.initializeRoutes();
   }
   private initializeRoutes(): void {

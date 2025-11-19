@@ -13,10 +13,7 @@ export class VerNotificacionesAccionController {
 
   constructor() {
     this.router = express.Router()
-
-    // aplicar middleware a todas las rutas
     this.router.use(authMiddleware)
-
     this.initializeRoutes()
   }
 

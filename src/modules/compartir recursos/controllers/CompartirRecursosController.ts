@@ -1,8 +1,9 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
 import { CrearRecursoDto } from '../dtos/CrearRecursoDto';
-import { uploadEventoRecursoArchivo } from '../../../infrastructure/services/uploadEventoRecursoArchivo';
+import { uploadEventoRecursoArchivo } from '../../../shared/middlewares/uploadFileMiddleware';
 import fs from 'fs';
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware';
 
 export class CompartirRecursosController {
     private router: Router;
@@ -14,6 +15,7 @@ export class CompartirRecursosController {
 
     constructor() {
         this.router = express.Router();
+        this.router.use(authMiddleware)
         this.initializeRoutes();
     }
 

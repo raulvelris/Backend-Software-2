@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware';
 
 export class ListarRecursosController {
   private router: Router;
@@ -9,8 +10,7 @@ export class ListarRecursosController {
 
   constructor() {
     this.router = express.Router();
-    
-    // inicializar rutas
+    this.router.use(authMiddleware)
     this.initializeRoutes();
   }
 
