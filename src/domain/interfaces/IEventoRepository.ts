@@ -1,5 +1,3 @@
-import { Transaction } from 'sequelize';
-
 // Interfaz de repositorio para Evento
 // Usa modelos de Sequelize directamente (any)
 export interface IEventoRepository {

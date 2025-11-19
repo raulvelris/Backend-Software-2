@@ -1,5 +1,4 @@
 import { IEventoRepository } from '../../domain/interfaces/IEventoRepository';
-import { Transaction } from 'sequelize';
 
 const db = require('../database/models');
 
@@ -7,10 +6,9 @@ export class EventoRepository implements IEventoRepository {
   // Implementación de la propiedad sequelize requerida por la interfaz
   public sequelize = db.sequelize;
 
-  async findById(id: number, options?: { transaction?: Transaction }): Promise<any | null> {
+  async findById(id: number): Promise<any | null> {
     try {
       const evento = await db.Evento.findByPk(id, {
-        transaction: options?.transaction,
         include: [
           {
             model: db.Ubicacion,
@@ -27,9 +25,9 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  async create(data: any, options?: { transaction?: Transaction }): Promise<any> {
+  async create(data: any): Promise<any> {
     try {
-      const nuevoEvento = await db.Evento.create(data, { transaction: options?.transaction });
+      const nuevoEvento = await db.Evento.create(data);
       return nuevoEvento;
     } catch (error) {
       console.error('Error en create:', error);
@@ -37,12 +35,12 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  async update(id: number, data: any, options?: { transaction?: Transaction }): Promise<any | null> {
+  async update(id: number, data: any): Promise<any | null> {
     try {
-      const evento = await db.Evento.findByPk(id, { transaction: options?.transaction });
+      const evento = await db.Evento.findByPk(id);
       if (!evento) return null;
       
-      await evento.update(data, { transaction: options?.transaction });
+      await evento.update(data);
       return evento;
     } catch (error) {
       console.error('Error en update:', error);
@@ -50,10 +48,9 @@ export class EventoRepository implements IEventoRepository {
     }
   }
 
-  async delete(id: number, options?: { transaction?: Transaction }): Promise<boolean> {
+  async delete(id: number): Promise<boolean> {
     try {
-      const result = await db.Evento.destroy({
-        transaction: options?.transaction, where: { evento_id: id } });
+      const result = await db.Evento.destroy({ where: { evento_id: id } });
       return result > 0;
     } catch (error) {
       console.error('Error en delete:', error);

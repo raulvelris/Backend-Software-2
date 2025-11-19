@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
 import { CrearRecursoDto } from '../dtos/CrearRecursoDto';
-import { uploadEventoRecursoArchivo } from '../../../shared/middlewares/uploadEventoRecursoArchivo';
+import { uploadEventoRecursoArchivo } from '../../../infrastructure/services/uploadEventoRecursoArchivo';
 import fs from 'fs';
 
 export class CompartirRecursosController {
