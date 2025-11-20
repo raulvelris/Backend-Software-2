@@ -22,6 +22,7 @@ import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/D
 import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
 import { ListarRecursosController } from "./modules/listar-recursos/controllers/ListarRecursosController";
 import { CompartirRecursosController } from "./modules/compartir recursos/controllers/CompartirRecursosController";
+import { DeleteRecursoController } from "./modules/eliminar-recurso/controllers/DeleteRecursoController";
 
 const db = require("./infrastructure/database/models");
 
@@ -128,6 +129,9 @@ app.use(listarRecursosController.getPath(), listarRecursosController.getRouter()
 
 const compartirRecursosController = new CompartirRecursosController();
 app.use(compartirRecursosController.getPath(), compartirRecursosController.getRouter());
+
+const deleteRecursoController = new DeleteRecursoController();
+app.use(deleteRecursoController.getPath(), deleteRecursoController.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

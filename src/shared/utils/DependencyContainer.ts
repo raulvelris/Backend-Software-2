@@ -41,7 +41,7 @@ import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases
 import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
 import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
 import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
-import { DeleteRecursoUseCase } from '../../modules/compartir recursos/use-cases/DeleteRecursoUseCase';
+import { DeleteRecursoUseCase } from '../../modules/eliminar-recurso/use-cases/DeleteRecursoUseCase';
 
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
@@ -530,8 +530,7 @@ export class DependencyContainer {
       this.deleteRecursoUseCase = new DeleteRecursoUseCase(
         this.getRecursoRepository(),
         this.getEventoRepository(),
-        this.getEventoParticipanteRepository(),
-        this.getNotificacionUsuarioRepository()
+        this.getNotificationManager()
       );
     }
     return this.deleteRecursoUseCase;
