@@ -154,7 +154,6 @@ export class EventoRepository implements IEventoRepository {
           ['evento_id', 'id'],
           ['titulo', 'name'],
           ['fechaInicio', 'dateStart'],
-          ['fechaFin', 'dateEnd'],
           ['imagen', 'imageUrl'],
           [
             db.Sequelize.fn(
@@ -200,9 +199,7 @@ export class EventoRepository implements IEventoRepository {
           ['evento_id', 'id'],
           ['titulo', 'name'],
           ['fechaInicio', 'dateStart'],
-          ['fechaFin', 'dateEnd'],
-          ['imagen', 'imageUrl'],
-          ['aforo', 'capacity'],
+          ['imagen', 'imageUrl']
         ],
         where: {
           fechaFin: { [db.Sequelize.Op.gt]: cutoff },
@@ -239,7 +236,6 @@ export class EventoRepository implements IEventoRepository {
           ['evento_id', 'id'],
           ['titulo', 'name'],
           ['fechaInicio', 'dateStart'],
-          ['fechaFin', 'dateEnd'],
           ['imagen', 'imageUrl'],
         ],
         where: {
