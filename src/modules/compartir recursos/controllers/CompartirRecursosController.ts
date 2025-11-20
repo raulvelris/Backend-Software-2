@@ -35,12 +35,19 @@ export class CompartirRecursosController {
                 return;
             }
 
+            const usuarioId = Number(req.user?.id);
+            if (!usuarioId || Number.isNaN(usuarioId)) {
+                res.status(401).json({ success: false, message: 'No autenticado' });
+                return;
+            }
+
             const body = req.body || {};
             const dto: CrearRecursoDto = {
                 evento_id: eventoId,
                 nombre: body.nombre,
                 url: body.url,
-                tipo_recurso: Number(body.tipo_recurso)
+                tipo_recurso: Number(body.tipo_recurso),
+                emisorId: usuarioId
             };
 
             const result = await this.crearRecursoEnlaceUseCase.execute(dto);
@@ -105,11 +112,20 @@ export class CompartirRecursosController {
             // Generar URL relativa para acceder al archivo
             const url = `/assets/uploads/${archivoFile.filename}`;
 
+            const usuarioId = Number(req.user?.id);
+            if (!usuarioId || Number.isNaN(usuarioId)) {
+                // borrar archivo subido
+                if ((req as any).file) fs.unlink((req as any).file.path, () => {});
+                res.status(401).json({ success: false, message: 'No autenticado' });
+                return;
+            }
+
             const dto: CrearRecursoDto = {
                 evento_id: eventoId,
                 nombre: nombre,
                 url: url,
-                tipo_recurso: Number(tipo_recurso)
+                tipo_recurso: Number(tipo_recurso),
+                emisorId: usuarioId
             };
 
             const result = await this.crearRecursoArchivoUseCase.execute(dto);

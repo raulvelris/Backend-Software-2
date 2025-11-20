@@ -509,7 +509,9 @@ export class DependencyContainer {
       this.crearRecursoEnlaceUseCase = new CrearRecursoEnlaceUseCase(
         this.getRecursoRepository(),
         this.getEventoRepository(),
-        this.getTipoRecursoRepository()
+        this.getTipoRecursoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificationManager()
       );
     }
     return this.crearRecursoEnlaceUseCase;
@@ -520,7 +522,9 @@ export class DependencyContainer {
       this.crearRecursoArchivoUseCase = new CrearRecursoArchivoUseCase(
         this.getRecursoRepository(),
         this.getEventoRepository(),
-        this.getTipoRecursoRepository()
+        this.getTipoRecursoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificationManager()
       );
     }
     return this.crearRecursoArchivoUseCase;

@@ -1,13 +1,18 @@
 import { IRecursoRepository } from '../../../domain/interfaces/IRecursoRepository';
 import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
 import { ITipoRecursoRepository } from '../../../domain/interfaces/ITipoRecursoRepository';
+import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
+import { NotificationManager } from '../../../infrastructure/patterns/observer/NotificationManager';
+import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
 import { CrearRecursoDto, RecursoResponseDto } from '../dtos/CrearRecursoDto';
 
 export class CrearRecursoArchivoUseCase {
   constructor(
     private recursoRepository: IRecursoRepository,
     private eventoRepository: IEventoRepository,
-    private tipoRecursoRepository: ITipoRecursoRepository
+    private tipoRecursoRepository: ITipoRecursoRepository,
+    private eventoParticipanteRepository: IEventoParticipanteRepository,
+    private notificationManager: NotificationManager
   ) {}
 
   async execute(dto: CrearRecursoDto): Promise<RecursoResponseDto> {
@@ -53,6 +58,30 @@ export class CrearRecursoArchivoUseCase {
 
     if (!recurso?.recurso_id) {
       throw new Error('Error al crear el recurso en la base de datos');
+    }
+
+    // Verificar si se debe enviar notificación
+    // Solo notificar si: hay participantes Y el evento no ha pasado
+    if (dto.emisorId) {
+      // Convertir a objeto plano si es un modelo de Sequelize
+      const eventoPlain = typeof evento.toJSON === 'function' ? evento.toJSON() : evento;
+      const fechaFin = eventoPlain.fechaFin ? new Date(eventoPlain.fechaFin) : null;
+      const ahora = new Date();
+      
+      // Verificar que el evento no haya pasado
+      const eventoNoHaPasado = fechaFin && fechaFin > ahora;
+      
+      // Verificar que haya participantes
+      const cantidadParticipantes = await this.eventoParticipanteRepository.countByEvento(dto.evento_id);
+      const hayParticipantes = cantidadParticipantes > 1;
+      
+      // Notificar solo si ambas condiciones se cumplen
+      if (eventoNoHaPasado && hayParticipantes) {
+        await this.notificationManager.notify(
+          TipoNotificacion.RECURSO_AGREGADO,
+          { eventoId: dto.evento_id, emisorId: dto.emisorId }
+        );
+      }
     }
 
     // Mapear la respuesta al formato que espera el frontend
