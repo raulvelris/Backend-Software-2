@@ -1,5 +1,7 @@
 import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
 import { IUbicacionRepository } from '../../../domain/interfaces/IUbicacionRepository';
+import { NotificationManager } from '../../../infrastructure/patterns/observer/NotificationManager';
+import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
 
 export interface UpdateEventoRequest {
   name: string;
@@ -16,13 +18,15 @@ export interface UpdateEventoRequest {
 export class UpdateEventoUseCase {
   constructor(
     private eventoRepository: IEventoRepository,
-    private ubicacionRepository: IUbicacionRepository
+    private ubicacionRepository: IUbicacionRepository,
+    private notificationManager: NotificationManager
   ) {}
 
-  async execute(id: number, eventData: UpdateEventoRequest): Promise<{
+  async execute(id: number, eventData: UpdateEventoRequest, emisorId: number): Promise<{
     success: boolean;
     message: string;
     evento?: any;
+
   }> {
     try {
       // ============================================
@@ -163,6 +167,12 @@ export class UpdateEventoUseCase {
 
       // Obtener la ubicación actualizada
       const ubicacionActualizada = await this.ubicacionRepository.findByEventoId(id);
+
+      // Notificar a los participantes que el evento fue editado
+      await this.notificationManager.notify(
+        TipoNotificacion.EVENTO_EDITADO,
+        { eventoId: id, emisorId }
+      );
 
       return {
         success: true,

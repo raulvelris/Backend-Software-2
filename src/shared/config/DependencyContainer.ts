@@ -479,7 +479,8 @@ export class DependencyContainer {
     if (!this.updateEventoUseCase) {
       this.updateEventoUseCase = new UpdateEventoUseCase(
         this.getEventoRepository(),
-        this.getUbicacionRepository()
+        this.getUbicacionRepository(),
+        this.getNotificationManager()
       );
     }
     return this.updateEventoUseCase;

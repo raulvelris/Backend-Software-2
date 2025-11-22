@@ -40,8 +40,15 @@ export class UpdateEventoController {
         return;
       }
 
+      const userId = req.user?.id;
+
+      if (!userId) {
+        res.status(401).json({ success: false, message: 'Usuario no autenticado' });
+        return;
+      }
+
       // Llamar al caso de uso
-      const result = await this.updateEventoUseCase.execute(eventId, eventData);
+      const result = await this.updateEventoUseCase.execute(eventId, eventData, userId);
       
       if (result.success) {
         res.status(200).json(result);
