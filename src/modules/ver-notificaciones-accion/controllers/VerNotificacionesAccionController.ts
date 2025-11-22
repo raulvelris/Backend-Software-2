@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express'
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
+import { DependencyContainer } from '../../../shared/config/DependencyContainer'
 
 // importacion de middlewares
 import { authMiddleware } from "../../../shared/middlewares/authMiddleware";

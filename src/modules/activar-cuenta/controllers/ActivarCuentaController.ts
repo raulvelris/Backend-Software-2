@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from "express";
-import { DependencyContainer } from "../../../shared/utils/DependencyContainer";
+import { DependencyContainer } from "../../../shared/config/DependencyContainer";
 
 export class ActivarCuentaController {
   private router: Router;

@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express';
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
+import { DependencyContainer } from '../../../shared/config/DependencyContainer';
 import { CrearRecursoDto } from '../dtos/CrearRecursoDto';
 import { uploadEventoRecursoArchivo } from '../../../shared/middlewares/uploadFileMiddleware';
 import fs from 'fs';
