@@ -22,6 +22,8 @@ import { VerCoordenadasController } from "./modules/evento-coordenada/controller
 import { ListarRecursosController } from "./modules/listar-recursos/controllers/ListarRecursosController";
 import { CompartirRecursosController } from "./modules/compartir recursos/controllers/CompartirRecursosController";
 import { UpdateEventoController } from "./modules/eventos-actualizar/controllers/UpdateEventoController";
+import { DesvincularController } from "./modules/desvincular-evento/controllers/DesvincularController";
+import { EliminarInvitadoController } from "./modules/eliminar-invitado/controllers/EliminarInvitadoController";
 
 const db = require("./infrastructure/database/models");
 
@@ -130,6 +132,12 @@ app.use(compartirRecursosController.getPath(), compartirRecursosController.getRo
 
 const updateEventoController = new UpdateEventoController();
 app.use(updateEventoController.getPath(), updateEventoController.getRouter());
+
+const desvincularController = new DesvincularController();
+app.use(desvincularController.getPath(), desvincularController.getRouter());
+
+const eliminarInvitadoController = new EliminarInvitadoController();
+app.use(eliminarInvitadoController.getPath(), eliminarInvitadoController.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

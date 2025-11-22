@@ -42,6 +42,8 @@ import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases
 import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
 import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
 import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
+import { EliminarInvitadoUseCase } from '../../modules/eliminar-invitado/use-cases/EliminarInvitadoUseCase';
+import { DesvincularUseCase } from '../../modules/desvincular-evento/use-cases/DesvincularUseCase';
 
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
@@ -120,6 +122,12 @@ export class DependencyContainer {
 
   // Use Case - Eliminar Evento
   private static deleteEventoUseCase: DeleteEventoUseCase;
+
+  // Use Case - Eliminar Invitado
+  private static eliminarInvitadoUseCase: EliminarInvitadoUseCase;
+
+  // Use Case - Desvincular participante
+  private static desvincularUseCase: DesvincularUseCase;
 
   // Use Case - Actualizar Evento
   private static updateEventoUseCase: UpdateEventoUseCase;
@@ -473,6 +481,29 @@ export class DependencyContainer {
       );
     }
     return this.deleteEventoUseCase;
+  }
+
+  static getEliminarInvitadoUseCase(): EliminarInvitadoUseCase {
+    if (!this.eliminarInvitadoUseCase) {
+      this.eliminarInvitadoUseCase = new EliminarInvitadoUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificacionUsuarioRepository()
+      );
+    }
+    return this.eliminarInvitadoUseCase;
+  }
+
+  static getDesvincularUseCase(): DesvincularUseCase {
+    if (!this.desvincularUseCase) {
+      this.desvincularUseCase = new DesvincularUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getParticipanteRepository(),
+        this.getNotificationManager()
+      );
+    }
+    return this.desvincularUseCase;
   }
 
   static getUpdateEventoUseCase(): UpdateEventoUseCase {
