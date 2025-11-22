@@ -42,6 +42,7 @@ import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases
 import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
 import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
 import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
+import { DeleteRecursoUseCase } from '../../modules/eliminar-recurso/use-cases/DeleteRecursoUseCase';
 import { EliminarInvitadoUseCase } from '../../modules/eliminar-invitado/use-cases/EliminarInvitadoUseCase';
 import { DesvincularUseCase } from '../../modules/desvincular-evento/use-cases/DesvincularUseCase';
 
@@ -143,6 +144,9 @@ export class DependencyContainer {
 
   // Use Case - Crear Recurso Archivo
   private static crearRecursoArchivoUseCase: CrearRecursoArchivoUseCase;
+
+  // Use Case - Eliminar Recurso
+  private static deleteRecursoUseCase: DeleteRecursoUseCase;
   
   // Observadores (Singleton)
   private static notificationManager: NotificationManager;
@@ -560,6 +564,17 @@ export class DependencyContainer {
       );
     }
     return this.crearRecursoArchivoUseCase;
+  }
+
+  static getDeleteRecursoUseCase(): DeleteRecursoUseCase {
+    if (!this.deleteRecursoUseCase) {
+      this.deleteRecursoUseCase = new DeleteRecursoUseCase(
+        this.getRecursoRepository(),
+        this.getEventoRepository(),
+        this.getNotificationManager()
+      );
+    }
+    return this.deleteRecursoUseCase;
   }
 
   // Getter para el NotificationManager

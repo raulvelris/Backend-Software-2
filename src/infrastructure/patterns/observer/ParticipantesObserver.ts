@@ -41,6 +41,10 @@ export class ParticipantesObserver implements Observer {
             mensaje: 'El evento ha sido cancelado.',
             soloParaOrganizadores: false,
         },
+        RECURSO_ELIMINADO: {
+            mensaje: 'Un recurso ha sido eliminado del evento.',
+            soloParaOrganizadores: false,
+        }
         };
 
         const estrategia = estrategias[eventType];

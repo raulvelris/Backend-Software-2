@@ -6,6 +6,7 @@ export interface InvitacionPrivadaItemDto {
   invitacion_usuario_id: number;
   estado: string | null;
   fechaLimite: string | null;
+  esParaCoorganizar: boolean;
   evento: {
     evento_id: number;
     titulo: string | null;
