@@ -3,6 +3,7 @@ export interface CrearRecursoDto {
   nombre: string;
   url: string;
   tipo_recurso: number;
+  emisorId?: number; // ID del usuario que está subiendo el recurso
 }
 
 export interface RecursoResponseDto {
