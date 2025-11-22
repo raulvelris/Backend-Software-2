@@ -6,8 +6,6 @@ import { IParticipanteRepository } from '../../../domain/interfaces/IParticipant
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository'
 import { MAXIMO_EVENTOS_POR_USUARIO } from '../../../domain/value-objects/Constantes';
 
-const db = require('../../../infrastructure/database/models')
-
 export class CreateEventoUseCase {
   constructor(
     private eventoRepository: IEventoRepository,
@@ -83,41 +81,38 @@ export class CreateEventoUseCase {
       throw new Error('You reached your event limit')
     }
 
-    const nuevo = await db.sequelize.transaction(async (t: any) => {
-      const evento = await this.eventoRepository.create({
-        titulo: name,
-        descripcion: description ?? null,
-        fechaInicio,
-        fechaFin: new Date(fechaInicio.getTime() + 24 * 60 * 60 * 1000),
-        imagen: imageUrl ?? null,
-        nroParticipantes: 0,
-        aforo: Number(capacity),
-        estadoEvento: ID_ESTADO_PROGRAMADO,
-        privacidad: privacidadId,
-      })
-
-      const direccion = locationAddress || ''
-      if (direccion) {
-        await this.ubicacionRepository.create({
-          direccion,
-          latitud: lat ?? null,
-          longitud: lng ?? null,
-          evento_id: evento.evento_id,
-        })
-      }
-
-      const rolOrganizador = await this.rolRepository.findByNombre('Organizador')
-      const rolId = rolOrganizador?.rol_id ?? 1
-      let participante = await this.participanteRepository.findByUsuarioAndRol(ownerId, rolId)
-      if (!participante) {
-        participante = await this.participanteRepository.create({ usuario_id: ownerId, rol_id: rolId })
-      }
-
-      await this.eventoParticipanteRepository.create(evento.evento_id, participante.participante_id)
-
-      return evento
+    const evento = await this.eventoRepository.create({
+      titulo: name,
+      descripcion: description ?? null,
+      fechaInicio,
+      fechaFin: new Date(fechaInicio.getTime() + 24 * 60 * 60 * 1000),
+      imagen: imageUrl ?? null,
+      nroParticipantes: 0,
+      aforo: Number(capacity),
+      estadoEvento: ID_ESTADO_PROGRAMADO,
+      privacidad: privacidadId,
     })
 
-    return { success: true, evento: { id: nuevo.evento_id } }
+    const direccion = locationAddress || ''
+    if (direccion) {
+      await this.ubicacionRepository.create({
+        direccion,
+        latitud: lat ?? null,
+        longitud: lng ?? null,
+        evento_id: evento.evento_id,
+      })
+    }
+
+    const rolOrganizador = await this.rolRepository.findByNombre('Organizador')
+    const rolId = rolOrganizador?.rol_id ?? 1
+    let participante = await this.participanteRepository.findByUsuarioAndRol(ownerId, rolId)
+    if (!participante) {
+      participante = await this.participanteRepository.create({ usuario_id: ownerId, rol_id: rolId })
+    }
+
+    await this.eventoParticipanteRepository.create(evento.evento_id, participante.participante_id)
+
+
+    return { success: true, evento: { id: evento.evento_id } }
   }
 }
