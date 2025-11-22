@@ -21,6 +21,7 @@ export class GetInvitacionesPrivadasUseCase {
         invitacion_usuario_id: r.invitacion_usuario_id,
         estado: r.estado?.nombre || null,
         fechaLimite: invitacion?.fechaLimite ? new Date(invitacion.fechaLimite).toISOString() : null,
+        esParaCoorganizar: Boolean(r.esParaCoorganizar),
         evento: evento
           ? {
               evento_id: evento.evento_id,

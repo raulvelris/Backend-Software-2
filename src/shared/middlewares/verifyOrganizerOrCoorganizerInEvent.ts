@@ -19,8 +19,9 @@ export class VerifyOrganizerOrCoorganizerInEvent {
           // Extraer el evento_id de la URL o del body
         const eventoId = Number(
         req.params?.evento_id || 
-        (req.body && req.body.evento_id) || 
-        (req.query && req.query.evento_id)
+        req.params?.eventoId ||
+        (req.body && (req.body.evento_id ?? req.body.eventoId)) || 
+        (req.query && (req.query.evento_id ?? req.query.eventoId))
         );
 
         if (isNaN(eventoId)) {
