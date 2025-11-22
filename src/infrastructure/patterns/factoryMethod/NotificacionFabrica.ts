@@ -1,4 +1,4 @@
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
+import { DependencyContainer } from '../../../shared/config/DependencyContainer';
 import { INotificacionRepository } from '../../../domain/interfaces/INotificacionRepository';
 
 /**

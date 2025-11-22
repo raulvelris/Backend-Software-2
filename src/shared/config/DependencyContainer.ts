@@ -37,21 +37,20 @@ import { ListPublicEventsUseCase } from '../../modules/eventos-publicos/use-case
 import { ListManagedEventsUseCase } from '../../modules/eventos-gestionados/use-cases/ListManagedEventsUseCase';
 import { ListAttendedEventsUseCase } from '../../modules/eventos-asistidos/use-cases/ListAttendedEventsUseCase';
 import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/DeleteEventoUseCase';
+import { UpdateEventoUseCase } from '../../modules/eventos-actualizar/use-cases/UpdateEventoUseCase';
 import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases/GetCoordenadasUseCase';
 import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
 import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
 import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
 import { DeleteRecursoUseCase } from '../../modules/eliminar-recurso/use-cases/DeleteRecursoUseCase';
+import { EliminarInvitadoUseCase } from '../../modules/eliminar-invitado/use-cases/EliminarInvitadoUseCase';
+import { DesvincularUseCase } from '../../modules/desvincular-evento/use-cases/DesvincularUseCase';
 
 import { NotificationManager } from '../../infrastructure/patterns/observer/NotificationManager';
 import { ParticipantesObserver } from '../../infrastructure/patterns/observer/ParticipantesObserver';
 
 import { AccionFabrica } from '../../infrastructure/patterns/factoryMethod/AccionFabrica';
 import { InvitacionFabrica } from '../../infrastructure/patterns/factoryMethod/InvitacionFabrica';
-
-import { VerifyOrganizerOrCoorganizerGlobal } from '../middlewares/verifyOrganizerOrCoorganizerGlobal';
-import { VerifyOrganizerOrCoorganizerInEvent } from '../middlewares/verifyOrganizerOrCoorganizerInEvent';
-import { Request, Response, NextFunction } from 'express';
 
 export class DependencyContainer {
   // Repositorios (Singleton)
@@ -124,7 +123,16 @@ export class DependencyContainer {
 
   // Use Case - Eliminar Evento
   private static deleteEventoUseCase: DeleteEventoUseCase;
-  
+
+  // Use Case - Eliminar Invitado
+  private static eliminarInvitadoUseCase: EliminarInvitadoUseCase;
+
+  // Use Case - Desvincular participante
+  private static desvincularUseCase: DesvincularUseCase;
+
+  // Use Case - Actualizar Evento
+  private static updateEventoUseCase: UpdateEventoUseCase;
+
   // Use Case - Obtener Coordenadas
   private static getCoordenadasUseCase: GetCoordenadasUseCase;
   
@@ -147,11 +155,6 @@ export class DependencyContainer {
   // Factory
   private static invitacionFabrica: InvitacionFabrica;
   private static accionFabrica: AccionFabrica;
-
-  // Middleware
-  private static verifyOrganizerOrCoorganizerGlobal: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
-  private static verifyOrganizerOrCoorganizerInEvent: (req: Request, res: Response, next: NextFunction) => Promise<Response | void>;
-  
 
   // Getters para Repositorios
   static getUsuarioRepository(): UsuarioRepository {
@@ -483,7 +486,41 @@ export class DependencyContainer {
     }
     return this.deleteEventoUseCase;
   }
-  
+
+  static getEliminarInvitadoUseCase(): EliminarInvitadoUseCase {
+    if (!this.eliminarInvitadoUseCase) {
+      this.eliminarInvitadoUseCase = new EliminarInvitadoUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificacionUsuarioRepository()
+      );
+    }
+    return this.eliminarInvitadoUseCase;
+  }
+
+  static getDesvincularUseCase(): DesvincularUseCase {
+    if (!this.desvincularUseCase) {
+      this.desvincularUseCase = new DesvincularUseCase(
+        this.getEventoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getParticipanteRepository(),
+        this.getNotificationManager()
+      );
+    }
+    return this.desvincularUseCase;
+  }
+
+  static getUpdateEventoUseCase(): UpdateEventoUseCase {
+    if (!this.updateEventoUseCase) {
+      this.updateEventoUseCase = new UpdateEventoUseCase(
+        this.getEventoRepository(),
+        this.getUbicacionRepository(),
+        this.getNotificationManager()
+      );
+    }
+    return this.updateEventoUseCase;
+  }
+
   static getGetCoordenadasUseCase(): GetCoordenadasUseCase {
     if (!this.getCoordenadasUseCase) {
       this.getCoordenadasUseCase = new GetCoordenadasUseCase(
@@ -508,7 +545,9 @@ export class DependencyContainer {
       this.crearRecursoEnlaceUseCase = new CrearRecursoEnlaceUseCase(
         this.getRecursoRepository(),
         this.getEventoRepository(),
-        this.getTipoRecursoRepository()
+        this.getTipoRecursoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificationManager()
       );
     }
     return this.crearRecursoEnlaceUseCase;
@@ -519,7 +558,9 @@ export class DependencyContainer {
       this.crearRecursoArchivoUseCase = new CrearRecursoArchivoUseCase(
         this.getRecursoRepository(),
         this.getEventoRepository(),
-        this.getTipoRecursoRepository()
+        this.getTipoRecursoRepository(),
+        this.getEventoParticipanteRepository(),
+        this.getNotificationManager()
       );
     }
     return this.crearRecursoArchivoUseCase;
@@ -577,35 +618,5 @@ export class DependencyContainer {
       );
     }
     return this.accionFabrica;
-  }
-
-  // Getter para el middleware de verificación de organizador/coorganizador global
-  static getVerifyOrganizerOrCoorganizerGlobal() {
-    if (!this.verifyOrganizerOrCoorganizerGlobal) {
-      const middleware = new VerifyOrganizerOrCoorganizerGlobal(
-        this.getRolRepository(),
-        this.getParticipanteRepository(),
-        this.getEventoParticipanteRepository()
-      );
-      this.verifyOrganizerOrCoorganizerGlobal = (req: Request, res: Response, next: NextFunction) => {
-        return middleware.verify(req, res, next);
-      };
-    }
-    return this.verifyOrganizerOrCoorganizerGlobal;
-  }
-
-  // Getter para el middleware de verificación de organizador/coorganizador en evento
-  static getVerifyOrganizerOrCoorganizerInEvent() {
-    if (!this.verifyOrganizerOrCoorganizerInEvent) {
-      const middleware = new VerifyOrganizerOrCoorganizerInEvent(
-        this.getRolRepository(),
-        this.getParticipanteRepository(),
-        this.getEventoParticipanteRepository()
-      );
-      this.verifyOrganizerOrCoorganizerInEvent = (req: Request, res: Response, next: NextFunction) => {
-        return middleware.verify(req, res, next);
-      };
-    }
-    return this.verifyOrganizerOrCoorganizerInEvent;
   }
 }

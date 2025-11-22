@@ -1,12 +1,11 @@
 import express, { Request, Response, Router } from 'express'
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
+import { DependencyContainer } from '../../../shared/config/DependencyContainer'
 
 export class DeleteRecursoController {
   private router: Router
   private path: string = '/api/eventos'
 
   private deleteRecursoUseCase = DependencyContainer.getDeleteRecursoUseCase()
-  private verifyOrganizerOrCoorganizerInEvent = DependencyContainer.getVerifyOrganizerOrCoorganizerInEvent()
 
   constructor() {
     this.router = express.Router()
@@ -16,7 +15,6 @@ export class DeleteRecursoController {
   private initializeRoutes(): void {
     this.router.delete(
       '/:eventoId/recursos/:recursoId',
-      this.verifyOrganizerOrCoorganizerInEvent,
       this.deleteRecurso.bind(this)
     )
   }

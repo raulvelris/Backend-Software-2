@@ -4,6 +4,8 @@ const db = require('../database/models');
 const { Op } = require('sequelize');
 
 export class EventoParticipanteRepository implements IEventoParticipanteRepository {
+  // Implementación de la propiedad sequelize requerida por la interfaz
+  public sequelize = db.sequelize;
   
   async findByEventoAndUsuario(eventoId: number, usuarioId: number): Promise<any | null> {
     try {
@@ -77,18 +79,25 @@ export class EventoParticipanteRepository implements IEventoParticipanteReposito
           model: db.Participante,
           as: "participante",
           required: true,
-          include: [{
-            model: db.Usuario,
-            as: "usuario",
-            attributes: ["usuario_id", "correo"],
-            required: true,
-            include: [{
-              model: db.Cliente,
-              as: "cliente",
-              attributes: ["nombre", "apellido"],
-              required: true
-            }]
-          }]
+          include: [
+            {
+              model: db.Usuario,
+              as: "usuario",
+              attributes: ["usuario_id", "correo"],
+              required: true,
+              include: [{
+                model: db.Cliente,
+                as: "cliente",
+                attributes: ["nombre", "apellido"],
+                required: true
+              }]
+            },
+            {
+              model: db.Rol,
+              as: "rol",
+              attributes: ["rol_id", "nombre"]
+            }
+          ]
         }]
       });
       return links;
@@ -236,6 +245,17 @@ async findAllWithFilters(eventoId: number, rolIds?: number[], usuarioExcluidoId?
       });
     } catch (error) {
       console.error('Error en deleteByEvento:', error);
+      throw error;
+    }
+  }
+
+  async deleteByEventoAndParticipante(eventoId: number, participanteId: number): Promise<void> {
+    try {
+      await db.EventoParticipante.destroy({
+        where: { evento_id: eventoId, participante_id: participanteId }
+      });
+    } catch (error) {
+      console.error('Error en deleteByEventoAndParticipante:', error);
       throw error;
     }
   }

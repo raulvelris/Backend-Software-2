@@ -1,10 +1,11 @@
 import nodemailer from 'nodemailer';
+import { IEmailService } from '../../domain/interfaces/IEmailService';
 
 /**
  * Servicio de Email para envío de correos electrónicos
  * Utiliza Nodemailer con configuración SMTP
  */
-export class EmailService {
+export class EmailService implements IEmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
@@ -160,6 +161,30 @@ export class EmailService {
     } catch (error) {
       console.error('❌ Error enviando email de bienvenida:', error);
       throw new Error('Error al enviar email de bienvenida');
+    }
+  }
+
+  /**
+   * Envía un correo electrónico genérico
+   * @param options Opciones del correo electrónico
+   * @returns Promesa con el resultado del envío
+   */
+  async enviarEmail(options: { to: string; subject: string; html: string }): Promise<{ success: boolean }> {
+    try {
+      const mailOptions = {
+        from: `"${process.env.EMAIL_FROM_NAME || 'Sistema'}" <${process.env.SMTP_USER || 'noreply@example.com'}>`,
+        to: options.to,
+        subject: options.subject,
+        html: options.html
+      };
+
+      const info = await this.transporter.sendMail(mailOptions);
+      
+      console.log('Correo enviado:', info.messageId);
+      return { success: true };
+    } catch (error) {
+      console.error('Error al enviar correo:', error);
+      return { success: false };
     }
   }
 }

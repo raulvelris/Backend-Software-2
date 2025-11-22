@@ -11,13 +11,11 @@ module.exports = {
       },
       nombre: {
         type: Sequelize.STRING(200),
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       url: {
         type: Sequelize.STRING(200),
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       tipo_recurso: {
         type: Sequelize.INTEGER,

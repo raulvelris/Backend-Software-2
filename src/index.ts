@@ -23,6 +23,9 @@ import { VerCoordenadasController } from "./modules/evento-coordenada/controller
 import { ListarRecursosController } from "./modules/listar-recursos/controllers/ListarRecursosController";
 import { CompartirRecursosController } from "./modules/compartir recursos/controllers/CompartirRecursosController";
 import { DeleteRecursoController } from "./modules/eliminar-recurso/controllers/DeleteRecursoController";
+import { UpdateEventoController } from "./modules/eventos-actualizar/controllers/UpdateEventoController";
+import { DesvincularController } from "./modules/desvincular-evento/controllers/DesvincularController";
+import { EliminarInvitadoController } from "./modules/eliminar-invitado/controllers/EliminarInvitadoController";
 
 const db = require("./infrastructure/database/models");
 
@@ -115,11 +118,11 @@ app.use(attendedEventsController.getPath(), attendedEventsController.getRouter()
 const verInvitacionesPrivadasController = new VerInvitacionesPrivadasController();
 app.use(verInvitacionesPrivadasController.getPath(), verInvitacionesPrivadasController.getRouter());
 
-const verNotificacionesAccionController = new VerNotificacionesAccionController();
-app.use(verNotificacionesAccionController.getPath(), verNotificacionesAccionController.getRouter());
-
 const deleteEventoController = new DeleteEventoController();
 app.use(deleteEventoController.getPath(), deleteEventoController.getRouter());
+
+const verNotificacionesAccionController = new VerNotificacionesAccionController();
+app.use(verNotificacionesAccionController.getPath(), verNotificacionesAccionController.getRouter());
 
 const verCoordenadasController = new VerCoordenadasController();
 app.use(verCoordenadasController.getPath(), verCoordenadasController.getRouter());
@@ -132,6 +135,15 @@ app.use(compartirRecursosController.getPath(), compartirRecursosController.getRo
 
 const deleteRecursoController = new DeleteRecursoController();
 app.use(deleteRecursoController.getPath(), deleteRecursoController.getRouter());
+
+const updateEventoController = new UpdateEventoController();
+app.use(updateEventoController.getPath(), updateEventoController.getRouter());
+
+const desvincularController = new DesvincularController();
+app.use(desvincularController.getPath(), desvincularController.getRouter());
+
+const eliminarInvitadoController = new EliminarInvitadoController();
+app.use(eliminarInvitadoController.getPath(), eliminarInvitadoController.getRouter());
 
 // Conectar a la base de datos y sincronizar
 const startServer = async () => {

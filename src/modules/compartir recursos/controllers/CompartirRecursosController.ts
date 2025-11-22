@@ -1,7 +1,9 @@
 import express, { Request, Response, Router } from 'express';
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer';
+import { DependencyContainer } from '../../../shared/config/DependencyContainer';
 import { CrearRecursoDto } from '../dtos/CrearRecursoDto';
-import { uploadEventoRecursoArchivo } from '../../../shared/middlewares/uploadEventoRecursoArchivo';
+import { uploadEventoRecursoArchivo } from '../../../shared/middlewares/uploadFileMiddleware';
+import fs from 'fs';
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware';
 
 export class CompartirRecursosController {
     private router: Router;
@@ -13,6 +15,7 @@ export class CompartirRecursosController {
 
     constructor() {
         this.router = express.Router();
+        this.router.use(authMiddleware)
         this.initializeRoutes();
     }
 
@@ -32,12 +35,19 @@ export class CompartirRecursosController {
                 return;
             }
 
+            const usuarioId = Number(req.user?.id);
+            if (!usuarioId || Number.isNaN(usuarioId)) {
+                res.status(401).json({ success: false, message: 'No autenticado' });
+                return;
+            }
+
             const body = req.body || {};
             const dto: CrearRecursoDto = {
                 evento_id: eventoId,
                 nombre: body.nombre,
                 url: body.url,
-                tipo_recurso: Number(body.tipo_recurso)
+                tipo_recurso: Number(body.tipo_recurso),
+                emisorId: usuarioId
             };
 
             const result = await this.crearRecursoEnlaceUseCase.execute(dto);
@@ -76,6 +86,8 @@ export class CompartirRecursosController {
             const eventoId = parseInt(id!, 10);
             
             if (isNaN(eventoId)) {
+                // borrar archivo subido
+                if ((req as any).file) fs.unlink((req as any).file.path, () => {});
                 res.status(400).json({ success: false, message: 'ID de evento no válido' });
                 return;
             }
@@ -100,11 +112,20 @@ export class CompartirRecursosController {
             // Generar URL relativa para acceder al archivo
             const url = `/assets/uploads/${archivoFile.filename}`;
 
+            const usuarioId = Number(req.user?.id);
+            if (!usuarioId || Number.isNaN(usuarioId)) {
+                // borrar archivo subido
+                if ((req as any).file) fs.unlink((req as any).file.path, () => {});
+                res.status(401).json({ success: false, message: 'No autenticado' });
+                return;
+            }
+
             const dto: CrearRecursoDto = {
                 evento_id: eventoId,
                 nombre: nombre,
                 url: url,
-                tipo_recurso: Number(tipo_recurso)
+                tipo_recurso: Number(tipo_recurso),
+                emisorId: usuarioId
             };
 
             const result = await this.crearRecursoArchivoUseCase.execute(dto);
@@ -112,6 +133,11 @@ export class CompartirRecursosController {
             res.status(201).json(result);
         } catch (error: any) {
             console.error('Error al crear recurso (archivo):', error);
+
+            // 🔥 borrar archivo subido si hubo error
+            if ((req as any).file) {
+                fs.unlink((req as any).file.path, () => {});
+            }
             
             if (error.message?.includes('no encontrado')) {
                 res.status(404).json({ 

@@ -3,6 +3,8 @@ import { IUbicacionRepository } from '../../domain/interfaces/IUbicacionReposito
 const db = require('../database/models');
 
 export class UbicacionRepository implements IUbicacionRepository {
+  // Implementación de la propiedad sequelize requerida por la interfaz
+  public sequelize = db.sequelize;
   
   async create(data: any): Promise<any> {
     try {
@@ -29,20 +31,27 @@ export class UbicacionRepository implements IUbicacionRepository {
 
   async update(id: number, data: any): Promise<any | null> {
     try {
-      const ubicacion = await db.Ubicacion.findByPk(id);
-      if (!ubicacion) return null;
+      // Find the location by evento_id
+      const [updated] = await db.Ubicacion.update(data, {
+        where: { evento_id: id },
+        returning: true
+      });
+
+      if (updated === 0) return null;
       
-      await ubicacion.update(data);
-      return ubicacion;
+      // Return the first updated record
+      return await this.findByEventoId(id);
     } catch (error) {
-      console.error('Error en update:', error);
+      console.error('Error in update:', error);
       throw error;
     }
   }
 
   async delete(id: number): Promise<boolean> {
     try {
-      const result = await db.Ubicacion.destroy({ where: { ubicacion_id: id } });
+      const result = await db.Ubicacion.destroy({
+        where: { ubicacion_id: id },
+      });
       return result > 0;
     } catch (error) {
       console.error('Error en delete:', error);

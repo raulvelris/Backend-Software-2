@@ -3,7 +3,9 @@ import { IEventoRepository } from '../../domain/interfaces/IEventoRepository';
 const db = require('../database/models');
 
 export class EventoRepository implements IEventoRepository {
-  
+  // Implementación de la propiedad sequelize requerida por la interfaz
+  public sequelize = db.sequelize;
+
   async findById(id: number): Promise<any | null> {
     try {
       const evento = await db.Evento.findByPk(id, {
@@ -152,7 +154,6 @@ export class EventoRepository implements IEventoRepository {
           ['evento_id', 'id'],
           ['titulo', 'name'],
           ['fechaInicio', 'dateStart'],
-          ['fechaFin', 'dateEnd'],
           ['imagen', 'imageUrl'],
           [
             db.Sequelize.fn(
@@ -198,9 +199,7 @@ export class EventoRepository implements IEventoRepository {
           ['evento_id', 'id'],
           ['titulo', 'name'],
           ['fechaInicio', 'dateStart'],
-          ['fechaFin', 'dateEnd'],
-          ['imagen', 'imageUrl'],
-          ['aforo', 'capacity'],
+          ['imagen', 'imageUrl']
         ],
         where: {
           fechaFin: { [db.Sequelize.Op.gt]: cutoff },
@@ -237,7 +236,6 @@ export class EventoRepository implements IEventoRepository {
           ['evento_id', 'id'],
           ['titulo', 'name'],
           ['fechaInicio', 'dateStart'],
-          ['fechaFin', 'dateEnd'],
           ['imagen', 'imageUrl'],
         ],
         where: {

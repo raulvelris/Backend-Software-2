@@ -1,6 +1,6 @@
 import express, { Request, Response, Router } from 'express'
 import { authMiddleware } from '../../../shared/middlewares/authMiddleware'
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
+import { DependencyContainer } from '../../../shared/config/DependencyContainer'
 
 export class ProfileController {
   private router: Router

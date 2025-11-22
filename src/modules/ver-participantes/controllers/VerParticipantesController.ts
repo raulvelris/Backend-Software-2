@@ -1,5 +1,7 @@
 import express, { Request, Response, Router } from "express";
-import { DependencyContainer } from "../../../shared/utils/DependencyContainer";
+import { DependencyContainer } from "../../../shared/config/DependencyContainer";
+
+import { authMiddleware } from "../../../shared/middlewares/authMiddleware";
 
 export class VerParticipantesController {
   private router: Router;
@@ -10,6 +12,7 @@ export class VerParticipantesController {
 
   constructor() {
     this.router = express.Router();
+    this.router.use(authMiddleware)
     this.initializeRoutes();
   }
 

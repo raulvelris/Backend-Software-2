@@ -1,5 +1,5 @@
 import express, { Request, Response, Router } from 'express'
-import { DependencyContainer } from '../../../shared/utils/DependencyContainer'
+import { DependencyContainer } from '../../../shared/config/DependencyContainer'
 
 // importacion de middlewares
 import { authMiddleware } from "../../../shared/middlewares/authMiddleware";
@@ -13,10 +13,7 @@ export class VerNotificacionesAccionController {
 
   constructor() {
     this.router = express.Router()
-
-    // aplicar middleware a todas las rutas
     this.router.use(authMiddleware)
-
     this.initializeRoutes()
   }
 

@@ -3,8 +3,6 @@ import { INotificacionRepository } from '../../../domain/interfaces/INotificacio
 import { NotificacionFabrica } from './NotificacionFabrica';
 import { DIAS_VALIDEZ_INVITACION } from '../../../domain/value-objects/Constantes';
 
-const db = require('../../database/models');
-
 /**
  * Fábrica Concreta - Implementación del patrón Factory Method
  * Crea invitaciones (notificación + invitación)
