@@ -34,7 +34,7 @@ export class ParticipantesObserver implements Observer {
             soloParaOrganizadores: false,
         },
         DESVINCULACION: {
-            mensaje: 'Se ha desvinculado del evento.',
+            mensaje: 'Se ha desvinculado un asistente del evento.',
             soloParaOrganizadores: true,
         },
         EVENTO_CANCELADO: {
