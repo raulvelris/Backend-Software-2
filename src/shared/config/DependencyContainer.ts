@@ -40,8 +40,8 @@ import { DeleteEventoUseCase } from '../../modules/eventos-eliminar/use-cases/De
 import { UpdateEventoUseCase } from '../../modules/eventos-actualizar/use-cases/UpdateEventoUseCase';
 import { GetCoordenadasUseCase } from '../../modules/evento-coordenada/use-cases/GetCoordenadasUseCase';
 import { ListarRecursosUseCase } from '../../modules/listar-recursos/use-cases/ListarRecursosUseCase';
-import { CrearRecursoEnlaceUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoEnlaceUseCase';
-import { CrearRecursoArchivoUseCase } from '../../modules/compartir recursos/use-cases/CrearRecursoArchivoUseCase';
+import { CrearRecursoEnlaceUseCase } from '../../modules/compartir-recursos/use-cases/CrearRecursoEnlaceUseCase';
+import { CrearRecursoArchivoUseCase } from '../../modules/compartir-recursos/use-cases/CrearRecursoArchivoUseCase';
 import { DeleteRecursoUseCase } from '../../modules/eliminar-recurso/use-cases/DeleteRecursoUseCase';
 import { EliminarInvitadoUseCase } from '../../modules/eliminar-invitado/use-cases/EliminarInvitadoUseCase';
 import { DesvincularUseCase } from '../../modules/desvincular-evento/use-cases/DesvincularUseCase';

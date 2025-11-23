@@ -21,7 +21,7 @@ import { ProfileController } from "./modules/gestion-perfil/controllers/ProfileC
 import { DeleteEventoController } from "./modules/eventos-eliminar/controllers/DeleteEventoController";
 import { VerCoordenadasController } from "./modules/evento-coordenada/controllers/VerCoordenadasController";
 import { ListarRecursosController } from "./modules/listar-recursos/controllers/ListarRecursosController";
-import { CompartirRecursosController } from "./modules/compartir recursos/controllers/CompartirRecursosController";
+import { CompartirRecursosController } from "./modules/compartir-recursos/controllers/CompartirRecursosController";
 import { DeleteRecursoController } from "./modules/eliminar-recurso/controllers/DeleteRecursoController";
 import { UpdateEventoController } from "./modules/eventos-actualizar/controllers/UpdateEventoController";
 import { DesvincularController } from "./modules/desvincular-evento/controllers/DesvincularController";

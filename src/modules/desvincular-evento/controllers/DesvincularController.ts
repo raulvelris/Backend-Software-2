@@ -1,5 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import { DependencyContainer } from '../../../shared/config/DependencyContainer';
+import { authMiddleware } from '../../../shared/middlewares/authMiddleware';
+
 export class DesvincularController {
   private router: Router;
   private path: string = '/api';
@@ -8,6 +10,7 @@ export class DesvincularController {
 
   constructor() {
     this.router = express.Router();
+    this.router.use(authMiddleware)
     this.initializeRoutes();
   }
 
