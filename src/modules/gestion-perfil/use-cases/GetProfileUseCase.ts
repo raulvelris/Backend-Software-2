@@ -1,8 +1,8 @@
-import { UsuarioRepository } from '../../../infrastructure/repositories/UsuarioRepository'
+import { IUsuarioRepository } from '../../../domain/interfaces/IUsuarioRepository'
 import { ProfileResultDto } from '../dtos/ProfileResultDto'
 
 export class GetProfileUseCase {
-  constructor(private usuarioRepository: UsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) {}
 
   async execute(usuarioId: number): Promise<ProfileResultDto> {
     const user = await this.usuarioRepository.findById(usuarioId)

@@ -1,9 +1,9 @@
-import { UsuarioRepository } from '../../../infrastructure/repositories/UsuarioRepository'
+import { IUsuarioRepository } from '../../../domain/interfaces/IUsuarioRepository'
 import { LoginParamsDto } from '../dtos/LoginParamsDto'
 import { LoginResultDto } from '../dtos/LoginResultDto'
 
 export class LoginUseCase {
-  constructor(private usuarioRepository: UsuarioRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) {}
 
   async execute(params: LoginParamsDto): Promise<LoginResultDto> {
     const correo = (params?.correo ?? '').trim()

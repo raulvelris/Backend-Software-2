@@ -1,12 +1,12 @@
-import { UsuarioRepository } from '../../../infrastructure/repositories/UsuarioRepository'
-import { ClienteRepository } from '../../../infrastructure/repositories/ClienteRepository'
+import { IUsuarioRepository } from '../../../domain/interfaces/IUsuarioRepository'
+import { IClienteRepository } from '../../../domain/interfaces/IClienteRepository'
 import { ProfileResultDto } from '../dtos/ProfileResultDto'
 import { UpdateProfileParamsDto } from '../dtos/UpdateProfileParamsDto'
 
 export class UpdateProfileUseCase {
   constructor(
-    private usuarioRepository: UsuarioRepository,
-    private clienteRepository: ClienteRepository,
+    private usuarioRepository: IUsuarioRepository,
+    private clienteRepository: IClienteRepository,
   ) {}
 
   async execute(params: UpdateProfileParamsDto): Promise<ProfileResultDto> {

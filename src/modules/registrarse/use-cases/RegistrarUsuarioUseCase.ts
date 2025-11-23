@@ -1,13 +1,13 @@
 import { IUsuarioRepository } from '../../../domain/interfaces/IUsuarioRepository';
 import { IClienteRepository } from '../../../domain/interfaces/IClienteRepository';
-import { EmailService } from '../../../infrastructure/services/EmailService';
+import { IEmailService } from '../../../domain/interfaces/IEmailService';
 import { RegistrarUsuarioDto, RegistrarUsuarioResponseDto } from '../dtos/RegistrarUsuarioDto';
 
 export class RegistrarUsuarioUseCase {
   constructor(
     private usuarioRepository: IUsuarioRepository,
     private clienteRepository: IClienteRepository,
-    private emailService: EmailService
+    private emailService: IEmailService
   ) {}
 
   async execute(dto: RegistrarUsuarioDto): Promise<RegistrarUsuarioResponseDto> {

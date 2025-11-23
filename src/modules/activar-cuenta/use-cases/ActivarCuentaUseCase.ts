@@ -1,11 +1,11 @@
 import { IUsuarioRepository } from '../../../domain/interfaces/IUsuarioRepository';
-import { EmailService } from '../../../infrastructure/services/EmailService';
+import { IEmailService } from '../../../domain/interfaces/IEmailService';
 import { ActivarCuentaDto, ActivarCuentaResponseDto } from '../dtos/ActivarCuentaDto';
 
 export class ActivarCuentaUseCase {
   constructor(
     private usuarioRepository: IUsuarioRepository,
-    private emailService: EmailService
+    private emailService: IEmailService
   ) {}
 
   async execute(dto: ActivarCuentaDto): Promise<ActivarCuentaResponseDto> {
