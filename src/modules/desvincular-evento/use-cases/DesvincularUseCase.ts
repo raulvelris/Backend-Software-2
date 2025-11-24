@@ -2,7 +2,6 @@ import { DesvincularDto } from '../dtos/DesvincularDto';
 import { DesvincularResultDto } from '../dtos/DesvincularResultDto';
 import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository';
 import { IEventoParticipanteRepository } from '../../../domain/interfaces/IEventoParticipanteRepository';
-import { IParticipanteRepository } from '../../../domain/interfaces/IParticipanteRepository';
 import { NotificationManager } from '../../../infrastructure/patterns/observer/NotificationManager';
 import { TipoNotificacion } from '../../../domain/value-objects/TipoNotificacion';
 
@@ -10,7 +9,6 @@ export class DesvincularUseCase {
   constructor(
     private eventoRepository: IEventoRepository,
     private eventoParticipanteRepository: IEventoParticipanteRepository,
-    private participanteRepository: IParticipanteRepository,
     private notificationManager: NotificationManager
   ) {}
 

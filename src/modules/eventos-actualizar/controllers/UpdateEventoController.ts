@@ -17,7 +17,7 @@ export class UpdateEventoController {
     this.router.put('/:id', this.update.bind(this));
   }
 
-  public async update(req: Request, res: Response): Promise<void> {
+  private async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const eventData = req.body;
