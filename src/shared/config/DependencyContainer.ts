@@ -503,7 +503,6 @@ export class DependencyContainer {
       this.desvincularUseCase = new DesvincularUseCase(
         this.getEventoRepository(),
         this.getEventoParticipanteRepository(),
-        this.getParticipanteRepository(),
         this.getNotificationManager()
       );
     }

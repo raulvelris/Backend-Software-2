@@ -1,5 +1,3 @@
-import fs from 'fs'
-import path from 'path'
 import { IRecursoRepository } from '../../../domain/interfaces/IRecursoRepository'
 import { IEventoRepository } from '../../../domain/interfaces/IEventoRepository'
 import { NotificationManager } from '../../../infrastructure/patterns/observer/NotificationManager'
@@ -30,9 +28,6 @@ export class DeleteRecursoUseCase {
     if (Number(recurso.evento_id) !== Number(evento_id)) {
       throw new Error('El recurso no pertenece al evento indicado')
     }
-
-    await this.removePhysicalFileIfNeeded(recurso.url)
-
     const deleted = await this.recursoRepository.delete(recurso_id)
     if (!deleted) {
       throw new Error('No se pudo eliminar el recurso')
@@ -48,27 +43,4 @@ export class DeleteRecursoUseCase {
       message: 'Recurso eliminado correctamente'
     }
   }
-
-  private async removePhysicalFileIfNeeded(url?: string | null): Promise<void> {
-    if (!url || !url.startsWith('/assets/uploads/')) {
-      return
-    }
-
-    const filename = url.replace('/assets/uploads/', '')
-    if (!filename) {
-      return
-    }
-
-    const filePath = path.join(__dirname, '../../../assets/uploads', filename)
-
-    try {
-      await fs.promises.stat(filePath)
-      await fs.promises.unlink(filePath)
-    } catch (error: any) {
-      if (error?.code !== 'ENOENT') {
-        console.error('Error eliminando archivo de recurso:', error)
-      }
-    }
-  }
-
 }
